@@ -6,13 +6,19 @@ import './index.css'
 import App from './App.tsx'
 import { AuthProvider } from './context/AuthProvider'
 import { AppProviders } from './components/AppProviders'
+import { GoogleMapsProvider } from './components/GoogleMapsProvider'
+import { PayPalProvider } from './components/PayPalProvider'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
         <AppProviders>
-          <App />
+          <GoogleMapsProvider>
+            <PayPalProvider>
+              <App />
+            </PayPalProvider>
+          </GoogleMapsProvider>
         </AppProviders>
         <Toaster richColors position="top-center" />
       </AuthProvider>

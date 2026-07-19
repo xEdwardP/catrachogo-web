@@ -3,7 +3,10 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { CompleteProfilePage } from './pages/CompleteProfilePage';
-import { PassengerHomePage } from './pages/PassengerHomePage';
+import { RequestTripPage } from './pages/RequestTripPage';
+import { TripInProgressPage } from './pages/TripInProgressPage';
+import { TripHistoryPage } from './pages/TripHistoryPage';
+import { WalletPage } from './pages/WalletPage';
 import { DriverHomePage } from './pages/DriverHomePage';
 import { AdminHomePage } from './pages/AdminHomePage';
 import { RootRedirect } from './pages/RootRedirect';
@@ -19,7 +22,10 @@ function App() {
       </Route>
 
       <Route element={<ProtectedRoute roles={['passenger']} requirePhone />}>
-        <Route path="/passenger" element={<PassengerHomePage />} />
+        <Route path="/passenger" element={<RequestTripPage />} />
+        <Route path="/passenger/trips/history" element={<TripHistoryPage />} />
+        <Route path="/passenger/trips/:tripId" element={<TripInProgressPage />} />
+        <Route path="/passenger/wallet" element={<WalletPage />} />
       </Route>
 
       <Route element={<ProtectedRoute roles={['driver']} requirePhone />}>
