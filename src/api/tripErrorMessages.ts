@@ -34,3 +34,25 @@ export function translateCancelTripError(error: unknown): string {
   }
   return 'No se pudo cancelar el viaje. Intenta de nuevo.';
 }
+
+export function translateStartTripError(error: unknown): string {
+  const statusCode = getApiStatusCode(error);
+  if (statusCode === 403) {
+    return 'Este viaje no te pertenece.';
+  }
+  if (statusCode === 400) {
+    return 'El viaje debe estar aceptado antes de iniciarlo.';
+  }
+  return 'No se pudo iniciar el viaje. Intenta de nuevo.';
+}
+
+export function translateCompleteTripError(error: unknown): string {
+  const statusCode = getApiStatusCode(error);
+  if (statusCode === 403) {
+    return 'Este viaje no te pertenece.';
+  }
+  if (statusCode === 400) {
+    return 'El viaje debe estar en curso antes de completarlo.';
+  }
+  return 'No se pudo completar el viaje. Intenta de nuevo.';
+}

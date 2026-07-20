@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { toast } from 'sonner';
-import { Plus, X } from 'lucide-react';
+import { Loader2, Plus, X } from 'lucide-react';
 import { AdminLayout } from '../components/AdminLayout';
 import { createFareZone, getFareZones, updateFareZone } from '../api/fareZones';
+import { translateFareZoneError } from '../api/adminErrorMessages';
 import type { FareZone } from '../types/fareZone';
 
 interface FareZoneFormState {
@@ -82,8 +83,8 @@ export function AdminFareZonesPage() {
       setEditingZoneId(null);
       setIsLoading(true);
       fetchZones();
-    } catch {
-      toast.error('No se pudo guardar la zona. Revisa los datos.');
+    } catch (error) {
+      toast.error(translateFareZoneError(error));
     } finally {
       setIsSaving(false);
     }
@@ -224,6 +225,13 @@ export function AdminFareZonesPage() {
             </tr>
           </thead>
           <tbody>
+            {isLoading && (
+              <tr>
+                <td colSpan={4} className="px-5 py-8 text-center text-gray-400">
+                  <Loader2 className="mx-auto h-5 w-5 animate-spin" />
+                </td>
+              </tr>
+            )}
             {!isLoading && zones.length === 0 && (
               <tr>
                 <td colSpan={4} className="px-5 py-8 text-center text-gray-400">
@@ -231,7 +239,7 @@ export function AdminFareZonesPage() {
                 </td>
               </tr>
             )}
-            {zones.map((zone) => (
+            {!isLoading && zones.map((zone) => (
               <tr
                 key={zone.id}
                 onClick={() => openEditForm(zone)}

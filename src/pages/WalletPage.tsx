@@ -108,8 +108,11 @@ export function WalletPage() {
         </div>
 
         <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm">
-          <p className="mb-2 text-sm font-medium text-gray-700">Recargar con PayPal</p>
+          <label htmlFor="topup-amount" className="mb-2 block text-sm font-medium text-gray-700">
+            Recargar con PayPal
+          </label>
           <input
+            id="topup-amount"
             type="number"
             min={1}
             step="0.01"

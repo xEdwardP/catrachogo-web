@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Star, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { createRating } from '../api/ratings';
+import { translateCreateRatingError } from '../api/ratingErrorMessages';
 
 interface RatingModalProps {
   tripId: string;
@@ -22,8 +23,8 @@ export function RatingModal({ tripId, ratedId, ratedName, onDone }: RatingModalP
       await createRating({ tripId, ratedId, score, comment: comment.trim() || undefined });
       toast.success('¡Gracias por tu calificación!');
       onDone();
-    } catch {
-      toast.error('No se pudo enviar la calificación. Intenta de nuevo.');
+    } catch (error) {
+      toast.error(translateCreateRatingError(error));
     } finally {
       setIsSubmitting(false);
     }
@@ -55,7 +56,11 @@ export function RatingModal({ tripId, ratedId, ratedName, onDone }: RatingModalP
           ))}
         </div>
 
+        <label htmlFor="rating-comment" className="sr-only">
+          Comentario (opcional)
+        </label>
         <textarea
+          id="rating-comment"
           value={comment}
           onChange={(event) => setComment(event.target.value)}
           placeholder="Comentario (opcional)"

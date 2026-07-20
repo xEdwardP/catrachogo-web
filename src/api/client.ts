@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { getStoredToken } from './tokenStorage';
+import { clearStoredToken, getStoredToken } from './tokenStorage';
+import { emitSessionExpired } from './sessionEvents';
 
 export const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -12,6 +13,17 @@ apiClient.interceptors.request.use((config) => {
   }
   return config;
 });
+
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (axios.isAxiosError(error) && error.response?.status === 401 && error.config?.headers?.Authorization) {
+      clearStoredToken();
+      emitSessionExpired();
+    }
+    return Promise.reject(error);
+  },
+);
 
 export interface ApiErrorBody {
   statusCode: number;

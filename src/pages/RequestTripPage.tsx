@@ -143,7 +143,7 @@ export function RequestTripPage() {
         {destination && <Marker position={destination} />}
       </GoogleMap>
 
-      <div className="absolute inset-x-0 top-0 flex items-start gap-2 p-4">
+      <div className="absolute inset-x-0 top-0 mx-auto flex w-full max-w-2xl items-start gap-2 p-4">
         <div className="flex-1">
           <PlacesAutocompleteInput
             id="destination-search"
@@ -184,45 +184,47 @@ export function RequestTripPage() {
         </div>
       </div>
 
-      <div className="absolute inset-x-0 bottom-0 rounded-t-2xl bg-white p-4 shadow-lg">
-        <div className="mb-3">
-          <label htmlFor="origin-input" className="mb-1 flex items-center gap-1 text-xs font-semibold text-gray-500">
-            <Navigation className="h-3 w-3" /> ORIGEN
-          </label>
-          <PlacesAutocompleteInput
-            id="origin-input"
-            placeholder="Punto de partida"
-            displayValue={originInputValue}
-            onPlaceSelected={(place) => {
-              setOrigin(place);
-              setOriginInputValue(place.address);
-              setFare(null);
-            }}
-          />
+      <div className="absolute inset-x-0 bottom-0 flex justify-center p-0 sm:p-4">
+        <div className="w-full rounded-t-2xl bg-white p-4 shadow-lg sm:max-w-md sm:rounded-2xl">
+          <div className="mb-3">
+            <label htmlFor="origin-input" className="mb-1 flex items-center gap-1 text-xs font-semibold text-gray-500">
+              <Navigation className="h-3 w-3" /> ORIGEN
+            </label>
+            <PlacesAutocompleteInput
+              id="origin-input"
+              placeholder="Punto de partida"
+              displayValue={originInputValue}
+              onPlaceSelected={(place) => {
+                setOrigin(place);
+                setOriginInputValue(place.address);
+                setFare(null);
+              }}
+            />
+          </div>
+
+          <div className="mb-3">
+            <p className="mb-1 text-xs font-semibold text-gray-500">DESTINO</p>
+            <p className="text-sm text-gray-800">{destinationInputValue || 'Selecciona un destino'}</p>
+          </div>
+
+          {origin && destination && (
+            <FareEstimatePanel
+              key={`${origin.lat},${origin.lng}-${destination.lat},${destination.lng}`}
+              origin={origin}
+              destination={destination}
+              onResult={handleFareResult}
+            />
+          )}
+
+          <button
+            type="button"
+            disabled={!origin || !destination || !fare || isRequesting}
+            onClick={handleRequestTrip}
+            className="w-full rounded-lg bg-[#E8532E] py-2.5 text-sm font-semibold text-white transition hover:bg-[#d1471f] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isRequesting ? 'Solicitando...' : 'Solicitar viaje'}
+          </button>
         </div>
-
-        <div className="mb-3">
-          <p className="mb-1 text-xs font-semibold text-gray-500">DESTINO</p>
-          <p className="text-sm text-gray-800">{destinationInputValue || 'Selecciona un destino'}</p>
-        </div>
-
-        {origin && destination && (
-          <FareEstimatePanel
-            key={`${origin.lat},${origin.lng}-${destination.lat},${destination.lng}`}
-            origin={origin}
-            destination={destination}
-            onResult={handleFareResult}
-          />
-        )}
-
-        <button
-          type="button"
-          disabled={!origin || !destination || !fare || isRequesting}
-          onClick={handleRequestTrip}
-          className="w-full rounded-lg bg-[#E8532E] py-2.5 text-sm font-semibold text-white transition hover:bg-[#d1471f] disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {isRequesting ? 'Solicitando...' : 'Solicitar viaje'}
-        </button>
       </div>
     </div>
   );
