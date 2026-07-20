@@ -27,6 +27,25 @@ export async function cancelTrip(tripId: string): Promise<Trip> {
   return data;
 }
 
+export async function acceptTrip(tripId: string): Promise<Trip> {
+  const { data } = await apiClient.patch<Trip>(`/trips/${tripId}/accept`);
+  return data;
+}
+
+export async function rejectTrip(tripId: string): Promise<void> {
+  await apiClient.patch(`/trips/${tripId}/reject`);
+}
+
+export async function startTrip(tripId: string): Promise<Trip> {
+  const { data } = await apiClient.patch<Trip>(`/trips/${tripId}/start`);
+  return data;
+}
+
+export async function completeTrip(tripId: string): Promise<Trip> {
+  const { data } = await apiClient.patch<Trip>(`/trips/${tripId}/complete`);
+  return data;
+}
+
 export async function getTripHistory(page = 1, limit = 20): Promise<PaginatedResult<Trip>> {
   const { data } = await apiClient.get<PaginatedResult<Trip>>('/trips/history', { params: { page, limit } });
   return data;
