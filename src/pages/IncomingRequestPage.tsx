@@ -55,6 +55,7 @@ export function IncomingRequestPage() {
     try {
       await rejectTrip(tripId);
     } catch {
+      // The driver just moves on regardless of whether the reject call succeeded.
     } finally {
       navigate('/driver', { replace: true });
     }
