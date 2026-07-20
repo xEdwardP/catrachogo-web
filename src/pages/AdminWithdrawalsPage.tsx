@@ -63,7 +63,7 @@ export function AdminWithdrawalsPage() {
             type="button"
             onClick={() => handleStatusChange(tab.value)}
             className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-              status === tab.value ? 'bg-[#E8532E] text-white' : 'bg-white text-gray-600 hover:bg-gray-100'
+              status === tab.value ? 'bg-brand text-white' : 'bg-white text-gray-600 hover:bg-gray-100'
             }`}
           >
             {tab.label}
@@ -98,7 +98,7 @@ export function AdminWithdrawalsPage() {
               </tr>
             )}
             {!isLoading && withdrawals.map((withdrawal) => (
-              <tr key={withdrawal.id} className="border-b border-gray-50 last:border-0">
+              <tr key={withdrawal.id} className="border-b border-gray-50 transition last:border-0 hover:bg-cream/50">
                 <td className="px-5 py-3 font-medium text-gray-800">{withdrawal.driver.user.name}</td>
                 <td className="px-5 py-3 text-gray-600">{withdrawal.paypalEmail}</td>
                 <td className="px-5 py-3 font-semibold text-gray-800">
@@ -122,7 +122,7 @@ export function AdminWithdrawalsPage() {
                         type="button"
                         onClick={() => handleResolve(withdrawal.id, 'completed')}
                         disabled={resolvingId === withdrawal.id}
-                        className="rounded-lg bg-[#2DBE87] px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-60"
+                        className="rounded-lg bg-success px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-60"
                       >
                         Marcar completado
                       </button>

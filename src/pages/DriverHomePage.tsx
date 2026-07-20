@@ -83,11 +83,11 @@ export function DriverHomePage() {
   const mapCenter = position ?? DEFAULT_CENTER;
 
   return (
-    <div className="min-h-screen bg-[#F6F1EC] p-4">
+    <div className="min-h-screen bg-cream p-4">
       <div className="mx-auto max-w-md">
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-sm font-semibold text-gray-500 shadow-sm">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-pale text-sm font-bold text-brand shadow-sm">
               {user?.name.charAt(0).toUpperCase()}
             </div>
             <div>
@@ -128,7 +128,9 @@ export function DriverHomePage() {
           onClick={handleToggleAvailability}
           disabled={isTogglingAvailability}
           className={`mb-4 flex w-full items-center justify-between rounded-2xl p-4 text-left shadow-sm transition ${
-            isAvailable ? 'bg-[#2DBE87] text-white' : 'bg-white text-gray-800'
+            isAvailable
+              ? 'bg-gradient-to-r from-success to-success-dark text-white shadow-success/20'
+              : 'bg-white text-gray-800'
           } disabled:opacity-70`}
         >
           <div>
@@ -151,7 +153,7 @@ export function DriverHomePage() {
         <p className="mb-2 text-sm font-semibold text-gray-700">Resumen de hoy</p>
         <div className="mb-4 grid grid-cols-3 gap-2">
           <div className="rounded-xl bg-white p-3 text-center shadow-sm">
-            <p className="text-lg font-bold text-[#2DBE87]">
+            <p className="text-lg font-bold text-success">
               {isLoadingSummary || !summary ? '...' : `L. ${summary.earningsToday.toFixed(0)}`}
             </p>
             <p className="text-xs text-gray-500">Ganancias</p>

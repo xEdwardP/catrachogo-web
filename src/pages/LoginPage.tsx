@@ -4,7 +4,6 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import type { Location } from 'react-router-dom';
 import { toast } from 'sonner';
 import { AuthLayout } from '../components/AuthLayout';
-import { RoleToggle } from '../components/RoleToggle';
 import { GoogleSignInButton } from '../components/GoogleSignInButton';
 import { useAuth } from '../hooks/useAuth';
 import { translateGoogleLoginError, translateLoginError } from '../api/authErrorMessages';
@@ -16,7 +15,6 @@ export function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [role, setRole] = useState<'passenger' | 'driver'>('passenger');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -59,9 +57,7 @@ export function LoginPage() {
 
   return (
     <AuthLayout>
-      <RoleToggle value={role} onChange={setRole} />
-
-      <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div>
           <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700">
             Correo
@@ -73,7 +69,7 @@ export function LoginPage() {
             autoComplete="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#E8532E] focus:outline-none focus:ring-1 focus:ring-[#E8532E]"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           />
         </div>
 
@@ -88,14 +84,14 @@ export function LoginPage() {
             autoComplete="current-password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#E8532E] focus:outline-none focus:ring-1 focus:ring-[#E8532E]"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           />
         </div>
 
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full rounded-lg bg-[#E8532E] py-2.5 text-sm font-semibold text-white transition hover:bg-[#d1471f] disabled:cursor-not-allowed disabled:opacity-60"
+          className="w-full rounded-lg bg-brand py-2.5 text-sm font-semibold text-white transition hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isSubmitting ? 'Iniciando sesión...' : 'Iniciar sesión'}
         </button>
@@ -111,7 +107,7 @@ export function LoginPage() {
 
       <p className="mt-6 text-center text-sm text-gray-500">
         ¿No tienes cuenta?{' '}
-        <Link to="/register" state={{ role }} className="font-medium text-[#E8532E] hover:underline">
+        <Link to="/register" className="font-medium text-brand hover:underline">
           Crear cuenta
         </Link>
       </p>

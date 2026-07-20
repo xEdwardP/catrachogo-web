@@ -59,7 +59,7 @@ export function DriverCompleteProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F6F1EC] p-4">
+    <div className="min-h-screen bg-cream p-4">
       <div className="mx-auto max-w-md">
         <h1 className="mb-1 text-xl font-bold text-gray-800">Completa tu perfil de conductor</h1>
         <p className="mb-4 text-sm text-gray-600">
@@ -82,7 +82,7 @@ export function DriverCompleteProfilePage() {
                 type="button"
                 onClick={() => setVehicleType('car')}
                 className={`rounded-lg py-2 text-sm font-medium transition ${
-                  vehicleType === 'car' ? 'bg-[#E8532E] text-white shadow' : 'text-gray-600'
+                  vehicleType === 'car' ? 'bg-brand text-white shadow' : 'text-gray-600'
                 }`}
               >
                 Carro
@@ -91,7 +91,7 @@ export function DriverCompleteProfilePage() {
                 type="button"
                 onClick={() => setVehicleType('motorcycle')}
                 className={`rounded-lg py-2 text-sm font-medium transition ${
-                  vehicleType === 'motorcycle' ? 'bg-[#E8532E] text-white shadow' : 'text-gray-600'
+                  vehicleType === 'motorcycle' ? 'bg-brand text-white shadow' : 'text-gray-600'
                 }`}
               >
                 Motocicleta
@@ -109,7 +109,7 @@ export function DriverCompleteProfilePage() {
                   required
                   value={licenseNumber}
                   onChange={(event) => setLicenseNumber(event.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#E8532E] focus:outline-none focus:ring-1 focus:ring-[#E8532E]"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
                 />
               </div>
 
@@ -124,7 +124,7 @@ export function DriverCompleteProfilePage() {
                     required
                     value={brand}
                     onChange={(event) => setBrand(event.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#E8532E] focus:outline-none focus:ring-1 focus:ring-[#E8532E]"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
                   />
                 </div>
                 <div>
@@ -137,7 +137,7 @@ export function DriverCompleteProfilePage() {
                     required
                     value={model}
                     onChange={(event) => setModel(event.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#E8532E] focus:outline-none focus:ring-1 focus:ring-[#E8532E]"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
                   />
                 </div>
               </div>
@@ -153,7 +153,7 @@ export function DriverCompleteProfilePage() {
                     required
                     value={year}
                     onChange={(event) => setYear(event.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#E8532E] focus:outline-none focus:ring-1 focus:ring-[#E8532E]"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
                   />
                 </div>
                 <div>
@@ -166,7 +166,7 @@ export function DriverCompleteProfilePage() {
                     required
                     value={color}
                     onChange={(event) => setColor(event.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#E8532E] focus:outline-none focus:ring-1 focus:ring-[#E8532E]"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
                   />
                 </div>
                 <div>
@@ -179,7 +179,7 @@ export function DriverCompleteProfilePage() {
                     required
                     value={plate}
                     onChange={(event) => setPlate(event.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-[#E8532E] focus:outline-none focus:ring-1 focus:ring-[#E8532E]"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
                   />
                 </div>
               </div>
@@ -225,7 +225,7 @@ export function DriverCompleteProfilePage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-lg bg-[#E8532E] py-2.5 text-sm font-semibold text-white transition hover:bg-[#d1471f] disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-lg bg-brand py-2.5 text-sm font-semibold text-white transition hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? 'Enviando...' : 'Enviar para revisión'}
           </button>

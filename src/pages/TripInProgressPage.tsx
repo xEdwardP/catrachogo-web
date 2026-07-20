@@ -49,8 +49,6 @@ export function TripInProgressPage() {
           if (data.driver) {
             setDriver(data.driver);
           } else if (data.driverId && fetchedDriverIdRef.current !== data.driverId) {
-            // Not embedded once the trip leaves accepted/in_progress (e.g. opening a
-            // completed trip from history) — fetch it once so rating still has a target.
             fetchedDriverIdRef.current = data.driverId;
             getDriverPublicProfile(data.driverId)
               .then(setDriver)
@@ -111,7 +109,7 @@ export function TripInProgressPage() {
     <div className="relative h-screen w-full overflow-hidden">
       <div
         className={`absolute inset-x-0 top-0 z-10 p-3 text-center text-sm font-semibold text-white ${
-          trip?.status === 'cancelled' ? 'bg-gray-500' : 'bg-[#2DBE87]'
+          trip?.status === 'cancelled' ? 'bg-gray-500' : 'bg-success'
         }`}
       >
         {bannerText}
@@ -161,7 +159,7 @@ export function TripInProgressPage() {
               href={canCall ? `tel:${trip?.driverPhone}` : undefined}
               aria-disabled={!canCall}
               className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold text-white ${
-                canCall ? 'bg-[#E8532E] hover:bg-[#d1471f]' : 'pointer-events-none bg-gray-300'
+                canCall ? 'bg-brand hover:bg-brand-dark' : 'pointer-events-none bg-gray-300'
               }`}
             >
               <Phone className="h-4 w-4" /> Llamar

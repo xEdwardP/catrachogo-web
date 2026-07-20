@@ -49,12 +49,12 @@ function FareEstimatePanel({ origin, destination, onResult }: FareEstimatePanelP
   if (status === 'error') return null;
 
   return (
-    <div className="mb-4 flex items-center justify-between rounded-lg bg-[#FDEAE3] px-3 py-2">
+    <div className="mb-4 flex items-center justify-between rounded-lg bg-brand-pale px-3 py-2">
       <span className="text-sm text-gray-600">Tarifa estimada</span>
       {status === 'loading' ? (
-        <Loader2 className="h-4 w-4 animate-spin text-[#2DBE87]" />
+        <Loader2 className="h-4 w-4 animate-spin text-success" />
       ) : (
-        <span className="text-sm font-bold text-[#2DBE87]">
+        <span className="text-sm font-bold text-success">
           L. {status.fare.toFixed(2)} · {status.distanceKm.toFixed(1)} km
         </span>
       )}
@@ -220,7 +220,7 @@ export function RequestTripPage() {
             type="button"
             disabled={!origin || !destination || !fare || isRequesting}
             onClick={handleRequestTrip}
-            className="w-full rounded-lg bg-[#E8532E] py-2.5 text-sm font-semibold text-white transition hover:bg-[#d1471f] disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-lg bg-brand py-2.5 text-sm font-semibold text-white transition hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isRequesting ? 'Solicitando...' : 'Solicitar viaje'}
           </button>

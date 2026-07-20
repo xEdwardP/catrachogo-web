@@ -102,7 +102,7 @@ export function AdminFareZonesPage() {
         <button
           type="button"
           onClick={openNewZoneForm}
-          className="flex items-center gap-2 rounded-lg bg-[#E8532E] px-4 py-2 text-sm font-semibold text-white hover:bg-[#d1471f]"
+          className="flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark"
         >
           <Plus className="h-4 w-4" />
           Nueva zona
@@ -133,7 +133,7 @@ export function AdminFareZonesPage() {
                 required
                 value={form.zoneName}
                 onChange={(event) => setForm({ ...form, zoneName: event.target.value })}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#E8532E] focus:outline-none focus:ring-1 focus:ring-[#E8532E]"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
               />
             </div>
             <div>
@@ -147,7 +147,7 @@ export function AdminFareZonesPage() {
                 required
                 value={form.baseFare}
                 onChange={(event) => setForm({ ...form, baseFare: event.target.value })}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#E8532E] focus:outline-none focus:ring-1 focus:ring-[#E8532E]"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
               />
             </div>
             <div>
@@ -161,7 +161,7 @@ export function AdminFareZonesPage() {
                 required
                 value={form.farePerKm}
                 onChange={(event) => setForm({ ...form, farePerKm: event.target.value })}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#E8532E] focus:outline-none focus:ring-1 focus:ring-[#E8532E]"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
               />
             </div>
             <div>
@@ -175,7 +175,7 @@ export function AdminFareZonesPage() {
                 required
                 value={form.centerLat}
                 onChange={(event) => setForm({ ...form, centerLat: event.target.value })}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#E8532E] focus:outline-none focus:ring-1 focus:ring-[#E8532E]"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
               />
             </div>
           </div>
@@ -191,7 +191,7 @@ export function AdminFareZonesPage() {
                 required
                 value={form.centerLng}
                 onChange={(event) => setForm({ ...form, centerLng: event.target.value })}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#E8532E] focus:outline-none focus:ring-1 focus:ring-[#E8532E]"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
               />
             </div>
           </div>
@@ -206,7 +206,7 @@ export function AdminFareZonesPage() {
             <button
               type="submit"
               disabled={isSaving}
-              className="rounded-lg bg-[#E8532E] px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+              className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
             >
               {isSaving ? 'Guardando...' : 'Guardar'}
             </button>

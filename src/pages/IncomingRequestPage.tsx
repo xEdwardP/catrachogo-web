@@ -52,21 +52,16 @@ export function IncomingRequestPage() {
   async function handleReject() {
     if (!tripId) return;
     setIsResponding(true);
-    try {
-      await rejectTrip(tripId);
-    } catch {
-      // The driver just moves on regardless of whether the reject call succeeded.
-    } finally {
-      navigate('/driver', { replace: true });
-    }
+    await rejectTrip(tripId).catch(() => undefined);
+    navigate('/driver', { replace: true });
   }
 
   return (
-    <div className="relative min-h-screen bg-[#F6F1EC] p-4">
+    <div className="relative min-h-screen bg-cream p-4">
       <div className="mx-auto max-w-md">
         <div className="rounded-2xl bg-white p-5 shadow-lg">
           <div className="mb-4 flex items-center justify-between">
-            <span className="rounded-full bg-[#E8532E] px-3 py-1 text-xs font-bold text-white">
+            <span className="rounded-full bg-brand px-3 py-1 text-xs font-bold text-white">
               NUEVA SOLICITUD
             </span>
             <span className="text-sm font-medium text-gray-400">{secondsLeft}s</span>
@@ -85,8 +80,8 @@ export function IncomingRequestPage() {
             </div>
           </div>
 
-          <div className="mb-4 flex items-start gap-2 rounded-lg bg-[#FDEAE3] px-3 py-2">
-            <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#2DBE87]" />
+          <div className="mb-4 flex items-start gap-2 rounded-lg bg-brand-pale px-3 py-2">
+            <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-success" />
             <div>
               <p className="text-xs font-semibold text-gray-500">RECOGER EN</p>
               <p className="text-sm text-gray-800">{request?.originAddress ?? '—'}</p>
@@ -113,7 +108,7 @@ export function IncomingRequestPage() {
               type="button"
               onClick={handleAccept}
               disabled={isResponding}
-              className="flex-1 rounded-lg bg-[#2DBE87] py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex-1 rounded-lg bg-success py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
             >
               Aceptar
             </button>

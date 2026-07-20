@@ -7,6 +7,6 @@ export function homePathForRole(role: UserRole): string {
     case 'driver':
       return '/driver';
     case 'admin':
-      return '/admin/drivers';
+      return '/admin';
   }
 }
