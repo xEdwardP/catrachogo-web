@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, ArrowUpDown, Car, Loader2 } from 'lucide-react';
 import { AdminLayout } from '../components/AdminLayout';
+import { EmptyTableState } from '../components/EmptyTableState';
 import { getAdminTrips } from '../api/admin';
 import type { Trip, TripStatus } from '../types/trip';
 
@@ -24,8 +25,40 @@ const STATUS_COLORS: Record<TripStatus, string> = {
 
 const PAGE_SIZE = 20;
 
+type SortField = 'fare' | 'date';
+type SortDirection = 'asc' | 'desc';
+
 function parseStatusParam(value: string | null): TripStatus | '' {
   return value && value in STATUS_LABELS ? (value as TripStatus) : '';
+}
+
+function SortableHeader({
+  label,
+  field,
+  activeField,
+  direction,
+  onSort,
+}: {
+  label: string;
+  field: SortField;
+  activeField: SortField;
+  direction: SortDirection;
+  onSort: (field: SortField) => void;
+}) {
+  const isActive = activeField === field;
+  const Icon = isActive ? (direction === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown;
+  return (
+    <th className="px-5 py-3">
+      <button
+        type="button"
+        onClick={() => onSort(field)}
+        className={`flex items-center gap-1 transition ${isActive ? 'text-gray-700' : 'text-gray-400 hover:text-gray-600'}`}
+      >
+        {label}
+        <Icon className="h-3 w-3" />
+      </button>
+    </th>
+  );
 }
 
 export function AdminTripsPage() {
@@ -35,6 +68,8 @@ export function AdminTripsPage() {
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [sortField, setSortField] = useState<SortField>('date');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
   const fetchTrips = useCallback((forStatus: TripStatus | '', forPage: number) => {
     getAdminTrips(forStatus || undefined, forPage, PAGE_SIZE)
@@ -60,6 +95,25 @@ export function AdminTripsPage() {
     setIsLoading(true);
     setPage(newPage);
   }
+
+  function handleSort(field: SortField) {
+    if (field === sortField) {
+      setSortDirection((current) => (current === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  }
+
+  const sortedTrips = useMemo(() => {
+    return [...trips].sort((a, b) => {
+      const comparison =
+        sortField === 'fare'
+          ? a.fare - b.fare
+          : new Date(a.requestedAt ?? 0).getTime() - new Date(b.requestedAt ?? 0).getTime();
+      return sortDirection === 'asc' ? comparison : -comparison;
+    });
+  }, [trips, sortField, sortDirection]);
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
@@ -99,8 +153,20 @@ export function AdminTripsPage() {
               <th className="px-5 py-3">Estado</th>
               <th className="px-5 py-3">Origen</th>
               <th className="px-5 py-3">Destino</th>
-              <th className="px-5 py-3">Tarifa</th>
-              <th className="px-5 py-3">Fecha</th>
+              <SortableHeader
+                label="Tarifa"
+                field="fare"
+                activeField={sortField}
+                direction={sortDirection}
+                onSort={handleSort}
+              />
+              <SortableHeader
+                label="Fecha"
+                field="date"
+                activeField={sortField}
+                direction={sortDirection}
+                onSort={handleSort}
+              />
             </tr>
           </thead>
           <tbody>
@@ -112,13 +178,14 @@ export function AdminTripsPage() {
               </tr>
             )}
             {!isLoading && trips.length === 0 && (
-              <tr>
-                <td colSpan={5} className="px-5 py-8 text-center text-gray-400">
-                  No hay viajes con este filtro.
-                </td>
-              </tr>
+              <EmptyTableState
+                icon={Car}
+                colSpan={5}
+                title="No hay viajes con este filtro"
+                description="Prueba con otro estado o revisa más tarde."
+              />
             )}
-            {!isLoading && trips.map((trip) => (
+            {!isLoading && sortedTrips.map((trip) => (
               <tr key={trip.id} className="border-b border-gray-50 transition last:border-0 hover:bg-cream/50">
                 <td className="px-5 py-3">
                   <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[trip.status]}`}>

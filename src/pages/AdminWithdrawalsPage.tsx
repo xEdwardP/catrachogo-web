@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, ArrowUpDown, Loader2, Search, Wallet } from 'lucide-react';
 import { AdminLayout } from '../components/AdminLayout';
+import { EmptyTableState } from '../components/EmptyTableState';
 import { getAdminWithdrawals, resolveWithdrawal } from '../api/admin';
 import { translateResolveWithdrawalError } from '../api/adminErrorMessages';
 import type { AdminWithdrawalRow, WithdrawalStatus } from '../types/admin';
@@ -12,11 +13,46 @@ const STATUS_TABS: { value: WithdrawalStatus; label: string }[] = [
   { value: 'rejected', label: 'Rechazados' },
 ];
 
+type SortField = 'amount' | 'date';
+type SortDirection = 'asc' | 'desc';
+
+function SortableHeader({
+  label,
+  field,
+  activeField,
+  direction,
+  onSort,
+}: {
+  label: string;
+  field: SortField;
+  activeField: SortField;
+  direction: SortDirection;
+  onSort: (field: SortField) => void;
+}) {
+  const isActive = activeField === field;
+  const Icon = isActive ? (direction === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown;
+  return (
+    <th className="px-5 py-3">
+      <button
+        type="button"
+        onClick={() => onSort(field)}
+        className={`flex items-center gap-1 transition ${isActive ? 'text-gray-700' : 'text-gray-400 hover:text-gray-600'}`}
+      >
+        {label}
+        <Icon className="h-3 w-3" />
+      </button>
+    </th>
+  );
+}
+
 export function AdminWithdrawalsPage() {
   const [status, setStatus] = useState<WithdrawalStatus>('pending');
   const [withdrawals, setWithdrawals] = useState<AdminWithdrawalRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [resolvingId, setResolvingId] = useState<string | null>(null);
+  const [search, setSearch] = useState('');
+  const [sortField, setSortField] = useState<SortField>('date');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
   const fetchWithdrawals = useCallback((forStatus: WithdrawalStatus) => {
     getAdminWithdrawals(forStatus)
@@ -31,7 +67,17 @@ export function AdminWithdrawalsPage() {
 
   function handleStatusChange(nextStatus: WithdrawalStatus) {
     setIsLoading(true);
+    setSearch('');
     setStatus(nextStatus);
+  }
+
+  function handleSort(field: SortField) {
+    if (field === sortField) {
+      setSortDirection((current) => (current === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
   }
 
   async function handleResolve(requestId: string, nextStatus: 'completed' | 'rejected') {
@@ -49,6 +95,25 @@ export function AdminWithdrawalsPage() {
     }
   }
 
+  const visibleWithdrawals = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    const filtered = query
+      ? withdrawals.filter(
+          (withdrawal) =>
+            withdrawal.driver.user.name.toLowerCase().includes(query) ||
+            withdrawal.paypalEmail.toLowerCase().includes(query),
+        )
+      : withdrawals;
+
+    return [...filtered].sort((a, b) => {
+      const comparison =
+        sortField === 'amount'
+          ? Number(a.amount) - Number(b.amount)
+          : new Date(a.requestedAt).getTime() - new Date(b.requestedAt).getTime();
+      return sortDirection === 'asc' ? comparison : -comparison;
+    });
+  }, [withdrawals, search, sortField, sortDirection]);
+
   return (
     <AdminLayout>
       <h1 className="mb-1 text-2xl font-bold text-gray-800">Solicitudes de retiro</h1>
@@ -56,19 +121,31 @@ export function AdminWithdrawalsPage() {
         Envíos manuales vía PayPal — marca como completado después de transferir directamente.
       </p>
 
-      <div className="mb-4 flex gap-2">
-        {STATUS_TABS.map((tab) => (
-          <button
-            key={tab.value}
-            type="button"
-            onClick={() => handleStatusChange(tab.value)}
-            className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-              status === tab.value ? 'bg-brand text-white' : 'bg-white text-gray-600 hover:bg-gray-100'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap gap-2">
+          {STATUS_TABS.map((tab) => (
+            <button
+              key={tab.value}
+              type="button"
+              onClick={() => handleStatusChange(tab.value)}
+              className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+                status === tab.value ? 'bg-brand text-white' : 'bg-white text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+        <div className="relative sm:w-64">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <input
+            type="search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Buscar por conductor o correo"
+            className="w-full rounded-lg border border-gray-200 bg-white py-2 pl-9 pr-3 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+          />
+        </div>
       </div>
 
       <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
@@ -77,8 +154,20 @@ export function AdminWithdrawalsPage() {
             <tr>
               <th className="px-5 py-3">Conductor</th>
               <th className="px-5 py-3">Correo PayPal</th>
-              <th className="px-5 py-3">Monto</th>
-              <th className="px-5 py-3">Fecha</th>
+              <SortableHeader
+                label="Monto"
+                field="amount"
+                activeField={sortField}
+                direction={sortDirection}
+                onSort={handleSort}
+              />
+              <SortableHeader
+                label="Fecha"
+                field="date"
+                activeField={sortField}
+                direction={sortDirection}
+                onSort={handleSort}
+              />
               {status === 'pending' && <th className="px-5 py-3">Acciones</th>}
             </tr>
           </thead>
@@ -90,14 +179,23 @@ export function AdminWithdrawalsPage() {
                 </td>
               </tr>
             )}
-            {!isLoading && withdrawals.length === 0 && (
-              <tr>
-                <td colSpan={5} className="px-5 py-8 text-center text-gray-400">
-                  No hay solicitudes en este estado.
-                </td>
-              </tr>
+            {!isLoading && visibleWithdrawals.length === 0 && withdrawals.length > 0 && (
+              <EmptyTableState
+                icon={Search}
+                colSpan={5}
+                title="Sin resultados"
+                description="Ninguna solicitud coincide con tu búsqueda."
+              />
             )}
-            {!isLoading && withdrawals.map((withdrawal) => (
+            {!isLoading && withdrawals.length === 0 && (
+              <EmptyTableState
+                icon={Wallet}
+                colSpan={5}
+                title="No hay solicitudes en este estado"
+                description="Las solicitudes de retiro de los conductores aparecerán aquí."
+              />
+            )}
+            {!isLoading && visibleWithdrawals.map((withdrawal) => (
               <tr key={withdrawal.id} className="border-b border-gray-50 transition last:border-0 hover:bg-cream/50">
                 <td className="px-5 py-3 font-medium text-gray-800">{withdrawal.driver.user.name}</td>
                 <td className="px-5 py-3 text-gray-600">{withdrawal.paypalEmail}</td>

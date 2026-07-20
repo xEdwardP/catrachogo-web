@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { toast } from 'sonner';
-import { Loader2, Plus, X } from 'lucide-react';
+import { Loader2, MapPinned, Plus, Search, X } from 'lucide-react';
 import { AdminLayout } from '../components/AdminLayout';
+import { EmptyTableState } from '../components/EmptyTableState';
 import { createFareZone, getFareZones, updateFareZone } from '../api/fareZones';
 import { translateFareZoneError } from '../api/adminErrorMessages';
 import type { FareZone } from '../types/fareZone';
@@ -29,11 +30,12 @@ export function AdminFareZonesPage() {
   const [editingZoneId, setEditingZoneId] = useState<string | 'new' | null>(null);
   const [form, setForm] = useState<FareZoneFormState>(EMPTY_FORM);
   const [isSaving, setIsSaving] = useState(false);
+  const [search, setSearch] = useState('');
 
   function fetchZones() {
     getFareZones()
       .then(setZones)
-      .catch(() => toast.error('No se pudieron cargar las zonas.'))
+      .catch(() => toast.error('No se pudo cargar la lista de zonas.'))
       .finally(() => setIsLoading(false));
   }
 
@@ -90,23 +92,40 @@ export function AdminFareZonesPage() {
     }
   }
 
+  const visibleZones = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    return query ? zones.filter((zone) => zone.zoneName.toLowerCase().includes(query)) : zones;
+  }, [zones, search]);
+
   return (
     <AdminLayout>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="mb-1 text-2xl font-bold text-gray-800">Zonas y tarifas</h1>
           <p className="text-sm text-gray-500">
-            {isLoading ? 'Cargando...' : `${zones.length} zonas configuradas`}
+            {isLoading ? 'Cargando...' : `${visibleZones.length} zonas configuradas`}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={openNewZoneForm}
-          className="flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark"
-        >
-          <Plus className="h-4 w-4" />
-          Nueva zona
-        </button>
+        <div className="flex items-center gap-3">
+          <div className="relative sm:w-56">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <input
+              type="search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Buscar zona"
+              className="w-full rounded-lg border border-gray-200 bg-white py-2 pl-9 pr-3 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={openNewZoneForm}
+            className="flex shrink-0 items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark"
+          >
+            <Plus className="h-4 w-4" />
+            Nueva zona
+          </button>
+        </div>
       </div>
 
       {editingZoneId && (
@@ -232,14 +251,23 @@ export function AdminFareZonesPage() {
                 </td>
               </tr>
             )}
-            {!isLoading && zones.length === 0 && (
-              <tr>
-                <td colSpan={4} className="px-5 py-8 text-center text-gray-400">
-                  Todavía no hay zonas configuradas.
-                </td>
-              </tr>
+            {!isLoading && visibleZones.length === 0 && zones.length > 0 && (
+              <EmptyTableState
+                icon={Search}
+                colSpan={4}
+                title="Sin resultados"
+                description="Ninguna zona coincide con tu búsqueda."
+              />
             )}
-            {!isLoading && zones.map((zone) => (
+            {!isLoading && zones.length === 0 && (
+              <EmptyTableState
+                icon={MapPinned}
+                colSpan={4}
+                title="Todavía no hay zonas configuradas"
+                description="Crea la primera zona para definir tarifas por área."
+              />
+            )}
+            {!isLoading && visibleZones.map((zone) => (
               <tr
                 key={zone.id}
                 onClick={() => openEditForm(zone)}

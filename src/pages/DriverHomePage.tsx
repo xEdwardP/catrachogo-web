@@ -8,6 +8,7 @@ import { sendDriverLocation } from '../api/tracking';
 import { getApiStatusCode } from '../api/client';
 import { translateAvailabilityError } from '../api/driverErrorMessages';
 import { usePolling } from '../hooks/usePolling';
+import { useSmoothedPosition } from '../hooks/useSmoothedPosition';
 import { useAuth } from '../hooks/useAuth';
 import type { DriverSummary } from '../types/driver';
 
@@ -80,7 +81,8 @@ export function DriverHomePage() {
     }
   }
 
-  const mapCenter = position ?? DEFAULT_CENTER;
+  const smoothedPosition = useSmoothedPosition(position, 3000);
+  const mapCenter = smoothedPosition ?? DEFAULT_CENTER;
 
   return (
     <div className="min-h-screen bg-cream p-4">
@@ -173,7 +175,7 @@ export function DriverHomePage() {
           </div>
         </div>
 
-        <div className="h-64 overflow-hidden rounded-2xl shadow-sm">
+        <div className="relative h-64 overflow-hidden rounded-2xl shadow-sm">
           <GoogleMap
             center={mapCenter}
             zoom={14}
@@ -181,8 +183,17 @@ export function DriverHomePage() {
             disableDefaultUI
             className="h-full w-full"
           >
-            {position && <Marker position={position} />}
+            {smoothedPosition && <Marker position={smoothedPosition} />}
           </GoogleMap>
+          {isAvailable && (
+            <div className="pointer-events-none absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-success shadow-sm">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-60" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
+              </span>
+              Buscando viajes cercanos
+            </div>
+          )}
         </div>
       </div>
     </div>
