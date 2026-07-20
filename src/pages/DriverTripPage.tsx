@@ -1,13 +1,18 @@
 import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Map as GoogleMap, Marker } from '@vis.gl/react-google-maps';
-import { Navigation, Phone } from 'lucide-react';
+import { Flag, Navigation, Phone } from 'lucide-react';
 import { completeTrip, getTripDetail, startTrip } from '../api/trips';
 import { sendDriverLocation } from '../api/tracking';
 import { translateCompleteTripError, translateStartTripError } from '../api/tripErrorMessages';
 import { usePolling } from '../hooks/usePolling';
+import { useSmoothedPosition } from '../hooks/useSmoothedPosition';
 import type { TripDetail, TripStatus } from '../types/trip';
+
+interface DriverTripLocationState {
+  passengerName?: string;
+}
 
 const DEFAULT_CENTER = { lat: 15.5, lng: -88.03 };
 
@@ -19,9 +24,16 @@ const STATUS_BANNER: Record<TripStatus, string> = {
   cancelled: 'Viaje cancelado',
 };
 
+const STATUS_ICON: Partial<Record<TripStatus, typeof Navigation>> = {
+  accepted: Navigation,
+  in_progress: Flag,
+};
+
 export function DriverTripPage() {
   const { tripId } = useParams<{ tripId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const state = location.state as DriverTripLocationState | null;
 
   const [trip, setTrip] = useState<TripDetail | null>(null);
   const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
@@ -51,6 +63,8 @@ export function DriverTripPage() {
     5000,
     Boolean(tripId) && isOnTrip,
   );
+
+  const smoothedPosition = useSmoothedPosition(position, 3000);
 
   if (!tripId) {
     return null;
@@ -82,21 +96,46 @@ export function DriverTripPage() {
   }
 
   const bannerText = trip ? STATUS_BANNER[trip.status] : 'Cargando...';
+  const BannerIcon = trip ? STATUS_ICON[trip.status] : undefined;
   const canCall = Boolean(trip?.passengerPhone);
-  const mapCenter = position ?? DEFAULT_CENTER;
+  const mapCenter = smoothedPosition ?? DEFAULT_CENTER;
+  const passengerName = state?.passengerName;
+  const isPickupPhase = trip?.status === 'accepted';
+  const isTripPhase = trip?.status === 'in_progress';
 
   return (
     <div className="relative h-screen w-full overflow-hidden">
-      <div className="absolute inset-x-0 top-0 z-10 bg-success p-3 text-center text-sm font-semibold text-white">
-        {bannerText}
+      <div className="absolute inset-x-0 top-0 z-10 bg-success text-white shadow-md">
+        <div className="flex items-center justify-center gap-2 p-3 text-center text-sm font-semibold">
+          {BannerIcon && <BannerIcon className="h-4 w-4 shrink-0" />}
+          {bannerText}
+        </div>
+        {(isPickupPhase || isTripPhase) && (
+          <div className="flex gap-1 px-4 pb-2">
+            <span className="h-1 flex-1 rounded-full bg-white" />
+            <span className={`h-1 flex-1 rounded-full ${isTripPhase ? 'bg-white' : 'bg-white/30'}`} />
+          </div>
+        )}
       </div>
 
       <GoogleMap center={mapCenter} zoom={14} onCameraChanged={() => {}} disableDefaultUI className="h-full w-full">
-        {position && <Marker position={position} />}
+        {smoothedPosition && <Marker position={smoothedPosition} />}
       </GoogleMap>
 
       <div className="absolute inset-x-0 bottom-0 flex justify-center p-0 sm:p-4">
         <div className="w-full rounded-t-2xl bg-white p-4 shadow-lg sm:max-w-md sm:rounded-2xl">
+          {(isPickupPhase || isTripPhase) && (
+            <div className="mb-3 flex items-center gap-3 border-b border-gray-100 pb-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-pale text-sm font-bold text-brand">
+                {passengerName?.charAt(0).toUpperCase() ?? '?'}
+              </div>
+              <div>
+                <p className="text-xs text-gray-400">Pasajero</p>
+                <p className="text-sm font-semibold text-gray-800">{passengerName ?? 'Pasajero'}</p>
+              </div>
+            </div>
+          )}
+
           <div className="mb-3 flex items-start gap-2">
             <Navigation className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
             <div>

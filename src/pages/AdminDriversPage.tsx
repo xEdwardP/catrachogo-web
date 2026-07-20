@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, ArrowUpDown, Loader2, Search, Users } from 'lucide-react';
 import { AdminLayout } from '../components/AdminLayout';
 import { AdminDriverDetailModal } from '../components/AdminDriverDetailModal';
+import { EmptyTableState } from '../components/EmptyTableState';
 import { getAdminDrivers, updateDriverVerification } from '../api/admin';
 import { translateDriverVerificationError } from '../api/adminErrorMessages';
 import type { AdminDriverRow, VerificationStatus } from '../types/admin';
@@ -19,10 +20,42 @@ const VEHICLE_TYPE_LABELS: Record<string, string> = {
   motorcycle: 'Motocicleta',
 };
 
+type SortField = 'name' | 'date';
+type SortDirection = 'asc' | 'desc';
+
 function parseStatusParam(value: string | null): VerificationStatus {
   return value && STATUS_TABS.some((tab) => tab.value === value)
     ? (value as VerificationStatus)
     : 'pending';
+}
+
+function SortableHeader({
+  label,
+  field,
+  activeField,
+  direction,
+  onSort,
+}: {
+  label: string;
+  field: SortField;
+  activeField: SortField;
+  direction: SortDirection;
+  onSort: (field: SortField) => void;
+}) {
+  const isActive = activeField === field;
+  const Icon = isActive ? (direction === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown;
+  return (
+    <th className="px-5 py-3">
+      <button
+        type="button"
+        onClick={() => onSort(field)}
+        className={`flex items-center gap-1 transition ${isActive ? 'text-gray-700' : 'text-gray-400 hover:text-gray-600'}`}
+      >
+        {label}
+        <Icon className="h-3 w-3" />
+      </button>
+    </th>
+  );
 }
 
 export function AdminDriversPage() {
@@ -32,6 +65,9 @@ export function AdminDriversPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedDriver, setSelectedDriver] = useState<AdminDriverRow | null>(null);
   const [isResolving, setIsResolving] = useState(false);
+  const [search, setSearch] = useState('');
+  const [sortField, setSortField] = useState<SortField>('date');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
   const fetchDrivers = useCallback((forStatus: VerificationStatus) => {
     getAdminDrivers(forStatus)
@@ -46,7 +82,17 @@ export function AdminDriversPage() {
 
   function handleStatusChange(nextStatus: VerificationStatus) {
     setIsLoading(true);
+    setSearch('');
     setSearchParams({ status: nextStatus }, { replace: true });
+  }
+
+  function handleSort(field: SortField) {
+    if (field === sortField) {
+      setSortDirection((current) => (current === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
   }
 
   async function handleResolve(driverId: string, verificationStatus: 'approved' | 'rejected') {
@@ -65,36 +111,81 @@ export function AdminDriversPage() {
     }
   }
 
+  const visibleDrivers = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    const filtered = query
+      ? drivers.filter(
+          (driver) =>
+            driver.user.name.toLowerCase().includes(query) ||
+            driver.vehicles[0]?.plate.toLowerCase().includes(query),
+        )
+      : drivers;
+
+    const sorted = [...filtered].sort((a, b) => {
+      const comparison =
+        sortField === 'name'
+          ? a.user.name.localeCompare(b.user.name)
+          : new Date(a.user.createdAt).getTime() - new Date(b.user.createdAt).getTime();
+      return sortDirection === 'asc' ? comparison : -comparison;
+    });
+
+    return sorted;
+  }, [drivers, search, sortField, sortDirection]);
+
   return (
     <AdminLayout>
       <h1 className="mb-1 text-2xl font-bold text-gray-800">Conductores</h1>
       <p className="mb-6 text-sm text-gray-500">
-        {isLoading ? 'Cargando...' : `${drivers.length} conductores ${STATUS_TABS.find((t) => t.value === status)?.label.toLowerCase()}`}
+        {isLoading ? 'Cargando...' : `${visibleDrivers.length} conductores ${STATUS_TABS.find((t) => t.value === status)?.label.toLowerCase()}`}
       </p>
 
-      <div className="mb-4 flex gap-2">
-        {STATUS_TABS.map((tab) => (
-          <button
-            key={tab.value}
-            type="button"
-            onClick={() => handleStatusChange(tab.value)}
-            className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-              status === tab.value ? 'bg-brand text-white' : 'bg-white text-gray-600 hover:bg-gray-100'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap gap-2">
+          {STATUS_TABS.map((tab) => (
+            <button
+              key={tab.value}
+              type="button"
+              onClick={() => handleStatusChange(tab.value)}
+              className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+                status === tab.value ? 'bg-brand text-white' : 'bg-white text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+        <div className="relative sm:w-64">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <input
+            type="search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Buscar por nombre o placa"
+            className="w-full rounded-lg border border-gray-200 bg-white py-2 pl-9 pr-3 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+          />
+        </div>
       </div>
 
       <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
         <table className="w-full text-left text-sm">
           <thead className="border-b border-gray-100 text-xs uppercase text-gray-400">
             <tr>
-              <th className="px-5 py-3">Conductor</th>
+              <SortableHeader
+                label="Conductor"
+                field="name"
+                activeField={sortField}
+                direction={sortDirection}
+                onSort={handleSort}
+              />
               <th className="px-5 py-3">Vehículo</th>
               <th className="px-5 py-3">Placa</th>
-              <th className="px-5 py-3">Fecha</th>
+              <SortableHeader
+                label="Fecha"
+                field="date"
+                activeField={sortField}
+                direction={sortDirection}
+                onSort={handleSort}
+              />
               {status === 'pending' && <th className="px-5 py-3">Acciones</th>}
             </tr>
           </thead>
@@ -106,18 +197,27 @@ export function AdminDriversPage() {
                 </td>
               </tr>
             )}
-            {!isLoading && drivers.length === 0 && (
-              <tr>
-                <td colSpan={5} className="px-5 py-8 text-center text-gray-400">
-                  No hay conductores en este estado.
-                </td>
-              </tr>
+            {!isLoading && visibleDrivers.length === 0 && drivers.length > 0 && (
+              <EmptyTableState
+                icon={Search}
+                colSpan={5}
+                title="Sin resultados"
+                description="Ningún conductor coincide con tu búsqueda."
+              />
             )}
-            {!isLoading && drivers.map((driver) => (
+            {!isLoading && drivers.length === 0 && (
+              <EmptyTableState
+                icon={Users}
+                colSpan={5}
+                title="No hay conductores en este estado"
+                description="Cuando haya movimiento en esta categoría, aparecerá aquí."
+              />
+            )}
+            {!isLoading && visibleDrivers.map((driver) => (
               <tr
                 key={driver.id}
                 onClick={() => setSelectedDriver(driver)}
-                className="cursor-pointer border-b border-gray-50 last:border-0 hover:bg-gray-50"
+                className="cursor-pointer border-b border-gray-50 transition last:border-0 hover:bg-cream/50"
               >
                 <td className="px-5 py-3 font-medium text-gray-800">{driver.user.name}</td>
                 <td className="px-5 py-3 text-gray-600">

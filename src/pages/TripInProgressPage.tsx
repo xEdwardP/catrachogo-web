@@ -7,6 +7,7 @@ import { cancelTrip, getDriverLocation, getTripDetail } from '../api/trips';
 import { getDriverPublicProfile } from '../api/drivers';
 import { translateCancelTripError } from '../api/tripErrorMessages';
 import { usePolling } from '../hooks/usePolling';
+import { useSmoothedPosition } from '../hooks/useSmoothedPosition';
 import { RatingModal } from '../components/RatingModal';
 import type { TripDetail, TripDriverInfo, TripStatus } from '../types/trip';
 
@@ -89,6 +90,8 @@ export function TripInProgressPage() {
     }
   }
 
+  const smoothedDriverPosition = useSmoothedPosition(driverPosition, 3500);
+
   if (!tripId) {
     return null;
   }
@@ -100,7 +103,7 @@ export function TripInProgressPage() {
     state?.originLat !== undefined && state?.originLng !== undefined
       ? { lat: state.originLat, lng: state.originLng }
       : DEFAULT_CENTER;
-  const mapCenter = driverPosition ?? fallbackCenter;
+  const mapCenter = smoothedDriverPosition ?? fallbackCenter;
   const canCancel = trip?.status === 'pending' || trip?.status === 'accepted';
   const shouldShowRating =
     !ratingDismissed && trip?.status === 'completed' && Boolean(driver?.userId) && trip?.ratedByMe === false;
@@ -116,7 +119,7 @@ export function TripInProgressPage() {
       </div>
 
       <GoogleMap center={mapCenter} zoom={14} onCameraChanged={() => {}} disableDefaultUI className="h-full w-full">
-        {driverPosition && <Marker position={driverPosition} />}
+        {smoothedDriverPosition && <Marker position={smoothedDriverPosition} />}
       </GoogleMap>
 
       <div className="absolute inset-x-0 bottom-0 flex justify-center p-0 sm:p-4">

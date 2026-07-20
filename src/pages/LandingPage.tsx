@@ -3,15 +3,18 @@ import {
   ArrowRight,
   BadgeCheck,
   Banknote,
+  Bell,
   Car,
   ChevronDown,
   Clock,
   MapPin,
   Navigation,
+  Rocket,
   ShieldCheck,
   Smartphone,
   Star,
   Wallet,
+  Zap,
 } from 'lucide-react';
 
 const HIGHLIGHTS = [
@@ -84,6 +87,24 @@ const DRIVER_BENEFITS = [
   },
 ];
 
+const APP_HIGHLIGHTS = [
+  {
+    icon: Bell,
+    title: 'Notificaciones push nativas',
+    description: 'Entérate al instante cuando un conductor acepta o llega, sin depender del navegador.',
+  },
+  {
+    icon: Zap,
+    title: 'Más rápida y ligera',
+    description: 'Pensada para conexiones móviles, con la misma experiencia que ya conoces.',
+  },
+  {
+    icon: Rocket,
+    title: 'Lanzamiento completo',
+    description: 'Estamos preparando todo para lanzarla de una sola vez, no por partes.',
+  },
+];
+
 const FAQS = [
   {
     question: '¿Necesito instalar una aplicación?',
@@ -127,6 +148,9 @@ export function LandingPage() {
             </a>
             <a href="#conductores" className="transition hover:text-gray-900">
               Conductores
+            </a>
+            <a href="#app-movil" className="transition hover:text-gray-900">
+              App móvil
             </a>
             <a href="#preguntas" className="transition hover:text-gray-900">
               Preguntas
@@ -353,6 +377,60 @@ export function LandingPage() {
         </div>
       </section>
 
+      <section id="app-movil" className="scroll-mt-20 py-16">
+        <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-2">
+          <div className="order-2 lg:order-1">
+            <span className="mb-3 inline-block rounded-full bg-success/10 px-4 py-1.5 text-xs font-semibold text-success">
+              Próximamente
+            </span>
+            <h2 className="mb-3 text-2xl font-bold text-gray-800 sm:text-3xl">
+              La app móvil de CatrachoGo está en camino
+            </h2>
+            <p className="mb-6 text-gray-500">
+              Estamos trabajando en la versión nativa para iOS y Android. La web ya funciona
+              perfecto desde tu navegador, y la app llegará como un extra para quienes la
+              prefieran instalada.
+            </p>
+            <div className="flex flex-col gap-4">
+              {APP_HIGHLIGHTS.map(({ icon: Icon, title, description }) => (
+                <div key={title} className="flex items-start gap-4">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-success/10 text-success">
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <h3 className="mb-0.5 text-sm font-semibold text-gray-800">{title}</h3>
+                    <p className="text-sm text-gray-500">{description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div aria-hidden className="order-1 flex justify-center lg:order-2">
+            <div className="relative">
+              <div className="w-56 rounded-[2.5rem] border-8 border-gray-800 bg-gray-800 p-1 shadow-2xl shadow-brand/10">
+                <div className="flex h-[26rem] flex-col items-center justify-center gap-4 rounded-[2rem] bg-gradient-to-b from-cream to-white px-6 text-center">
+                  <img src="/logo_without_text.png" alt="" className="h-14 w-14" />
+                  <span className="rounded-full bg-brand-pale px-3 py-1 text-[11px] font-semibold text-brand">
+                    Próximamente
+                  </span>
+                  <p className="text-xs text-gray-400">iOS y Android</p>
+                </div>
+              </div>
+
+              <div className="absolute -right-10 top-10 w-40 rotate-3 rounded-xl bg-white px-3 py-2 shadow-lg ring-1 ring-black/5">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-success/10 text-success">
+                    <Bell className="h-3 w-3" />
+                  </span>
+                  <p className="text-[11px] font-medium text-gray-700">Tu conductor llegó</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section id="preguntas" className="scroll-mt-20 bg-gray-50 py-16">
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
           <div className="mx-auto mb-10 max-w-xl text-center">
@@ -439,6 +517,11 @@ export function LandingPage() {
                   <li>
                     <a href="#conductores" className="hover:text-gray-800">
                       Conductores
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#app-movil" className="hover:text-gray-800">
+                      App móvil
                     </a>
                   </li>
                   <li>
