@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 import { AdminLayout } from '../components/AdminLayout';
@@ -17,14 +18,19 @@ const STATUS_COLORS: Record<TripStatus, string> = {
   pending: 'bg-yellow-100 text-yellow-700',
   accepted: 'bg-blue-100 text-blue-700',
   in_progress: 'bg-blue-100 text-blue-700',
-  completed: 'bg-[#2DBE87]/10 text-[#2DBE87]',
+  completed: 'bg-success/10 text-success',
   cancelled: 'bg-gray-100 text-gray-500',
 };
 
 const PAGE_SIZE = 20;
 
+function parseStatusParam(value: string | null): TripStatus | '' {
+  return value && value in STATUS_LABELS ? (value as TripStatus) : '';
+}
+
 export function AdminTripsPage() {
-  const [status, setStatus] = useState<TripStatus | ''>('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const status = parseStatusParam(searchParams.get('status'));
   const [trips, setTrips] = useState<Trip[]>([]);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
@@ -46,8 +52,8 @@ export function AdminTripsPage() {
 
   function handleStatusChange(nextStatus: TripStatus | '') {
     setIsLoading(true);
-    setStatus(nextStatus);
     setPage(1);
+    setSearchParams(nextStatus ? { status: nextStatus } : {}, { replace: true });
   }
 
   function goToPage(newPage: number) {
@@ -67,7 +73,7 @@ export function AdminTripsPage() {
           type="button"
           onClick={() => handleStatusChange('')}
           className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-            status === '' ? 'bg-[#E8532E] text-white' : 'bg-white text-gray-600 hover:bg-gray-100'
+            status === '' ? 'bg-brand text-white' : 'bg-white text-gray-600 hover:bg-gray-100'
           }`}
         >
           Todos
@@ -78,7 +84,7 @@ export function AdminTripsPage() {
             type="button"
             onClick={() => handleStatusChange(value)}
             className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-              status === value ? 'bg-[#E8532E] text-white' : 'bg-white text-gray-600 hover:bg-gray-100'
+              status === value ? 'bg-brand text-white' : 'bg-white text-gray-600 hover:bg-gray-100'
             }`}
           >
             {STATUS_LABELS[value]}
@@ -113,7 +119,7 @@ export function AdminTripsPage() {
               </tr>
             )}
             {!isLoading && trips.map((trip) => (
-              <tr key={trip.id} className="border-b border-gray-50 last:border-0">
+              <tr key={trip.id} className="border-b border-gray-50 transition last:border-0 hover:bg-cream/50">
                 <td className="px-5 py-3">
                   <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[trip.status]}`}>
                     {STATUS_LABELS[trip.status]}

@@ -10,7 +10,7 @@ export function RoleToggle({ value, onChange }: RoleToggleProps) {
         type="button"
         onClick={() => onChange('passenger')}
         className={`rounded-lg py-2 text-sm font-medium transition ${
-          value === 'passenger' ? 'bg-[#E8532E] text-white shadow' : 'text-gray-600'
+          value === 'passenger' ? 'bg-brand text-white shadow' : 'text-gray-600'
         }`}
       >
         Pasajero
@@ -19,7 +19,7 @@ export function RoleToggle({ value, onChange }: RoleToggleProps) {
         type="button"
         onClick={() => onChange('driver')}
         className={`rounded-lg py-2 text-sm font-medium transition ${
-          value === 'driver' ? 'bg-[#E8532E] text-white shadow' : 'text-gray-600'
+          value === 'driver' ? 'bg-brand text-white shadow' : 'text-gray-600'
         }`}
       >
         Conductor

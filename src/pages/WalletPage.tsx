@@ -90,7 +90,7 @@ export function WalletPage() {
   const parsedTopupAmount = Number(topupAmount);
 
   return (
-    <div className="min-h-screen bg-[#F6F1EC] p-4">
+    <div className="min-h-screen bg-cream p-4">
       <div className="mx-auto max-w-md">
         <Link
           to={user ? homePathForRole(user.role) : '/'}
@@ -100,7 +100,15 @@ export function WalletPage() {
         </Link>
         <h1 className="mb-4 text-xl font-bold text-gray-800">Mi Wallet</h1>
 
-        <div className="mb-4 rounded-2xl bg-[#2DBE87] p-6 text-white shadow-lg">
+        <div className="relative mb-4 overflow-hidden rounded-2xl bg-gradient-to-br from-success to-success-dark p-6 text-white shadow-lg shadow-success/20">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -right-8 -top-10 h-32 w-32 rounded-full bg-white/10"
+          />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -bottom-12 right-10 h-24 w-24 rounded-full bg-white/10"
+          />
           <p className="text-xs font-semibold uppercase tracking-wide opacity-80">Saldo disponible</p>
           <p className="mt-1 text-3xl font-bold">
             {isLoadingBalance || balance === null ? '...' : `L. ${balance.toFixed(2)}`}
@@ -118,7 +126,7 @@ export function WalletPage() {
             step="0.01"
             value={topupAmount}
             onChange={(event) => setTopupAmount(event.target.value)}
-            className="mb-3 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#E8532E] focus:outline-none focus:ring-1 focus:ring-[#E8532E]"
+            className="mb-3 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           />
           <PayPalTopupButtons
             amount={parsedTopupAmount}
@@ -151,7 +159,7 @@ export function WalletPage() {
                     required
                     value={withdrawalEmail}
                     onChange={(event) => setWithdrawalEmail(event.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#E8532E] focus:outline-none focus:ring-1 focus:ring-[#E8532E]"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
                   />
                 </div>
                 <div>
@@ -166,7 +174,7 @@ export function WalletPage() {
                     required
                     value={withdrawalAmount}
                     onChange={(event) => setWithdrawalAmount(event.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#E8532E] focus:outline-none focus:ring-1 focus:ring-[#E8532E]"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
                   />
                 </div>
                 <div className="flex gap-2">
@@ -180,7 +188,7 @@ export function WalletPage() {
                   <button
                     type="submit"
                     disabled={isSubmittingWithdrawal}
-                    className="flex-1 rounded-lg bg-[#E8532E] py-2 text-sm font-semibold text-white disabled:opacity-60"
+                    className="flex-1 rounded-lg bg-brand py-2 text-sm font-semibold text-white disabled:opacity-60"
                   >
                     {isSubmittingWithdrawal ? 'Enviando...' : 'Enviar'}
                   </button>
@@ -195,7 +203,13 @@ export function WalletPage() {
           {isLoadingTransactions ? (
             <p className="text-sm text-gray-400">Cargando...</p>
           ) : transactions.length === 0 ? (
-            <p className="text-sm text-gray-400">Todavía no tienes movimientos.</p>
+            <div className="flex flex-col items-center gap-2 py-8 text-center">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-success/10 text-success">
+                <ArrowDownCircle className="h-6 w-6" />
+              </span>
+              <p className="text-sm font-medium text-gray-600">Todavía no tienes movimientos</p>
+              <p className="text-xs text-gray-400">Recarga tu wallet para empezar a usar CatrachoGo.</p>
+            </div>
           ) : (
             <ul className="flex flex-col gap-3">
               {transactions.map((tx) => (
@@ -205,7 +219,7 @@ export function WalletPage() {
                 >
                   <div className="flex items-center gap-2">
                     {tx.amount >= 0 ? (
-                      <ArrowDownCircle className="h-5 w-5 text-[#2DBE87]" />
+                      <ArrowDownCircle className="h-5 w-5 text-success" />
                     ) : (
                       <ArrowUpCircle className="h-5 w-5 text-red-500" />
                     )}
@@ -216,7 +230,7 @@ export function WalletPage() {
                       </p>
                     </div>
                   </div>
-                  <span className={`text-sm font-semibold ${tx.amount >= 0 ? 'text-[#2DBE87]' : 'text-red-500'}`}>
+                  <span className={`text-sm font-semibold ${tx.amount >= 0 ? 'text-success' : 'text-red-500'}`}>
                     {tx.amount >= 0 ? '+' : ''}
                     L. {tx.amount.toFixed(2)}
                   </span>

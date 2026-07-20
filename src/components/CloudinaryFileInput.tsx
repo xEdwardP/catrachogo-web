@@ -41,7 +41,7 @@ export function CloudinaryFileInput({ id, label, value, onUploaded }: Cloudinary
         onClick={() => inputRef.current?.click()}
         disabled={isUploading}
         className={`flex w-full items-center gap-3 rounded-lg border-2 border-dashed px-3 py-3 text-left text-sm transition ${
-          value ? 'border-[#2DBE87] bg-[#2DBE87]/5' : 'border-gray-300 hover:border-[#E8532E]/50'
+          value ? 'border-success bg-success/5' : 'border-gray-300 hover:border-brand/50'
         }`}
       >
         {value ? (
@@ -55,7 +55,7 @@ export function CloudinaryFileInput({ id, label, value, onUploaded }: Cloudinary
           {isUploading ? 'Subiendo...' : value ? 'Cambiar imagen' : 'Toca para subir una imagen'}
         </span>
         {isUploading && <Loader2 className="h-4 w-4 animate-spin text-gray-400" />}
-        {!isUploading && value && <Check className="h-4 w-4 text-[#2DBE87]" />}
+        {!isUploading && value && <Check className="h-4 w-4 text-success" />}
       </button>
       <input
         ref={inputRef}

@@ -11,6 +11,7 @@ import { DriverHomePage } from './pages/DriverHomePage';
 import { DriverCompleteProfilePage } from './pages/DriverCompleteProfilePage';
 import { IncomingRequestPage } from './pages/IncomingRequestPage';
 import { DriverTripPage } from './pages/DriverTripPage';
+import { AdminDashboardPage } from './pages/AdminDashboardPage';
 import { AdminDriversPage } from './pages/AdminDriversPage';
 import { AdminTripsPage } from './pages/AdminTripsPage';
 import { AdminWithdrawalsPage } from './pages/AdminWithdrawalsPage';
@@ -44,7 +45,7 @@ function App() {
       </Route>
 
       <Route element={<ProtectedRoute roles={['admin']} />}>
-        <Route path="/admin" element={<Navigate to="/admin/drivers" replace />} />
+        <Route path="/admin" element={<AdminDashboardPage />} />
         <Route path="/admin/drivers" element={<AdminDriversPage />} />
         <Route path="/admin/trips" element={<AdminTripsPage />} />
         <Route path="/admin/withdrawals" element={<AdminWithdrawalsPage />} />

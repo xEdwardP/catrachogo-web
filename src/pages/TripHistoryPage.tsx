@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, CarFront } from 'lucide-react';
 import { getTripHistory } from '../api/trips';
 import { useAuth } from '../hooks/useAuth';
 import { homePathForRole } from '../utils/roleRoutes';
@@ -19,7 +19,7 @@ const STATUS_COLORS: Record<TripStatus, string> = {
   pending: 'bg-yellow-100 text-yellow-700',
   accepted: 'bg-blue-100 text-blue-700',
   in_progress: 'bg-blue-100 text-blue-700',
-  completed: 'bg-[#2DBE87]/10 text-[#2DBE87]',
+  completed: 'bg-success/10 text-success',
   cancelled: 'bg-gray-100 text-gray-500',
 };
 
@@ -51,7 +51,7 @@ export function TripHistoryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F6F1EC] p-4">
+    <div className="min-h-screen bg-cream p-4">
       <div className="mx-auto max-w-md">
         <Link
           to={user ? homePathForRole(user.role) : '/'}
@@ -65,12 +65,21 @@ export function TripHistoryPage() {
           {isLoading ? (
             <p className="text-sm text-gray-400">Cargando...</p>
           ) : trips.length === 0 ? (
-            <p className="text-sm text-gray-400">Todavía no tienes viajes.</p>
+            <div className="flex flex-col items-center gap-2 py-10 text-center">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-pale text-brand">
+                <CarFront className="h-6 w-6" />
+              </span>
+              <p className="text-sm font-medium text-gray-600">Todavía no tienes viajes</p>
+              <p className="text-xs text-gray-400">Cuando completes tu primer viaje aparecerá aquí.</p>
+            </div>
           ) : (
             <ul className="flex flex-col gap-3">
               {trips.map((trip) => (
                 <li key={trip.id} className="border-b border-gray-100 pb-3 last:border-0">
-                  <Link to={`${tripDetailBasePath}/${trip.id}`} className="block">
+                  <Link
+                    to={`${tripDetailBasePath}/${trip.id}`}
+                    className="-mx-2 block rounded-lg px-2 py-1 transition hover:bg-cream/70"
+                  >
                     <div className="mb-1 flex items-center justify-between">
                       <span
                         className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[trip.status]}`}

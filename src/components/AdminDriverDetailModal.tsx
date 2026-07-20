@@ -57,7 +57,7 @@ export function AdminDriverDetailModal({
           </button>
         </div>
 
-        <div className="mb-5 grid grid-cols-2 gap-3 rounded-xl bg-[#F6F1EC] p-4 text-sm sm:grid-cols-4">
+        <div className="mb-5 grid grid-cols-2 gap-3 rounded-xl bg-cream p-4 text-sm sm:grid-cols-4">
           <div>
             <p className="text-xs text-gray-500">Vehículo</p>
             <p className="font-medium text-gray-800">{VEHICLE_TYPE_LABELS[driver.vehicleType]}</p>
@@ -106,7 +106,7 @@ export function AdminDriverDetailModal({
               type="button"
               onClick={onApprove}
               disabled={isResolving}
-              className="flex-1 rounded-lg bg-[#2DBE87] py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex-1 rounded-lg bg-success py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
             >
               Aprobar
             </button>

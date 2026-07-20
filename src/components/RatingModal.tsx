@@ -65,14 +65,14 @@ export function RatingModal({ tripId, ratedId, ratedName, onDone }: RatingModalP
           onChange={(event) => setComment(event.target.value)}
           placeholder="Comentario (opcional)"
           rows={3}
-          className="mb-4 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#E8532E] focus:outline-none focus:ring-1 focus:ring-[#E8532E]"
+          className="mb-4 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
         />
 
         <button
           type="button"
           onClick={handleSubmit}
           disabled={score === 0 || isSubmitting}
-          className="w-full rounded-lg bg-[#E8532E] py-2.5 text-sm font-semibold text-white transition hover:bg-[#d1471f] disabled:cursor-not-allowed disabled:opacity-60"
+          className="w-full rounded-lg bg-brand py-2.5 text-sm font-semibold text-white transition hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isSubmitting ? 'Enviando...' : 'Enviar calificación'}
         </button>

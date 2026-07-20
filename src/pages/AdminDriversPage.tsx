@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 import { AdminLayout } from '../components/AdminLayout';
@@ -18,8 +19,15 @@ const VEHICLE_TYPE_LABELS: Record<string, string> = {
   motorcycle: 'Motocicleta',
 };
 
+function parseStatusParam(value: string | null): VerificationStatus {
+  return value && STATUS_TABS.some((tab) => tab.value === value)
+    ? (value as VerificationStatus)
+    : 'pending';
+}
+
 export function AdminDriversPage() {
-  const [status, setStatus] = useState<VerificationStatus>('pending');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const status = parseStatusParam(searchParams.get('status'));
   const [drivers, setDrivers] = useState<AdminDriverRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedDriver, setSelectedDriver] = useState<AdminDriverRow | null>(null);
@@ -38,7 +46,7 @@ export function AdminDriversPage() {
 
   function handleStatusChange(nextStatus: VerificationStatus) {
     setIsLoading(true);
-    setStatus(nextStatus);
+    setSearchParams({ status: nextStatus }, { replace: true });
   }
 
   async function handleResolve(driverId: string, verificationStatus: 'approved' | 'rejected') {
@@ -71,7 +79,7 @@ export function AdminDriversPage() {
             type="button"
             onClick={() => handleStatusChange(tab.value)}
             className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-              status === tab.value ? 'bg-[#E8532E] text-white' : 'bg-white text-gray-600 hover:bg-gray-100'
+              status === tab.value ? 'bg-brand text-white' : 'bg-white text-gray-600 hover:bg-gray-100'
             }`}
           >
             {tab.label}
@@ -135,7 +143,7 @@ export function AdminDriversPage() {
                         type="button"
                         onClick={() => handleResolve(driver.id, 'approved')}
                         disabled={isResolving}
-                        className="rounded-lg bg-[#2DBE87] px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-60"
+                        className="rounded-lg bg-success px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-60"
                       >
                         Aprobar
                       </button>

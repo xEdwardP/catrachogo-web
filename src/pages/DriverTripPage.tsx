@@ -87,7 +87,7 @@ export function DriverTripPage() {
 
   return (
     <div className="relative h-screen w-full overflow-hidden">
-      <div className="absolute inset-x-0 top-0 z-10 bg-[#2DBE87] p-3 text-center text-sm font-semibold text-white">
+      <div className="absolute inset-x-0 top-0 z-10 bg-success p-3 text-center text-sm font-semibold text-white">
         {bannerText}
       </div>
 
@@ -98,7 +98,7 @@ export function DriverTripPage() {
       <div className="absolute inset-x-0 bottom-0 flex justify-center p-0 sm:p-4">
         <div className="w-full rounded-t-2xl bg-white p-4 shadow-lg sm:max-w-md sm:rounded-2xl">
           <div className="mb-3 flex items-start gap-2">
-            <Navigation className="mt-0.5 h-4 w-4 shrink-0 text-[#E8532E]" />
+            <Navigation className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
             <div>
               <p className="text-xs font-semibold text-gray-500">
                 {trip?.status === 'in_progress' ? 'DESTINO' : 'ORIGEN'}
@@ -136,7 +136,7 @@ export function DriverTripPage() {
                 type="button"
                 onClick={handleStart}
                 disabled={isUpdatingStatus}
-                className="flex-1 rounded-lg bg-[#E8532E] py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                className="flex-1 rounded-lg bg-brand py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Llegué, iniciar viaje
               </button>
@@ -147,7 +147,7 @@ export function DriverTripPage() {
                 type="button"
                 onClick={handleComplete}
                 disabled={isUpdatingStatus}
-                className="flex-1 rounded-lg bg-[#2DBE87] py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                className="flex-1 rounded-lg bg-success py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Completar viaje
               </button>
