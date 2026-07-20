@@ -121,50 +121,52 @@ export function TripInProgressPage() {
         {driverPosition && <Marker position={driverPosition} />}
       </GoogleMap>
 
-      <div className="absolute inset-x-0 bottom-0 rounded-t-2xl bg-white p-4 shadow-lg">
-        <div className="mb-3 flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-200 text-xs text-gray-400">
-            {driver ? driver.name.charAt(0).toUpperCase() : '?'}
-          </div>
-          <div className="flex-1">
-            <p className="font-semibold text-gray-800">{driver?.name ?? 'Esperando conductor'}</p>
-            {driver?.vehicle && (
-              <p className="text-xs text-gray-500">
-                {driver.vehicle.brand} {driver.vehicle.model} · {driver.vehicle.plate}
-              </p>
+      <div className="absolute inset-x-0 bottom-0 flex justify-center p-0 sm:p-4">
+        <div className="w-full rounded-t-2xl bg-white p-4 shadow-lg sm:max-w-md sm:rounded-2xl">
+          <div className="mb-3 flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-200 text-xs text-gray-400">
+              {driver ? driver.name.charAt(0).toUpperCase() : '?'}
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold text-gray-800">{driver?.name ?? 'Esperando conductor'}</p>
+              {driver?.vehicle && (
+                <p className="text-xs text-gray-500">
+                  {driver.vehicle.brand} {driver.vehicle.model} · {driver.vehicle.plate}
+                </p>
+              )}
+            </div>
+            {driver && (
+              <div className="flex items-center gap-1 text-sm text-gray-600">
+                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                {driver.averageRating.toFixed(1)}
+              </div>
             )}
           </div>
-          {driver && (
-            <div className="flex items-center gap-1 text-sm text-gray-600">
-              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-              {driver.averageRating.toFixed(1)}
-            </div>
-          )}
-        </div>
 
-        <div className="mb-4">
-          <p className="text-xs font-semibold text-gray-500">DESTINO</p>
-          <p className="text-sm text-gray-800">{destinationAddress || '—'}</p>
-        </div>
+          <div className="mb-4">
+            <p className="text-xs font-semibold text-gray-500">DESTINO</p>
+            <p className="text-sm text-gray-800">{destinationAddress || '—'}</p>
+          </div>
 
-        <div className="flex gap-3">
-          <button
-            type="button"
-            onClick={handleCancel}
-            disabled={isCancelling || !canCancel}
-            className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-300 py-2.5 text-sm font-medium text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <X className="h-4 w-4" /> Cancelar
-          </button>
-          <a
-            href={canCall ? `tel:${trip?.driverPhone}` : undefined}
-            aria-disabled={!canCall}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold text-white ${
-              canCall ? 'bg-[#E8532E] hover:bg-[#d1471f]' : 'pointer-events-none bg-gray-300'
-            }`}
-          >
-            <Phone className="h-4 w-4" /> Llamar
-          </a>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={handleCancel}
+              disabled={isCancelling || !canCancel}
+              className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-300 py-2.5 text-sm font-medium text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <X className="h-4 w-4" /> Cancelar
+            </button>
+            <a
+              href={canCall ? `tel:${trip?.driverPhone}` : undefined}
+              aria-disabled={!canCall}
+              className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold text-white ${
+                canCall ? 'bg-[#E8532E] hover:bg-[#d1471f]' : 'pointer-events-none bg-gray-300'
+              }`}
+            >
+              <Phone className="h-4 w-4" /> Llamar
+            </a>
+          </div>
         </div>
       </div>
 

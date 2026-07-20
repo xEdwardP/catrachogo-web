@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 import { AdminLayout } from '../components/AdminLayout';
 import { getAdminTrips } from '../api/admin';
 import type { Trip, TripStatus } from '../types/trip';
@@ -97,6 +98,13 @@ export function AdminTripsPage() {
             </tr>
           </thead>
           <tbody>
+            {isLoading && (
+              <tr>
+                <td colSpan={5} className="px-5 py-8 text-center text-gray-400">
+                  <Loader2 className="mx-auto h-5 w-5 animate-spin" />
+                </td>
+              </tr>
+            )}
             {!isLoading && trips.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-5 py-8 text-center text-gray-400">
@@ -104,7 +112,7 @@ export function AdminTripsPage() {
                 </td>
               </tr>
             )}
-            {trips.map((trip) => (
+            {!isLoading && trips.map((trip) => (
               <tr key={trip.id} className="border-b border-gray-50 last:border-0">
                 <td className="px-5 py-3">
                   <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[trip.status]}`}>

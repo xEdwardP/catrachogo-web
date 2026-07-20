@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 import { AdminLayout } from '../components/AdminLayout';
 import { getAdminWithdrawals, resolveWithdrawal } from '../api/admin';
+import { translateResolveWithdrawalError } from '../api/adminErrorMessages';
 import type { AdminWithdrawalRow, WithdrawalStatus } from '../types/admin';
 
 const STATUS_TABS: { value: WithdrawalStatus; label: string }[] = [
@@ -40,8 +42,8 @@ export function AdminWithdrawalsPage() {
         nextStatus === 'completed' ? 'Retiro marcado como completado.' : 'Retiro rechazado, saldo revertido.',
       );
       setWithdrawals((current) => current.filter((item) => item.id !== requestId));
-    } catch {
-      toast.error('No se pudo actualizar la solicitud.');
+    } catch (error) {
+      toast.error(translateResolveWithdrawalError(error));
     } finally {
       setResolvingId(null);
     }
@@ -81,6 +83,13 @@ export function AdminWithdrawalsPage() {
             </tr>
           </thead>
           <tbody>
+            {isLoading && (
+              <tr>
+                <td colSpan={5} className="px-5 py-8 text-center text-gray-400">
+                  <Loader2 className="mx-auto h-5 w-5 animate-spin" />
+                </td>
+              </tr>
+            )}
             {!isLoading && withdrawals.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-5 py-8 text-center text-gray-400">
@@ -88,7 +97,7 @@ export function AdminWithdrawalsPage() {
                 </td>
               </tr>
             )}
-            {withdrawals.map((withdrawal) => (
+            {!isLoading && withdrawals.map((withdrawal) => (
               <tr key={withdrawal.id} className="border-b border-gray-50 last:border-0">
                 <td className="px-5 py-3 font-medium text-gray-800">{withdrawal.driver.user.name}</td>
                 <td className="px-5 py-3 text-gray-600">{withdrawal.paypalEmail}</td>

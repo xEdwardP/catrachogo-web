@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 import { AdminLayout } from '../components/AdminLayout';
 import { AdminDriverDetailModal } from '../components/AdminDriverDetailModal';
 import { getAdminDrivers, updateDriverVerification } from '../api/admin';
+import { translateDriverVerificationError } from '../api/adminErrorMessages';
 import type { AdminDriverRow, VerificationStatus } from '../types/admin';
 
 const STATUS_TABS: { value: VerificationStatus; label: string }[] = [
@@ -49,7 +51,7 @@ export function AdminDriversPage() {
       setSelectedDriver(null);
       setDrivers((current) => current.filter((driver) => driver.id !== driverId));
     } catch {
-      toast.error('No se pudo actualizar el estado del conductor.');
+      toast.error(translateDriverVerificationError());
     } finally {
       setIsResolving(false);
     }
@@ -89,6 +91,13 @@ export function AdminDriversPage() {
             </tr>
           </thead>
           <tbody>
+            {isLoading && (
+              <tr>
+                <td colSpan={5} className="px-5 py-8 text-center text-gray-400">
+                  <Loader2 className="mx-auto h-5 w-5 animate-spin" />
+                </td>
+              </tr>
+            )}
             {!isLoading && drivers.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-5 py-8 text-center text-gray-400">
@@ -96,7 +105,7 @@ export function AdminDriversPage() {
                 </td>
               </tr>
             )}
-            {drivers.map((driver) => (
+            {!isLoading && drivers.map((driver) => (
               <tr
                 key={driver.id}
                 onClick={() => setSelectedDriver(driver)}

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
+import { toast } from 'sonner';
 import {
   getProfile,
   login as loginRequest,
@@ -8,6 +9,7 @@ import {
   updatePhone as updatePhoneRequest,
 } from '../api/auth';
 import { clearStoredToken, getStoredToken, setStoredToken } from '../api/tokenStorage';
+import { onSessionExpired } from '../api/sessionEvents';
 import type { AuthUser, RegisterPayload } from '../types/auth';
 import { AuthContext } from './AuthContext';
 import type { AuthContextValue } from './AuthContext';
@@ -27,6 +29,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(null);
       })
       .finally(() => setIsLoading(false));
+  }, []);
+
+  useEffect(() => {
+    return onSessionExpired(() => {
+      setUser(null);
+      toast.error('Tu sesión expiró. Inicia sesión de nuevo.');
+    });
   }, []);
 
   async function loginWithPassword(email: string, password: string): Promise<AuthUser> {
