@@ -9,7 +9,7 @@ export function PlaceholderScreen({ title, description }: PlaceholderScreenProps
   const { user, logout } = useAuth();
 
   return (
-    <div className="min-h-screen bg-[#DCEEE1] p-6">
+    <div className="min-h-screen bg-[#F6F1EC] p-6">
       <div className="mx-auto max-w-md rounded-2xl bg-white p-8 shadow-lg">
         <p className="text-sm text-gray-500">Hola, {user?.name}</p>
         <h1 className="mt-1 text-xl font-bold text-[#E8532E]">{title}</h1>

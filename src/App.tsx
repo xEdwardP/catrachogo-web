@@ -8,6 +8,9 @@ import { TripInProgressPage } from './pages/TripInProgressPage';
 import { TripHistoryPage } from './pages/TripHistoryPage';
 import { WalletPage } from './pages/WalletPage';
 import { DriverHomePage } from './pages/DriverHomePage';
+import { DriverCompleteProfilePage } from './pages/DriverCompleteProfilePage';
+import { IncomingRequestPage } from './pages/IncomingRequestPage';
+import { DriverTripPage } from './pages/DriverTripPage';
 import { AdminHomePage } from './pages/AdminHomePage';
 import { RootRedirect } from './pages/RootRedirect';
 
@@ -30,6 +33,11 @@ function App() {
 
       <Route element={<ProtectedRoute roles={['driver']} requirePhone />}>
         <Route path="/driver" element={<DriverHomePage />} />
+        <Route path="/driver/complete-profile" element={<DriverCompleteProfilePage />} />
+        <Route path="/driver/requests/:tripId" element={<IncomingRequestPage />} />
+        <Route path="/driver/trips/:tripId" element={<DriverTripPage />} />
+        <Route path="/driver/trips/history" element={<TripHistoryPage />} />
+        <Route path="/driver/wallet" element={<WalletPage />} />
       </Route>
 
       <Route element={<ProtectedRoute roles={['admin']} />}>

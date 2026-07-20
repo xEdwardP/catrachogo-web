@@ -7,6 +7,7 @@ import { getWalletBalance, getWalletTransactions, requestWithdrawal } from '../a
 import { translateWithdrawalError } from '../api/walletErrorMessages';
 import { PayPalTopupButtons } from '../components/PayPalTopupButtons';
 import { useAuth } from '../hooks/useAuth';
+import { homePathForRole } from '../utils/roleRoutes';
 import type { WalletTransaction } from '../types/wallet';
 
 const TRANSACTION_LABELS: Record<string, string> = {
@@ -89,9 +90,12 @@ export function WalletPage() {
   const parsedTopupAmount = Number(topupAmount);
 
   return (
-    <div className="min-h-screen bg-[#DCEEE1] p-4">
+    <div className="min-h-screen bg-[#F6F1EC] p-4">
       <div className="mx-auto max-w-md">
-        <Link to="/passenger" className="mb-4 inline-flex items-center gap-1 text-sm text-gray-600 hover:text-gray-800">
+        <Link
+          to={user ? homePathForRole(user.role) : '/'}
+          className="mb-4 inline-flex items-center gap-1 text-sm text-gray-600 hover:text-gray-800"
+        >
           <ArrowLeft className="h-4 w-4" /> Volver
         </Link>
         <h1 className="mb-4 text-xl font-bold text-gray-800">Mi Wallet</h1>

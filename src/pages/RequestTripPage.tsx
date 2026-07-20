@@ -49,7 +49,7 @@ function FareEstimatePanel({ origin, destination, onResult }: FareEstimatePanelP
   if (status === 'error') return null;
 
   return (
-    <div className="mb-4 flex items-center justify-between rounded-lg bg-[#DCEEE1] px-3 py-2">
+    <div className="mb-4 flex items-center justify-between rounded-lg bg-[#FDEAE3] px-3 py-2">
       <span className="text-sm text-gray-600">Tarifa estimada</span>
       {status === 'loading' ? (
         <Loader2 className="h-4 w-4 animate-spin text-[#2DBE87]" />
