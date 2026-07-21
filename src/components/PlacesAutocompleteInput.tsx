@@ -7,10 +7,13 @@ export interface PlaceSelection {
   lng: number;
 }
 
+const LOCATION_BIAS_RADIUS_METERS = 50000;
+
 interface PlacesAutocompleteInputProps {
   id: string;
   placeholder?: string;
   displayValue?: string;
+  locationBias?: { lat: number; lng: number } | null;
   onPlaceSelected: (place: PlaceSelection) => void;
 }
 
@@ -18,6 +21,7 @@ export function PlacesAutocompleteInput({
   id,
   placeholder,
   displayValue,
+  locationBias,
   onPlaceSelected,
 }: PlacesAutocompleteInputProps) {
   const placesLibrary = useMapsLibrary('places');
@@ -33,11 +37,22 @@ export function PlacesAutocompleteInput({
     displayValueRef.current = displayValue;
   });
 
+  const locationBiasRef = useRef(locationBias);
+  useEffect(() => {
+    locationBiasRef.current = locationBias;
+  });
+
   useEffect(() => {
     if (!placesLibrary || !containerRef.current) return;
 
     const element = new placesLibrary.PlaceAutocompleteElement({
       includedRegionCodes: ['hn'],
+      ...(locationBiasRef.current && {
+        locationBias: {
+          center: locationBiasRef.current,
+          radius: LOCATION_BIAS_RADIUS_METERS,
+        },
+      }),
     });
     element.id = id;
     if (placeholder) element.placeholder = placeholder;
@@ -77,6 +92,15 @@ export function PlacesAutocompleteInput({
       elementRef.current.value = displayValue;
     }
   }, [displayValue]);
+
+  useEffect(() => {
+    if (elementRef.current && locationBias) {
+      elementRef.current.locationBias = {
+        center: locationBias,
+        radius: LOCATION_BIAS_RADIUS_METERS,
+      };
+    }
+  }, [locationBias]);
 
   return <div ref={containerRef} className="w-full" />;
 }

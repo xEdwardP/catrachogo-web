@@ -1,13 +1,15 @@
 import { useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
-import { Map as GoogleMap, Marker } from '@vis.gl/react-google-maps';
+import { Map as GoogleMap, Marker, Polyline } from '@vis.gl/react-google-maps';
 import { Phone, Star, X } from 'lucide-react';
 import { cancelTrip, getDriverLocation, getTripDetail } from '../api/trips';
 import { getDriverPublicProfile } from '../api/drivers';
 import { translateCancelTripError } from '../api/tripErrorMessages';
 import { usePolling } from '../hooks/usePolling';
 import { useSmoothedPosition } from '../hooks/useSmoothedPosition';
+import { useDirectionsRoute } from '../hooks/useDirectionsRoute';
+import { ROUTE_COLOR } from '../utils/mapColors';
 import { RatingModal } from '../components/RatingModal';
 import type { TripDetail, TripDriverInfo, TripStatus } from '../types/trip';
 
@@ -92,6 +94,16 @@ export function TripInProgressPage() {
 
   const smoothedDriverPosition = useSmoothedPosition(driverPosition, 3500);
 
+  const isHeadingToPickup = trip?.status === 'accepted';
+  const routeDestinationLat = isHeadingToPickup ? trip?.originLat : trip?.destinationLat;
+  const routeDestinationLng = isHeadingToPickup ? trip?.originLng : trip?.destinationLng;
+  const route = useDirectionsRoute(
+    driverPosition?.lat,
+    driverPosition?.lng,
+    isTrackable ? routeDestinationLat : undefined,
+    isTrackable ? routeDestinationLng : undefined,
+  );
+
   if (!tripId) {
     return null;
   }
@@ -116,9 +128,20 @@ export function TripInProgressPage() {
         }`}
       >
         {bannerText}
+        {route.durationText && isTrackable && ` · llega en ${route.durationText}`}
       </div>
 
-      <GoogleMap center={mapCenter} zoom={14} onCameraChanged={() => {}} disableDefaultUI className="h-full w-full">
+      <GoogleMap
+        center={mapCenter}
+        zoom={14}
+        onCameraChanged={() => {}}
+        disableDefaultUI
+        gestureHandling="greedy"
+        className="h-full w-full"
+      >
+        {route.path && (
+          <Polyline path={route.path} strokeColor={ROUTE_COLOR} strokeOpacity={0.9} strokeWeight={4} />
+        )}
         {smoothedDriverPosition && <Marker position={smoothedDriverPosition} />}
       </GoogleMap>
 
