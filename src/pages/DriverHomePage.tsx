@@ -181,6 +181,7 @@ export function DriverHomePage() {
             zoom={14}
             onCameraChanged={() => {}}
             disableDefaultUI
+            gestureHandling="greedy"
             className="h-full w-full"
           >
             {smoothedPosition && <Marker position={smoothedPosition} />}

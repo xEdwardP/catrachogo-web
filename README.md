@@ -12,7 +12,7 @@
 
 Este repositorio consume la API de [`catrachogo-api`](https://github.com/xEdwardP/catrachogo-api) (NestJS + PostgreSQL/PostGIS) — no la modifica. Ambos proyectos corren en paralelo en desarrollo.
 
-Proyecto académico del equipo "Sistemas de Honduras".
+Proyecto académico del equipo "Los Inges".
 
 ## Stack técnico
 

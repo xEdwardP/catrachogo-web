@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { Map as GoogleMap, Marker } from '@vis.gl/react-google-maps';
+import { Map as GoogleMap, Marker, Polyline } from '@vis.gl/react-google-maps';
 import { Clock, Loader2, LogOut, Navigation, Wallet } from 'lucide-react';
 import { PlacesAutocompleteInput } from '../components/PlacesAutocompleteInput';
 import type { PlaceSelection } from '../components/PlacesAutocompleteInput';
@@ -9,6 +9,8 @@ import { createTrip, estimateFare } from '../api/trips';
 import { getApiStatusCode } from '../api/client';
 import { translateCreateTripError, translateEstimateError } from '../api/tripErrorMessages';
 import { useAuth } from '../hooks/useAuth';
+import { useDirectionsRoute } from '../hooks/useDirectionsRoute';
+import { ROUTE_COLOR } from '../utils/mapColors';
 import type { FareEstimate } from '../types/trip';
 
 const DEFAULT_CENTER = { lat: 15.5, lng: -88.03 };
@@ -16,10 +18,11 @@ const DEFAULT_CENTER = { lat: 15.5, lng: -88.03 };
 interface FareEstimatePanelProps {
   origin: PlaceSelection;
   destination: PlaceSelection;
+  durationText: string | null;
   onResult: (result: FareEstimate | null) => void;
 }
 
-function FareEstimatePanel({ origin, destination, onResult }: FareEstimatePanelProps) {
+function FareEstimatePanel({ origin, destination, durationText, onResult }: FareEstimatePanelProps) {
   const [status, setStatus] = useState<'loading' | 'error' | FareEstimate>('loading');
 
   useEffect(() => {
@@ -56,6 +59,7 @@ function FareEstimatePanel({ origin, destination, onResult }: FareEstimatePanelP
       ) : (
         <span className="text-sm font-bold text-success">
           L. {status.fare.toFixed(2)} · {status.distanceKm.toFixed(1)} km
+          {durationText ? ` · ${durationText}` : ''}
         </span>
       )}
     </div>
@@ -94,6 +98,8 @@ export function RequestTripPage() {
   }, []);
 
   const handleFareResult = useCallback((result: FareEstimate | null) => setFare(result), []);
+
+  const plannedRoute = useDirectionsRoute(origin?.lat, origin?.lng, destination?.lat, destination?.lng);
 
   async function handleRequestTrip() {
     if (!origin || !destination) return;
@@ -137,8 +143,12 @@ export function RequestTripPage() {
         zoom={14}
         onCameraChanged={() => {}}
         disableDefaultUI
+        gestureHandling="greedy"
         className="h-full w-full"
       >
+        {plannedRoute.path && (
+          <Polyline path={plannedRoute.path} strokeColor={ROUTE_COLOR} strokeOpacity={0.9} strokeWeight={4} />
+        )}
         {origin && <Marker position={origin} />}
         {destination && <Marker position={destination} />}
       </GoogleMap>
@@ -149,6 +159,7 @@ export function RequestTripPage() {
             id="destination-search"
             placeholder="¿A dónde vas?"
             displayValue={destinationInputValue}
+            locationBias={origin ? { lat: origin.lat, lng: origin.lng } : DEFAULT_CENTER}
             onPlaceSelected={(place) => {
               setDestination(place);
               setDestinationInputValue(place.address);
@@ -194,6 +205,7 @@ export function RequestTripPage() {
               id="origin-input"
               placeholder="Punto de partida"
               displayValue={originInputValue}
+              locationBias={origin ? { lat: origin.lat, lng: origin.lng } : DEFAULT_CENTER}
               onPlaceSelected={(place) => {
                 setOrigin(place);
                 setOriginInputValue(place.address);
@@ -212,6 +224,7 @@ export function RequestTripPage() {
               key={`${origin.lat},${origin.lng}-${destination.lat},${destination.lng}`}
               origin={origin}
               destination={destination}
+              durationText={plannedRoute.durationText}
               onResult={handleFareResult}
             />
           )}

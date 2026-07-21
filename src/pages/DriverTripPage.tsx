@@ -1,14 +1,19 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
-import { Map as GoogleMap, Marker } from '@vis.gl/react-google-maps';
+import { Map as GoogleMap, Marker, Polyline } from '@vis.gl/react-google-maps';
 import { Flag, Navigation, Phone } from 'lucide-react';
 import { completeTrip, getTripDetail, startTrip } from '../api/trips';
 import { sendDriverLocation } from '../api/tracking';
 import { translateCompleteTripError, translateStartTripError } from '../api/tripErrorMessages';
 import { usePolling } from '../hooks/usePolling';
 import { useSmoothedPosition } from '../hooks/useSmoothedPosition';
+import { useDirectionsRoute } from '../hooks/useDirectionsRoute';
+import { ROUTE_COLOR } from '../utils/mapColors';
+import { distanceMeters } from '../utils/geo';
 import type { TripDetail, TripStatus } from '../types/trip';
+
+const ARRIVAL_RADIUS_METERS = 150;
 
 interface DriverTripLocationState {
   passengerName?: string;
@@ -66,11 +71,39 @@ export function DriverTripPage() {
 
   const smoothedPosition = useSmoothedPosition(position, 3000);
 
+  useEffect(() => {
+    if (trip?.status === 'cancelled') {
+      toast.error('El pasajero canceló el viaje.');
+      navigate('/driver', { replace: true });
+    }
+  }, [trip?.status, navigate]);
+
+  const isPickupPhase = trip?.status === 'accepted';
+  const isTripPhase = trip?.status === 'in_progress';
+  const routeDestinationLat = isPickupPhase ? trip?.originLat : trip?.destinationLat;
+  const routeDestinationLng = isPickupPhase ? trip?.originLng : trip?.destinationLng;
+  const route = useDirectionsRoute(
+    position?.lat,
+    position?.lng,
+    isOnTrip ? routeDestinationLat : undefined,
+    isOnTrip ? routeDestinationLng : undefined,
+  );
+
+  const distanceToTarget =
+    position && routeDestinationLat != null && routeDestinationLng != null
+      ? distanceMeters(position, { lat: routeDestinationLat, lng: routeDestinationLng })
+      : null;
+  const isNearTarget = distanceToTarget != null && distanceToTarget <= ARRIVAL_RADIUS_METERS;
+
   if (!tripId) {
     return null;
   }
 
   async function handleStart() {
+    if (!isNearTarget) {
+      toast.error('Debes estar cerca del punto de recogida para iniciar el viaje.');
+      return;
+    }
     setIsUpdatingStatus(true);
     try {
       const updated = await startTrip(tripId!);
@@ -83,6 +116,10 @@ export function DriverTripPage() {
   }
 
   async function handleComplete() {
+    if (!isNearTarget) {
+      toast.error('Debes estar cerca del destino para completar el viaje.');
+      return;
+    }
     setIsUpdatingStatus(true);
     try {
       await completeTrip(tripId!);
@@ -100,8 +137,6 @@ export function DriverTripPage() {
   const canCall = Boolean(trip?.passengerPhone);
   const mapCenter = smoothedPosition ?? DEFAULT_CENTER;
   const passengerName = state?.passengerName;
-  const isPickupPhase = trip?.status === 'accepted';
-  const isTripPhase = trip?.status === 'in_progress';
 
   return (
     <div className="relative h-screen w-full overflow-hidden">
@@ -109,6 +144,7 @@ export function DriverTripPage() {
         <div className="flex items-center justify-center gap-2 p-3 text-center text-sm font-semibold">
           {BannerIcon && <BannerIcon className="h-4 w-4 shrink-0" />}
           {bannerText}
+          {route.durationText && isOnTrip && ` · ${route.durationText}`}
         </div>
         {(isPickupPhase || isTripPhase) && (
           <div className="flex gap-1 px-4 pb-2">
@@ -118,7 +154,17 @@ export function DriverTripPage() {
         )}
       </div>
 
-      <GoogleMap center={mapCenter} zoom={14} onCameraChanged={() => {}} disableDefaultUI className="h-full w-full">
+      <GoogleMap
+        center={mapCenter}
+        zoom={14}
+        onCameraChanged={() => {}}
+        disableDefaultUI
+        gestureHandling="greedy"
+        className="h-full w-full"
+      >
+        {route.path && (
+          <Polyline path={route.path} strokeColor={ROUTE_COLOR} strokeOpacity={0.9} strokeWeight={4} />
+        )}
         {smoothedPosition && <Marker position={smoothedPosition} />}
       </GoogleMap>
 
@@ -174,7 +220,8 @@ export function DriverTripPage() {
               <button
                 type="button"
                 onClick={handleStart}
-                disabled={isUpdatingStatus}
+                disabled={isUpdatingStatus || !isNearTarget}
+                title={isNearTarget ? undefined : 'Acércate al punto de recogida para habilitar este botón'}
                 className="flex-1 rounded-lg bg-brand py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Llegué, iniciar viaje
@@ -185,13 +232,22 @@ export function DriverTripPage() {
               <button
                 type="button"
                 onClick={handleComplete}
-                disabled={isUpdatingStatus}
+                disabled={isUpdatingStatus || !isNearTarget}
+                title={isNearTarget ? undefined : 'Acércate al destino para habilitar este botón'}
                 className="flex-1 rounded-lg bg-success py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Completar viaje
               </button>
             )}
           </div>
+
+          {(isPickupPhase || isTripPhase) && !isNearTarget && (
+            <p className="mt-2 text-center text-xs text-gray-400">
+              {isPickupPhase
+                ? 'Acércate al punto de recogida para poder iniciar el viaje.'
+                : 'Acércate al destino para poder completar el viaje.'}
+            </p>
+          )}
         </div>
       </div>
     </div>
