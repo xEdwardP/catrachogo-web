@@ -6,6 +6,7 @@ import { AuthLayout } from '../components/AuthLayout';
 import { useAuth } from '../hooks/useAuth';
 import { translatePhoneUpdateError } from '../api/authErrorMessages';
 import { homePathForRole } from '../utils/roleRoutes';
+import { sanitizePhoneInput } from '../utils/phone';
 
 const PHONE_PATTERN = /^\+?\d{8,15}$/;
 
@@ -51,11 +52,12 @@ export function CompleteProfilePage() {
           <input
             id="phone"
             type="tel"
+            inputMode="tel"
             required
             autoComplete="tel"
             placeholder="99998888"
             value={phone}
-            onChange={(event) => setPhone(event.target.value)}
+            onChange={(event) => setPhone(sanitizePhoneInput(event.target.value))}
             className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           />
         </div>

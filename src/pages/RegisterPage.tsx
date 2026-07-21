@@ -8,6 +8,7 @@ import { RoleToggle } from '../components/RoleToggle';
 import { useAuth } from '../hooks/useAuth';
 import { translateRegisterError } from '../api/authErrorMessages';
 import { resolvePostAuthPath } from '../utils/authRedirect';
+import { sanitizePhoneInput } from '../utils/phone';
 
 const PHONE_PATTERN = /^\+?\d{8,15}$/;
 
@@ -98,11 +99,12 @@ export function RegisterPage() {
           <input
             id="phone"
             type="tel"
+            inputMode="tel"
             required
             autoComplete="tel"
             placeholder="99998888"
             value={phone}
-            onChange={(event) => setPhone(event.target.value)}
+            onChange={(event) => setPhone(sanitizePhoneInput(event.target.value))}
             className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           />
         </div>
