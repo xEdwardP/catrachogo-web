@@ -11,6 +11,7 @@ import { useSmoothedPosition } from '../hooks/useSmoothedPosition';
 import { useDirectionsRoute } from '../hooks/useDirectionsRoute';
 import { ROUTE_COLOR } from '../utils/mapColors';
 import { RatingModal } from '../components/RatingModal';
+import { CancelTripConfirmModal } from '../components/CancelTripConfirmModal';
 import type { TripDetail, TripDriverInfo, TripStatus } from '../types/trip';
 
 interface TripInProgressLocationState {
@@ -40,6 +41,7 @@ export function TripInProgressPage() {
   const [driver, setDriver] = useState<TripDriverInfo | null>(null);
   const [driverPosition, setDriverPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [ratingDismissed, setRatingDismissed] = useState(false);
   const fetchedDriverIdRef = useRef<string | null>(null);
 
@@ -82,14 +84,27 @@ export function TripInProgressPage() {
     if (!tripId) return;
     setIsCancelling(true);
     try {
-      await cancelTrip(tripId);
-      toast.success('Viaje cancelado.');
+      const cancelled = await cancelTrip(tripId);
+      toast.success(
+        cancelled.cancellationFee
+          ? `Viaje cancelado. Se aplicó un cargo de L. ${cancelled.cancellationFee.toFixed(2)}.`
+          : 'Viaje cancelado.',
+      );
       navigate('/passenger');
     } catch (error) {
       toast.error(translateCancelTripError(error));
     } finally {
       setIsCancelling(false);
+      setShowCancelConfirm(false);
     }
+  }
+
+  function handleCancelClick() {
+    if (trip?.status === 'accepted') {
+      setShowCancelConfirm(true);
+      return;
+    }
+    handleCancel();
   }
 
   const smoothedDriverPosition = useSmoothedPosition(driverPosition, 3500);
@@ -175,7 +190,7 @@ export function TripInProgressPage() {
           <div className="flex gap-3">
             <button
               type="button"
-              onClick={handleCancel}
+              onClick={handleCancelClick}
               disabled={isCancelling || !canCancel}
               className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-300 py-2.5 text-sm font-medium text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
@@ -193,6 +208,14 @@ export function TripInProgressPage() {
           </div>
         </div>
       </div>
+
+      {showCancelConfirm && (
+        <CancelTripConfirmModal
+          isSubmitting={isCancelling}
+          onConfirm={handleCancel}
+          onDismiss={() => setShowCancelConfirm(false)}
+        />
+      )}
 
       {shouldShowRating && driver?.userId && (
         <RatingModal

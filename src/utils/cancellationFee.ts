@@ -1,0 +1,1 @@
+export const CANCELLATION_FEE_AMOUNT = 25;

@@ -33,6 +33,7 @@ export interface Trip {
   startedAt?: string | null;
   completedAt?: string | null;
   ratedByMe?: boolean;
+  cancellationFee?: number | null;
 }
 
 export interface TripDriverInfo {
