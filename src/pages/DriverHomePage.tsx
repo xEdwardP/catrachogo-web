@@ -1,16 +1,21 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Map as GoogleMap, Marker } from '@vis.gl/react-google-maps';
-import { Clock, LogOut, Star, Wallet } from 'lucide-react';
+import { CarFront, ChevronRight, Clock, DollarSign, LogOut, Star, Wallet } from 'lucide-react';
 import { getDriverSummary, getPendingRequest, updateAvailability } from '../api/drivers';
+import { getTripHistory } from '../api/trips';
 import { sendDriverLocation } from '../api/tracking';
 import { getApiStatusCode } from '../api/client';
 import { translateAvailabilityError } from '../api/driverErrorMessages';
 import { usePolling } from '../hooks/usePolling';
 import { useSmoothedPosition } from '../hooks/useSmoothedPosition';
 import { useAuth } from '../hooks/useAuth';
+import { TRIP_STATUS_COLORS, TRIP_STATUS_LABELS } from '../utils/tripStatusLabels';
 import type { DriverSummary } from '../types/driver';
+import type { Trip } from '../types/trip';
+
+const RECENT_TRIPS_LIMIT = 5;
 
 const DEFAULT_CENTER = { lat: 15.5, lng: -88.03 };
 
@@ -20,6 +25,8 @@ export function DriverHomePage() {
 
   const [summary, setSummary] = useState<DriverSummary | null>(null);
   const [isLoadingSummary, setIsLoadingSummary] = useState(true);
+  const [recentTrips, setRecentTrips] = useState<Trip[]>([]);
+  const [isLoadingRecentTrips, setIsLoadingRecentTrips] = useState(true);
   const [isAvailable, setIsAvailable] = useState(false);
   const [isTogglingAvailability, setIsTogglingAvailability] = useState(false);
   const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
@@ -40,6 +47,13 @@ export function DriverHomePage() {
   useEffect(() => {
     fetchSummary();
   }, [fetchSummary]);
+
+  useEffect(() => {
+    getTripHistory(1, RECENT_TRIPS_LIMIT)
+      .then((result) => setRecentTrips(result.data))
+      .catch(() => {})
+      .finally(() => setIsLoadingRecentTrips(false));
+  }, []);
 
   usePolling(
     () => {
@@ -155,27 +169,84 @@ export function DriverHomePage() {
         <p className="mb-2 text-sm font-semibold text-gray-700">Resumen de hoy</p>
         <div className="mb-4 grid grid-cols-3 gap-2">
           <div className="rounded-xl bg-white p-3 text-center shadow-sm">
+            <span className="mx-auto mb-1.5 flex h-8 w-8 items-center justify-center rounded-full bg-success/10 text-success">
+              <DollarSign className="h-4 w-4" />
+            </span>
             <p className="text-lg font-bold text-success">
               {isLoadingSummary || !summary ? '...' : `L. ${summary.earningsToday.toFixed(0)}`}
             </p>
             <p className="text-xs text-gray-500">Ganancias</p>
           </div>
           <div className="rounded-xl bg-white p-3 text-center shadow-sm">
+            <span className="mx-auto mb-1.5 flex h-8 w-8 items-center justify-center rounded-full bg-brand-pale text-brand">
+              <CarFront className="h-4 w-4" />
+            </span>
             <p className="text-lg font-bold text-gray-800">
               {isLoadingSummary || !summary ? '...' : summary.tripsToday}
             </p>
             <p className="text-xs text-gray-500">Viajes</p>
           </div>
           <div className="rounded-xl bg-white p-3 text-center shadow-sm">
-            <p className="flex items-center justify-center gap-1 text-lg font-bold text-gray-800">
-              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+            <span className="mx-auto mb-1.5 flex h-8 w-8 items-center justify-center rounded-full bg-yellow-100 text-yellow-500">
+              <Star className="h-4 w-4 fill-current" />
+            </span>
+            <p className="text-lg font-bold text-gray-800">
               {isLoadingSummary || !summary ? '...' : summary.averageRating.toFixed(1)}
             </p>
             <p className="text-xs text-gray-500">Calificación</p>
           </div>
         </div>
 
-        <div className="relative h-64 overflow-hidden rounded-2xl shadow-sm">
+        <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm">
+          <div className="mb-3 flex items-center justify-between">
+            <p className="text-sm font-semibold text-gray-700">Últimos viajes</p>
+            <Link
+              to="/driver/trips/history"
+              className="flex items-center gap-0.5 text-xs font-medium text-brand hover:underline"
+            >
+              Ver todo <ChevronRight className="h-3 w-3" />
+            </Link>
+          </div>
+
+          {isLoadingRecentTrips ? (
+            <p className="py-2 text-sm text-gray-400">Cargando...</p>
+          ) : recentTrips.length === 0 ? (
+            <p className="py-2 text-sm text-gray-400">Todavía no tienes viajes.</p>
+          ) : (
+            <ul className="flex flex-col gap-2.5">
+              {recentTrips.map((trip) => (
+                <li key={trip.id}>
+                  <Link
+                    to={`/driver/trips/${trip.id}`}
+                    className="-mx-1 flex items-center justify-between rounded-lg px-1 py-1 transition hover:bg-cream/70"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm text-gray-700">{trip.destinationAddress}</p>
+                      {trip.requestedAt && (
+                        <p className="text-xs text-gray-400">
+                          {new Date(trip.requestedAt).toLocaleDateString('es-HN', {
+                            day: 'numeric',
+                            month: 'short',
+                          })}
+                        </p>
+                      )}
+                    </div>
+                    <div className="ml-2 flex shrink-0 items-center gap-2">
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${TRIP_STATUS_COLORS[trip.status]}`}
+                      >
+                        {TRIP_STATUS_LABELS[trip.status]}
+                      </span>
+                      <span className="text-sm font-semibold text-gray-800">L. {trip.fare.toFixed(0)}</span>
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div className="relative h-52 overflow-hidden rounded-2xl shadow-sm">
           <GoogleMap
             center={mapCenter}
             zoom={14}

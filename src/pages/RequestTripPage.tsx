@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Map as GoogleMap, Marker, Polyline } from '@vis.gl/react-google-maps';
-import { Clock, Loader2, LogOut, Navigation, Wallet } from 'lucide-react';
+import { ArrowLeft, Clock, Loader2, LogOut, MapPin, Navigation, Wallet } from 'lucide-react';
 import { PlacesAutocompleteInput } from '../components/PlacesAutocompleteInput';
 import type { PlaceSelection } from '../components/PlacesAutocompleteInput';
-import { createTrip, estimateFare } from '../api/trips';
+import { createTrip, estimateFare, getTripHistory } from '../api/trips';
 import { getApiStatusCode } from '../api/client';
 import { translateCreateTripError, translateEstimateError } from '../api/tripErrorMessages';
 import { useAuth } from '../hooks/useAuth';
@@ -14,6 +14,7 @@ import { ROUTE_COLOR } from '../utils/mapColors';
 import type { FareEstimate } from '../types/trip';
 
 const DEFAULT_CENTER = { lat: 15.5, lng: -88.03 };
+const RECENT_DESTINATIONS_LIMIT = 5;
 
 interface FareEstimatePanelProps {
   origin: PlaceSelection;
@@ -68,13 +69,32 @@ function FareEstimatePanel({ origin, destination, durationText, onResult }: Fare
 
 export function RequestTripPage() {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
+  const [step, setStep] = useState<'home' | 'confirm'>('home');
   const [origin, setOrigin] = useState<PlaceSelection | null>(null);
   const [originInputValue, setOriginInputValue] = useState('');
   const [destination, setDestination] = useState<PlaceSelection | null>(null);
   const [destinationInputValue, setDestinationInputValue] = useState('');
   const [fare, setFare] = useState<FareEstimate | null>(null);
   const [isRequesting, setIsRequesting] = useState(false);
+  const [recentDestinations, setRecentDestinations] = useState<PlaceSelection[]>([]);
+
+  useEffect(() => {
+    getTripHistory(1, 20)
+      .then((result) => {
+        const seen = new Set<string>();
+        const recents: PlaceSelection[] = [];
+        for (const trip of result.data) {
+          if (!trip.destinationAddress || trip.destinationLat == null || trip.destinationLng == null) continue;
+          if (seen.has(trip.destinationAddress)) continue;
+          seen.add(trip.destinationAddress);
+          recents.push({ address: trip.destinationAddress, lat: trip.destinationLat, lng: trip.destinationLng });
+          if (recents.length >= RECENT_DESTINATIONS_LIMIT) break;
+        }
+        setRecentDestinations(recents);
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (!navigator.geolocation) {
@@ -100,6 +120,15 @@ export function RequestTripPage() {
   const handleFareResult = useCallback((result: FareEstimate | null) => setFare(result), []);
 
   const plannedRoute = useDirectionsRoute(origin?.lat, origin?.lng, destination?.lat, destination?.lng);
+
+  function selectDestination(place: PlaceSelection) {
+    setDestination(place);
+    setDestinationInputValue(place.address);
+    setFare(null);
+    setStep('confirm');
+  }
+
+  const firstName = useMemo(() => user?.name.split(' ')[0], [user?.name]);
 
   async function handleRequestTrip() {
     if (!origin || !destination) return;
@@ -136,6 +165,96 @@ export function RequestTripPage() {
 
   const mapCenter = destination ?? origin ?? DEFAULT_CENTER;
 
+  if (step === 'home') {
+    return (
+      <div className="min-h-screen bg-cream p-4">
+        <div className="mx-auto max-w-md">
+          <div className="mb-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-pale text-sm font-bold text-brand shadow-sm">
+                {user?.name.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">Hola,</p>
+                <p className="font-semibold text-gray-800">{firstName}</p>
+              </div>
+            </div>
+            <div className="flex gap-2 rounded-lg bg-white p-1.5 shadow-sm">
+              <button
+                type="button"
+                onClick={() => navigate('/passenger/trips/history')}
+                aria-label="Historial de viajes"
+                className="rounded-md p-1.5 text-gray-600 hover:bg-gray-100"
+              >
+                <Clock className="h-5 w-5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/passenger/wallet')}
+                aria-label="Wallet"
+                className="rounded-md p-1.5 text-gray-600 hover:bg-gray-100"
+              >
+                <Wallet className="h-5 w-5" />
+              </button>
+              <button
+                type="button"
+                onClick={logout}
+                aria-label="Cerrar sesión"
+                className="rounded-md p-1.5 text-gray-600 hover:bg-gray-100"
+              >
+                <LogOut className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+
+          <div className="mb-4 rounded-2xl bg-white p-1 shadow-sm">
+            <PlacesAutocompleteInput
+              id="destination-search"
+              placeholder="¿A dónde vas?"
+              displayValue={destinationInputValue}
+              locationBias={origin ? { lat: origin.lat, lng: origin.lng } : DEFAULT_CENTER}
+              onPlaceSelected={selectDestination}
+            />
+          </div>
+
+          {recentDestinations.length > 0 && (
+            <div className="mb-4">
+              <p className="mb-2 text-sm font-semibold text-gray-700">Destinos recientes</p>
+              <div className="flex flex-col gap-2">
+                {recentDestinations.map((place) => (
+                  <button
+                    key={place.address}
+                    type="button"
+                    onClick={() => selectDestination(place)}
+                    className="flex items-center gap-2 rounded-xl bg-white p-3 text-left shadow-sm transition hover:bg-cream/70"
+                  >
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-pale text-brand">
+                      <MapPin className="h-4 w-4" />
+                    </span>
+                    <span className="truncate text-sm text-gray-700">{place.address}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="relative h-40 overflow-hidden rounded-2xl shadow-sm">
+            <GoogleMap
+              center={origin ?? DEFAULT_CENTER}
+              zoom={14}
+              onCameraChanged={() => {}}
+              disableDefaultUI
+              gestureHandling="none"
+              className="h-full w-full"
+            >
+              {origin && <Marker position={origin} />}
+            </GoogleMap>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative h-screen w-full overflow-hidden">
       <GoogleMap
@@ -154,6 +273,14 @@ export function RequestTripPage() {
       </GoogleMap>
 
       <div className="absolute inset-x-0 top-0 mx-auto flex w-full max-w-2xl items-start gap-2 p-4">
+        <button
+          type="button"
+          onClick={() => setStep('home')}
+          aria-label="Volver al inicio"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-white text-gray-600 shadow-md hover:bg-gray-100"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </button>
         <div className="flex-1">
           <PlacesAutocompleteInput
             id="destination-search"
