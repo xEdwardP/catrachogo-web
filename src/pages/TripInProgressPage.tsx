@@ -142,7 +142,11 @@ export function TripInProgressPage() {
     return null;
   }
 
-  const bannerText = trip ? STATUS_BANNER[trip.status] : 'Cargando...';
+  const bannerText = trip
+    ? trip.status === 'accepted' && trip.arrivedAt
+      ? 'Tu conductor ha llegado'
+      : STATUS_BANNER[trip.status]
+    : 'Cargando...';
   const canCall = Boolean(trip?.driverPhone);
   const destinationAddress = trip?.destinationAddress ?? state?.destinationAddress ?? '';
   const fallbackCenter =

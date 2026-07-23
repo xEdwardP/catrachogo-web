@@ -41,6 +41,16 @@ export async function startTrip(tripId: string): Promise<Trip> {
   return data;
 }
 
+export async function markDriverArrived(tripId: string): Promise<Trip> {
+  const { data } = await apiClient.patch<Trip>(`/trips/${tripId}/arrived`);
+  return data;
+}
+
+export async function reportNoShow(tripId: string): Promise<Trip> {
+  const { data } = await apiClient.patch<Trip>(`/trips/${tripId}/no-show`);
+  return data;
+}
+
 export async function completeTrip(tripId: string): Promise<Trip> {
   const { data } = await apiClient.patch<Trip>(`/trips/${tripId}/complete`);
   return data;
