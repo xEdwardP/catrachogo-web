@@ -12,6 +12,7 @@ import { useDirectionsRoute } from '../hooks/useDirectionsRoute';
 import { ROUTE_COLOR } from '../utils/mapColors';
 import { RatingModal } from '../components/RatingModal';
 import { CancelTripConfirmModal } from '../components/CancelTripConfirmModal';
+import { MapAutoRecenter } from '../components/MapAutoRecenter';
 import type { TripDetail, TripDriverInfo, TripStatus } from '../types/trip';
 
 interface TripInProgressLocationState {
@@ -130,7 +131,6 @@ export function TripInProgressPage() {
     state?.originLat !== undefined && state?.originLng !== undefined
       ? { lat: state.originLat, lng: state.originLng }
       : DEFAULT_CENTER;
-  const mapCenter = smoothedDriverPosition ?? fallbackCenter;
   const canCancel = trip?.status === 'pending' || trip?.status === 'accepted';
   const shouldShowRating =
     !ratingDismissed && trip?.status === 'completed' && Boolean(driver?.userId) && trip?.ratedByMe === false;
@@ -147,13 +147,13 @@ export function TripInProgressPage() {
       </div>
 
       <GoogleMap
-        center={mapCenter}
-        zoom={14}
-        onCameraChanged={() => {}}
+        defaultCenter={fallbackCenter}
+        defaultZoom={14}
         disableDefaultUI
         gestureHandling="greedy"
         className="h-full w-full"
       >
+        <MapAutoRecenter position={smoothedDriverPosition} />
         {route.path && (
           <Polyline path={route.path} strokeColor={ROUTE_COLOR} strokeOpacity={0.9} strokeWeight={4} />
         )}

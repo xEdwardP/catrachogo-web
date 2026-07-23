@@ -6,6 +6,7 @@ import { CarFront, ChevronRight, Clock, DollarSign, LogOut, Star, Wallet } from 
 import { getDriverSummary, getPendingRequest, updateAvailability } from '../api/drivers';
 import { getTripHistory } from '../api/trips';
 import { NotificationBell } from '../components/NotificationBell';
+import { MapAutoRecenter } from '../components/MapAutoRecenter';
 import { sendDriverLocation } from '../api/tracking';
 import { getApiStatusCode } from '../api/client';
 import { translateAvailabilityError } from '../api/driverErrorMessages';
@@ -97,7 +98,6 @@ export function DriverHomePage() {
   }
 
   const smoothedPosition = useSmoothedPosition(position, 3000);
-  const mapCenter = smoothedPosition ?? DEFAULT_CENTER;
 
   return (
     <div className="min-h-screen bg-cream p-4">
@@ -250,13 +250,13 @@ export function DriverHomePage() {
 
         <div className="relative h-52 overflow-hidden rounded-2xl shadow-sm">
           <GoogleMap
-            center={mapCenter}
-            zoom={14}
-            onCameraChanged={() => {}}
+            defaultCenter={DEFAULT_CENTER}
+            defaultZoom={14}
             disableDefaultUI
             gestureHandling="greedy"
             className="h-full w-full"
           >
+            <MapAutoRecenter position={smoothedPosition} />
             {smoothedPosition && <Marker position={smoothedPosition} />}
           </GoogleMap>
           {isAvailable && (
