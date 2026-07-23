@@ -76,6 +76,9 @@ export function DriverTripPage() {
     if (trip?.status === 'cancelled') {
       toast.error('El pasajero canceló el viaje.');
       navigate('/driver', { replace: true });
+    } else if (trip?.status === 'completed') {
+      toast.success('El pasajero finalizó el viaje. El cobro se aplicó automáticamente.');
+      navigate('/driver', { replace: true });
     }
   }, [trip?.status, navigate]);
 
