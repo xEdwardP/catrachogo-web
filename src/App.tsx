@@ -1,122 +1,61 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import { LoginPage } from './pages/LoginPage';
+import { RegisterPage } from './pages/RegisterPage';
+import { CompleteProfilePage } from './pages/CompleteProfilePage';
+import { RequestTripPage } from './pages/RequestTripPage';
+import { TripInProgressPage } from './pages/TripInProgressPage';
+import { TripHistoryPage } from './pages/TripHistoryPage';
+import { WalletPage } from './pages/WalletPage';
+import { DriverHomePage } from './pages/DriverHomePage';
+import { DriverCompleteProfilePage } from './pages/DriverCompleteProfilePage';
+import { IncomingRequestPage } from './pages/IncomingRequestPage';
+import { DriverTripPage } from './pages/DriverTripPage';
+import { AdminDashboardPage } from './pages/AdminDashboardPage';
+import { AdminDriversPage } from './pages/AdminDriversPage';
+import { AdminTripsPage } from './pages/AdminTripsPage';
+import { AdminWithdrawalsPage } from './pages/AdminWithdrawalsPage';
+import { AdminFareZonesPage } from './pages/AdminFareZonesPage';
+import { RootRedirect } from './pages/RootRedirect';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
 
-      <div className="ticks"></div>
+      <Route element={<ProtectedRoute />}>
+        <Route path="/complete-profile" element={<CompleteProfilePage />} />
+      </Route>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      <Route element={<ProtectedRoute roles={['passenger']} requirePhone />}>
+        <Route path="/passenger" element={<RequestTripPage />} />
+        <Route path="/passenger/trips/history" element={<TripHistoryPage />} />
+        <Route path="/passenger/trips/:tripId" element={<TripInProgressPage />} />
+        <Route path="/passenger/wallet" element={<WalletPage />} />
+      </Route>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      <Route element={<ProtectedRoute roles={['driver']} requirePhone />}>
+        <Route path="/driver" element={<DriverHomePage />} />
+        <Route path="/driver/complete-profile" element={<DriverCompleteProfilePage />} />
+        <Route path="/driver/requests/:tripId" element={<IncomingRequestPage />} />
+        <Route path="/driver/trips/:tripId" element={<DriverTripPage />} />
+        <Route path="/driver/trips/history" element={<TripHistoryPage />} />
+        <Route path="/driver/wallet" element={<WalletPage />} />
+      </Route>
+
+      <Route element={<ProtectedRoute roles={['admin']} />}>
+        <Route path="/admin" element={<AdminDashboardPage />} />
+        <Route path="/admin/drivers" element={<AdminDriversPage />} />
+        <Route path="/admin/trips" element={<AdminTripsPage />} />
+        <Route path="/admin/withdrawals" element={<AdminWithdrawalsPage />} />
+        <Route path="/admin/fare-zones" element={<AdminFareZonesPage />} />
+      </Route>
+
+      <Route path="/" element={<RootRedirect />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
 }
 
-export default App
+export default App;
