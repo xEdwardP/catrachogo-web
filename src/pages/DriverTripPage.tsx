@@ -11,6 +11,7 @@ import { useSmoothedPosition } from '../hooks/useSmoothedPosition';
 import { useDirectionsRoute } from '../hooks/useDirectionsRoute';
 import { ROUTE_COLOR } from '../utils/mapColors';
 import { distanceMeters } from '../utils/geo';
+import { MapAutoRecenter } from '../components/MapAutoRecenter';
 import type { TripDetail, TripStatus } from '../types/trip';
 
 const ARRIVAL_RADIUS_METERS = 150;
@@ -135,7 +136,6 @@ export function DriverTripPage() {
   const bannerText = trip ? STATUS_BANNER[trip.status] : 'Cargando...';
   const BannerIcon = trip ? STATUS_ICON[trip.status] : undefined;
   const canCall = Boolean(trip?.passengerPhone);
-  const mapCenter = smoothedPosition ?? DEFAULT_CENTER;
   const passengerName = state?.passengerName;
 
   return (
@@ -155,13 +155,13 @@ export function DriverTripPage() {
       </div>
 
       <GoogleMap
-        center={mapCenter}
-        zoom={14}
-        onCameraChanged={() => {}}
+        defaultCenter={DEFAULT_CENTER}
+        defaultZoom={14}
         disableDefaultUI
         gestureHandling="greedy"
         className="h-full w-full"
       >
+        <MapAutoRecenter position={smoothedPosition} />
         {route.path && (
           <Polyline path={route.path} strokeColor={ROUTE_COLOR} strokeOpacity={0.9} strokeWeight={4} />
         )}

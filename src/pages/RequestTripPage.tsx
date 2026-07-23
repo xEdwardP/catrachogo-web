@@ -6,6 +6,7 @@ import { ArrowLeft, Clock, Loader2, LogOut, MapPin, Navigation, Wallet } from 'l
 import { PlacesAutocompleteInput } from '../components/PlacesAutocompleteInput';
 import type { PlaceSelection } from '../components/PlacesAutocompleteInput';
 import { NotificationBell } from '../components/NotificationBell';
+import { MapAutoRecenter } from '../components/MapAutoRecenter';
 import { createTrip, estimateFare, getTripHistory } from '../api/trips';
 import { getApiStatusCode } from '../api/client';
 import { translateCreateTripError, translateEstimateError } from '../api/tripErrorMessages';
@@ -164,7 +165,7 @@ export function RequestTripPage() {
     }
   }
 
-  const mapCenter = destination ?? origin ?? DEFAULT_CENTER;
+  const recenterTarget = destination ?? origin ?? null;
 
   if (step === 'home') {
     return (
@@ -242,13 +243,13 @@ export function RequestTripPage() {
 
           <div className="relative h-40 overflow-hidden rounded-2xl shadow-sm">
             <GoogleMap
-              center={origin ?? DEFAULT_CENTER}
-              zoom={14}
-              onCameraChanged={() => {}}
+              defaultCenter={DEFAULT_CENTER}
+              defaultZoom={14}
               disableDefaultUI
-              gestureHandling="none"
+              gestureHandling="greedy"
               className="h-full w-full"
             >
+              <MapAutoRecenter position={origin} />
               {origin && <Marker position={origin} />}
             </GoogleMap>
           </div>
@@ -260,13 +261,13 @@ export function RequestTripPage() {
   return (
     <div className="relative h-screen w-full overflow-hidden">
       <GoogleMap
-        center={mapCenter}
-        zoom={14}
-        onCameraChanged={() => {}}
+        defaultCenter={DEFAULT_CENTER}
+        defaultZoom={14}
         disableDefaultUI
         gestureHandling="greedy"
         className="h-full w-full"
       >
+        <MapAutoRecenter position={recenterTarget} />
         {plannedRoute.path && (
           <Polyline path={plannedRoute.path} strokeColor={ROUTE_COLOR} strokeOpacity={0.9} strokeWeight={4} />
         )}
