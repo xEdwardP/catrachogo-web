@@ -5,6 +5,7 @@ import { Map as GoogleMap, Marker } from '@vis.gl/react-google-maps';
 import { CarFront, ChevronRight, Clock, DollarSign, LogOut, Star, Wallet } from 'lucide-react';
 import { getDriverSummary, getPendingRequest, updateAvailability } from '../api/drivers';
 import { getTripHistory } from '../api/trips';
+import { NotificationBell } from '../components/NotificationBell';
 import { sendDriverLocation } from '../api/tracking';
 import { getApiStatusCode } from '../api/client';
 import { translateAvailabilityError } from '../api/driverErrorMessages';
@@ -111,7 +112,8 @@ export function DriverHomePage() {
               <p className="font-semibold text-gray-800">{user?.name}</p>
             </div>
           </div>
-          <div className="flex gap-2 rounded-lg bg-white p-1.5 shadow-sm">
+          <div className="flex items-center gap-2 rounded-lg bg-white p-1.5 shadow-sm">
+            <NotificationBell />
             <button
               type="button"
               onClick={() => navigate('/driver/trips/history')}

@@ -5,6 +5,7 @@ import { Map as GoogleMap, Marker, Polyline } from '@vis.gl/react-google-maps';
 import { ArrowLeft, Clock, Loader2, LogOut, MapPin, Navigation, Wallet } from 'lucide-react';
 import { PlacesAutocompleteInput } from '../components/PlacesAutocompleteInput';
 import type { PlaceSelection } from '../components/PlacesAutocompleteInput';
+import { NotificationBell } from '../components/NotificationBell';
 import { createTrip, estimateFare, getTripHistory } from '../api/trips';
 import { getApiStatusCode } from '../api/client';
 import { translateCreateTripError, translateEstimateError } from '../api/tripErrorMessages';
@@ -179,7 +180,8 @@ export function RequestTripPage() {
                 <p className="font-semibold text-gray-800">{firstName}</p>
               </div>
             </div>
-            <div className="flex gap-2 rounded-lg bg-white p-1.5 shadow-sm">
+            <div className="flex items-center gap-2 rounded-lg bg-white p-1.5 shadow-sm">
+              <NotificationBell />
               <button
                 type="button"
                 onClick={() => navigate('/passenger/trips/history')}
@@ -294,7 +296,8 @@ export function RequestTripPage() {
             }}
           />
         </div>
-        <div className="flex gap-2 rounded-lg bg-white p-1.5 shadow-md">
+        <div className="flex items-center gap-2 rounded-lg bg-white p-1.5 shadow-md">
+          <NotificationBell />
           <button
             type="button"
             onClick={() => navigate('/passenger/trips/history')}

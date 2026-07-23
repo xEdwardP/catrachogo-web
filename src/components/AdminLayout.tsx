@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Car, LayoutDashboard, LogOut, MapPinned, Users, Wallet } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import { NotificationBell } from './NotificationBell';
 
 const NAV_ITEMS = [
   { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -17,12 +18,15 @@ export function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen bg-cream">
       <aside className="flex w-64 shrink-0 flex-col border-r border-gray-100 bg-white">
-        <div className="flex items-center gap-2.5 px-5 py-5">
-          <img src="/logo_without_text.png" alt="CatrachoGo" className="h-9 w-9" />
-          <div>
-            <p className="font-bold leading-tight text-gray-800">CatrachoGo</p>
-            <p className="text-xs font-medium text-brand">Administración</p>
+        <div className="flex items-center justify-between px-5 py-5">
+          <div className="flex items-center gap-2.5">
+            <img src="/logo_without_text.png" alt="CatrachoGo" className="h-9 w-9" />
+            <div>
+              <p className="font-bold leading-tight text-gray-800">CatrachoGo</p>
+              <p className="text-xs font-medium text-brand">Administración</p>
+            </div>
           </div>
+          <NotificationBell />
         </div>
 
         <nav className="flex flex-1 flex-col gap-1 px-3 pt-2">
