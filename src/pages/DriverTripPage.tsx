@@ -3,15 +3,22 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Map as GoogleMap, Marker, Polyline } from '@vis.gl/react-google-maps';
 import { Flag, Navigation, Phone } from 'lucide-react';
-import { completeTrip, getTripDetail, startTrip } from '../api/trips';
+import { completeTrip, getTripDetail, markDriverArrived, reportNoShow, startTrip } from '../api/trips';
 import { sendDriverLocation } from '../api/tracking';
-import { translateCompleteTripError, translateStartTripError } from '../api/tripErrorMessages';
+import {
+  translateCompleteTripError,
+  translateMarkArrivedError,
+  translateNoShowError,
+  translateStartTripError,
+} from '../api/tripErrorMessages';
 import { usePolling } from '../hooks/usePolling';
 import { useSmoothedPosition } from '../hooks/useSmoothedPosition';
 import { useDirectionsRoute } from '../hooks/useDirectionsRoute';
 import { ROUTE_COLOR } from '../utils/mapColors';
 import { distanceMeters } from '../utils/geo';
+import { NO_SHOW_GRACE_PERIOD_MS } from '../utils/noShowGracePeriod';
 import { MapAutoRecenter } from '../components/MapAutoRecenter';
+import { ReportNoShowConfirmModal } from '../components/ReportNoShowConfirmModal';
 import type { TripDetail, TripStatus } from '../types/trip';
 
 const ARRIVAL_RADIUS_METERS = 150;
@@ -44,6 +51,9 @@ export function DriverTripPage() {
   const [trip, setTrip] = useState<TripDetail | null>(null);
   const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [isReportingNoShow, setIsReportingNoShow] = useState(false);
+  const [showNoShowConfirm, setShowNoShowConfirm] = useState(false);
+  const [nowTick, setNowTick] = useState(() => Date.now());
 
   usePolling(
     () => {
@@ -82,6 +92,12 @@ export function DriverTripPage() {
     }
   }, [trip?.status, navigate]);
 
+  useEffect(() => {
+    if (trip?.status !== 'accepted' || !trip.arrivedAt) return;
+    const interval = setInterval(() => setNowTick(Date.now()), 1000);
+    return () => clearInterval(interval);
+  }, [trip?.status, trip?.arrivedAt]);
+
   const isPickupPhase = trip?.status === 'accepted';
   const isTripPhase = trip?.status === 'in_progress';
   const routeDestinationLat = isPickupPhase ? trip?.originLat : trip?.destinationLat;
@@ -119,6 +135,37 @@ export function DriverTripPage() {
     }
   }
 
+  async function handleMarkArrived() {
+    if (!isNearTarget) {
+      toast.error('Debes estar cerca del punto de recogida para marcar tu llegada.');
+      return;
+    }
+    setIsUpdatingStatus(true);
+    try {
+      const updated = await markDriverArrived(tripId!);
+      setTrip((current) => (current ? { ...current, arrivedAt: updated.arrivedAt } : current));
+    } catch (error) {
+      toast.error(translateMarkArrivedError(error));
+    } finally {
+      setIsUpdatingStatus(false);
+    }
+  }
+
+  async function handleReportNoShow() {
+    if (!tripId) return;
+    setIsReportingNoShow(true);
+    try {
+      await reportNoShow(tripId);
+      toast.success('Viaje cancelado por no-show. Se aplicó un cargo al pasajero.');
+      navigate('/driver', { replace: true });
+    } catch (error) {
+      toast.error(translateNoShowError(error));
+    } finally {
+      setIsReportingNoShow(false);
+      setShowNoShowConfirm(false);
+    }
+  }
+
   async function handleComplete() {
     if (!isNearTarget) {
       toast.error('Debes estar cerca del destino para completar el viaje.');
@@ -140,6 +187,13 @@ export function DriverTripPage() {
   const BannerIcon = trip ? STATUS_ICON[trip.status] : undefined;
   const canCall = Boolean(trip?.passengerPhone);
   const passengerName = state?.passengerName;
+
+  const arrivedAtMs = trip?.arrivedAt ? new Date(trip.arrivedAt).getTime() : null;
+  const isWaitingForPassenger = trip?.status === 'accepted' && arrivedAtMs != null;
+  const elapsedSinceArrivalMs = arrivedAtMs != null ? nowTick - arrivedAtMs : 0;
+  const canReportNoShow = isWaitingForPassenger && elapsedSinceArrivalMs >= NO_SHOW_GRACE_PERIOD_MS;
+  const remainingMs = Math.max(0, NO_SHOW_GRACE_PERIOD_MS - elapsedSinceArrivalMs);
+  const remainingLabel = `${Math.floor(remainingMs / 60000)}:${String(Math.floor((remainingMs % 60000) / 1000)).padStart(2, '0')}`;
 
   return (
     <div className="relative h-screen w-full overflow-hidden">
@@ -219,15 +273,26 @@ export function DriverTripPage() {
               <Phone className="h-4 w-4" /> Llamar
             </a>
 
-            {trip?.status === 'accepted' && (
+            {trip?.status === 'accepted' && !trip.arrivedAt && (
               <button
                 type="button"
-                onClick={handleStart}
+                onClick={handleMarkArrived}
                 disabled={isUpdatingStatus || !isNearTarget}
                 title={isNearTarget ? undefined : 'Acércate al punto de recogida para habilitar este botón'}
                 className="flex-1 rounded-lg bg-brand py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Llegué, iniciar viaje
+                Llegué
+              </button>
+            )}
+
+            {trip?.status === 'accepted' && trip.arrivedAt && (
+              <button
+                type="button"
+                onClick={handleStart}
+                disabled={isUpdatingStatus}
+                className="flex-1 rounded-lg bg-brand py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Iniciar viaje
               </button>
             )}
 
@@ -244,15 +309,44 @@ export function DriverTripPage() {
             )}
           </div>
 
-          {(isPickupPhase || isTripPhase) && !isNearTarget && (
+          {isPickupPhase && !trip?.arrivedAt && !isNearTarget && (
             <p className="mt-2 text-center text-xs text-gray-400">
-              {isPickupPhase
-                ? 'Acércate al punto de recogida para poder iniciar el viaje.'
-                : 'Acércate al destino para poder completar el viaje.'}
+              Acércate al punto de recogida para poder marcar tu llegada.
             </p>
+          )}
+
+          {isTripPhase && !isNearTarget && (
+            <p className="mt-2 text-center text-xs text-gray-400">Acércate al destino para poder completar el viaje.</p>
+          )}
+
+          {isWaitingForPassenger && (
+            <div className="mt-3 text-center">
+              {!canReportNoShow ? (
+                <p className="text-xs text-gray-400">
+                  Esperando al pasajero... podrás reportar que no llegó en {remainingLabel}.
+                </p>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setShowNoShowConfirm(true)}
+                  disabled={isReportingNoShow}
+                  className="text-xs font-medium text-red-500 underline disabled:opacity-50"
+                >
+                  El pasajero no llegó
+                </button>
+              )}
+            </div>
           )}
         </div>
       </div>
+
+      {showNoShowConfirm && (
+        <ReportNoShowConfirmModal
+          isSubmitting={isReportingNoShow}
+          onConfirm={handleReportNoShow}
+          onDismiss={() => setShowNoShowConfirm(false)}
+        />
+      )}
     </div>
   );
 }

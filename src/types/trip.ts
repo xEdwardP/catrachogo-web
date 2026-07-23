@@ -32,6 +32,7 @@ export interface Trip {
   requestedAt?: string;
   startedAt?: string | null;
   completedAt?: string | null;
+  arrivedAt?: string | null;
   ratedByMe?: boolean;
   cancellationFee?: number | null;
 }
@@ -58,6 +59,7 @@ export interface TripDetail {
   destinationLng: number;
   driverId: string | null;
   ratedByMe: boolean;
+  arrivedAt?: string | null;
   driverPhone?: string | null;
   passengerPhone?: string | null;
   driver?: TripDriverInfo;
