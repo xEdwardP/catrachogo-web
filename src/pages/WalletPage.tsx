@@ -8,14 +8,8 @@ import { translateWithdrawalError } from '../api/walletErrorMessages';
 import { PayPalTopupButtons } from '../components/PayPalTopupButtons';
 import { useAuth } from '../hooks/useAuth';
 import { homePathForRole } from '../utils/roleRoutes';
+import { WALLET_TRANSACTION_LABELS } from '../utils/walletTransactionLabels';
 import type { WalletTransaction } from '../types/wallet';
-
-const TRANSACTION_LABELS: Record<string, string> = {
-  paypal_topup: 'Recarga PayPal',
-  trip_charge: 'Pago de viaje',
-  trip_payout: 'Cobro de viaje',
-  withdrawal_adjustment: 'Retiro',
-};
 
 const PAGE_SIZE = 20;
 
@@ -115,27 +109,29 @@ export function WalletPage() {
           </p>
         </div>
 
-        <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm">
-          <label htmlFor="topup-amount" className="mb-2 block text-sm font-medium text-gray-700">
-            Recargar con PayPal
-          </label>
-          <input
-            id="topup-amount"
-            type="number"
-            min={1}
-            step="0.01"
-            value={topupAmount}
-            onChange={(event) => setTopupAmount(event.target.value)}
-            className="mb-3 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
-          />
-          <PayPalTopupButtons
-            amount={parsedTopupAmount}
-            onSuccess={(newBalance) => {
-              setBalance(newBalance);
-              setPage(1);
-            }}
-          />
-        </div>
+        {user?.role === 'passenger' && (
+          <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm">
+            <label htmlFor="topup-amount" className="mb-2 block text-sm font-medium text-gray-700">
+              Recargar con PayPal
+            </label>
+            <input
+              id="topup-amount"
+              type="number"
+              min={1}
+              step="0.01"
+              value={topupAmount}
+              onChange={(event) => setTopupAmount(event.target.value)}
+              className="mb-3 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            />
+            <PayPalTopupButtons
+              amount={parsedTopupAmount}
+              onSuccess={(newBalance) => {
+                setBalance(newBalance);
+                setPage(1);
+              }}
+            />
+          </div>
+        )}
 
         {user?.role === 'driver' && (
           <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm">
@@ -208,7 +204,11 @@ export function WalletPage() {
                 <ArrowDownCircle className="h-6 w-6" />
               </span>
               <p className="text-sm font-medium text-gray-600">Todavía no tienes movimientos</p>
-              <p className="text-xs text-gray-400">Recarga tu wallet para empezar a usar CatrachoGo.</p>
+              <p className="text-xs text-gray-400">
+                {user?.role === 'passenger'
+                  ? 'Recarga tu wallet para empezar a usar CatrachoGo.'
+                  : 'Aquí verás tus ganancias y retiros.'}
+              </p>
             </div>
           ) : (
             <ul className="flex flex-col gap-3">
@@ -224,7 +224,7 @@ export function WalletPage() {
                       <ArrowUpCircle className="h-5 w-5 text-red-500" />
                     )}
                     <div>
-                      <p className="text-sm text-gray-800">{TRANSACTION_LABELS[tx.type] ?? tx.type}</p>
+                      <p className="text-sm text-gray-800">{WALLET_TRANSACTION_LABELS[tx.type] ?? tx.type}</p>
                       <p className="text-xs text-gray-400">
                         {new Date(tx.createdAt).toLocaleDateString('es-HN')}
                       </p>
