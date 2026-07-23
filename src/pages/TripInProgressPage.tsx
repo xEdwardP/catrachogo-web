@@ -2,16 +2,17 @@ import { useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Map as GoogleMap, Marker, Polyline } from '@vis.gl/react-google-maps';
-import { Phone, Star, X } from 'lucide-react';
-import { cancelTrip, getDriverLocation, getTripDetail } from '../api/trips';
+import { Flag, Phone, Star, X } from 'lucide-react';
+import { cancelTrip, endTripEarly, getDriverLocation, getTripDetail } from '../api/trips';
 import { getDriverPublicProfile } from '../api/drivers';
-import { translateCancelTripError } from '../api/tripErrorMessages';
+import { translateCancelTripError, translateEndTripEarlyError } from '../api/tripErrorMessages';
 import { usePolling } from '../hooks/usePolling';
 import { useSmoothedPosition } from '../hooks/useSmoothedPosition';
 import { useDirectionsRoute } from '../hooks/useDirectionsRoute';
 import { ROUTE_COLOR } from '../utils/mapColors';
 import { RatingModal } from '../components/RatingModal';
 import { CancelTripConfirmModal } from '../components/CancelTripConfirmModal';
+import { EndTripEarlyConfirmModal } from '../components/EndTripEarlyConfirmModal';
 import { MapAutoRecenter } from '../components/MapAutoRecenter';
 import type { TripDetail, TripDriverInfo, TripStatus } from '../types/trip';
 
@@ -43,6 +44,8 @@ export function TripInProgressPage() {
   const [driverPosition, setDriverPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [isCancelling, setIsCancelling] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [isEndingEarly, setIsEndingEarly] = useState(false);
+  const [showEndEarlyConfirm, setShowEndEarlyConfirm] = useState(false);
   const [ratingDismissed, setRatingDismissed] = useState(false);
   const fetchedDriverIdRef = useRef<string | null>(null);
 
@@ -106,6 +109,21 @@ export function TripInProgressPage() {
       return;
     }
     handleCancel();
+  }
+
+  async function handleEndTripEarly() {
+    if (!tripId) return;
+    setIsEndingEarly(true);
+    try {
+      const ended = await endTripEarly(tripId);
+      toast.success(`Viaje finalizado. Se cobró L. ${ended.fare.toFixed(2)} por la distancia recorrida.`);
+      navigate('/passenger');
+    } catch (error) {
+      toast.error(translateEndTripEarlyError(error));
+    } finally {
+      setIsEndingEarly(false);
+      setShowEndEarlyConfirm(false);
+    }
   }
 
   const smoothedDriverPosition = useSmoothedPosition(driverPosition, 3500);
@@ -188,14 +206,25 @@ export function TripInProgressPage() {
           </div>
 
           <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={handleCancelClick}
-              disabled={isCancelling || !canCancel}
-              className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-300 py-2.5 text-sm font-medium text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <X className="h-4 w-4" /> Cancelar
-            </button>
+            {trip?.status === 'in_progress' ? (
+              <button
+                type="button"
+                onClick={() => setShowEndEarlyConfirm(true)}
+                disabled={isEndingEarly}
+                className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-300 py-2.5 text-sm font-medium text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Flag className="h-4 w-4" /> Finalizar viaje
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleCancelClick}
+                disabled={isCancelling || !canCancel}
+                className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-300 py-2.5 text-sm font-medium text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <X className="h-4 w-4" /> Cancelar
+              </button>
+            )}
             <a
               href={canCall ? `tel:${trip?.driverPhone}` : undefined}
               aria-disabled={!canCall}
@@ -214,6 +243,14 @@ export function TripInProgressPage() {
           isSubmitting={isCancelling}
           onConfirm={handleCancel}
           onDismiss={() => setShowCancelConfirm(false)}
+        />
+      )}
+
+      {showEndEarlyConfirm && (
+        <EndTripEarlyConfirmModal
+          isSubmitting={isEndingEarly}
+          onConfirm={handleEndTripEarly}
+          onDismiss={() => setShowEndEarlyConfirm(false)}
         />
       )}
 

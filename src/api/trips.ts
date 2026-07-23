@@ -46,6 +46,11 @@ export async function completeTrip(tripId: string): Promise<Trip> {
   return data;
 }
 
+export async function endTripEarly(tripId: string): Promise<Trip> {
+  const { data } = await apiClient.patch<Trip>(`/trips/${tripId}/complete-early`);
+  return data;
+}
+
 export async function getTripHistory(page = 1, limit = 20): Promise<PaginatedResult<Trip>> {
   const { data } = await apiClient.get<PaginatedResult<Trip>>('/trips/history', { params: { page, limit } });
   return data;
