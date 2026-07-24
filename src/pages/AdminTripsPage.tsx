@@ -5,6 +5,7 @@ import { ArrowDown, ArrowUp, ArrowUpDown, Car, Loader2 } from 'lucide-react';
 import { AdminLayout } from '../components/AdminLayout';
 import { EmptyTableState } from '../components/EmptyTableState';
 import { getAdminTrips } from '../api/admin';
+import { CANCELLATION_REASON_LABELS } from '../utils/cancellationReasonLabels';
 import type { Trip, TripStatus } from '../types/trip';
 
 const STATUS_LABELS: Record<TripStatus, string> = {
@@ -153,6 +154,7 @@ export function AdminTripsPage() {
               <th className="px-5 py-3">Estado</th>
               <th className="px-5 py-3">Origen</th>
               <th className="px-5 py-3">Destino</th>
+              <th className="px-5 py-3">Motivo de cancelación</th>
               <SortableHeader
                 label="Tarifa"
                 field="fare"
@@ -172,7 +174,7 @@ export function AdminTripsPage() {
           <tbody>
             {isLoading && (
               <tr>
-                <td colSpan={5} className="px-5 py-8 text-center text-gray-400">
+                <td colSpan={6} className="px-5 py-8 text-center text-gray-400">
                   <Loader2 className="mx-auto h-5 w-5 animate-spin" />
                 </td>
               </tr>
@@ -180,7 +182,7 @@ export function AdminTripsPage() {
             {!isLoading && trips.length === 0 && (
               <EmptyTableState
                 icon={Car}
-                colSpan={5}
+                colSpan={6}
                 title="No hay viajes con este filtro"
                 description="Prueba con otro estado o revisa más tarde."
               />
@@ -194,6 +196,11 @@ export function AdminTripsPage() {
                 </td>
                 <td className="max-w-[200px] truncate px-5 py-3 text-gray-600">{trip.originAddress}</td>
                 <td className="max-w-[200px] truncate px-5 py-3 text-gray-600">{trip.destinationAddress}</td>
+                <td className="px-5 py-3 text-gray-600">
+                  {trip.status === 'cancelled' && trip.cancellationReason
+                    ? CANCELLATION_REASON_LABELS[trip.cancellationReason]
+                    : '—'}
+                </td>
                 <td className="px-5 py-3 font-semibold text-gray-800">L. {trip.fare.toFixed(2)}</td>
                 <td className="px-5 py-3 text-gray-600">
                   {trip.requestedAt ? new Date(trip.requestedAt).toLocaleString('es-HN') : '—'}

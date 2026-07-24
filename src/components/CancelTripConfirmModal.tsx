@@ -1,13 +1,19 @@
+import { useState } from 'react';
 import { AlertTriangle, X } from 'lucide-react';
 import { CANCELLATION_FEE_AMOUNT } from '../utils/cancellationFee';
+import { CANCELLATION_REASON_LABELS, PASSENGER_CANCELLATION_REASONS } from '../utils/cancellationReasonLabels';
+import type { CancellationReason } from '../types/trip';
 
 interface CancelTripConfirmModalProps {
   isSubmitting: boolean;
-  onConfirm: () => void;
+  chargesFee: boolean;
+  onConfirm: (reason: CancellationReason) => void;
   onDismiss: () => void;
 }
 
-export function CancelTripConfirmModal({ isSubmitting, onConfirm, onDismiss }: CancelTripConfirmModalProps) {
+export function CancelTripConfirmModal({ isSubmitting, chargesFee, onConfirm, onDismiss }: CancelTripConfirmModalProps) {
+  const [reason, setReason] = useState<CancellationReason>(PASSENGER_CANCELLATION_REASONS[0]);
+
   return (
     <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-lg">
@@ -25,11 +31,37 @@ export function CancelTripConfirmModal({ isSubmitting, onConfirm, onDismiss }: C
         </div>
 
         <h2 className="mb-1 text-lg font-semibold text-gray-800">¿Cancelar este viaje?</h2>
-        <p className="mb-5 text-sm text-gray-500">
-          El conductor ya va en camino a recogerte. Si cancelas ahora, se aplicará un cargo de{' '}
-          <span className="font-semibold text-gray-700">L. {CANCELLATION_FEE_AMOUNT.toFixed(2)}</span> a tu wallet
-          como compensación para el conductor.
+        <p className="mb-4 text-sm text-gray-500">
+          {chargesFee ? (
+            <>
+              El conductor ya va en camino a recogerte. Si cancelas ahora, se aplicará un cargo de{' '}
+              <span className="font-semibold text-gray-700">L. {CANCELLATION_FEE_AMOUNT.toFixed(2)}</span> a tu
+              wallet como compensación para el conductor.
+            </>
+          ) : (
+            'Todavía no se te ha asignado un conductor, así que esta cancelación es gratuita.'
+          )}
         </p>
+
+        <p className="mb-2 text-xs font-semibold text-gray-500">¿Por qué cancelas?</p>
+        <div className="mb-5 flex flex-col gap-2">
+          {PASSENGER_CANCELLATION_REASONS.map((value) => (
+            <label
+              key={value}
+              className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700 has-[:checked]:border-brand has-[:checked]:bg-brand-pale"
+            >
+              <input
+                type="radio"
+                name="cancellation-reason"
+                value={value}
+                checked={reason === value}
+                onChange={() => setReason(value)}
+                className="accent-brand"
+              />
+              {CANCELLATION_REASON_LABELS[value]}
+            </label>
+          ))}
+        </div>
 
         <div className="flex gap-3">
           <button
@@ -42,7 +74,7 @@ export function CancelTripConfirmModal({ isSubmitting, onConfirm, onDismiss }: C
           </button>
           <button
             type="button"
-            onClick={onConfirm}
+            onClick={() => onConfirm(reason)}
             disabled={isSubmitting}
             className="flex-1 rounded-lg bg-brand py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
           >
