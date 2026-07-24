@@ -41,5 +41,17 @@ export function translatePhoneUpdateError(error: unknown): string {
   if (statusCode === 400) {
     return 'El número de teléfono no es válido. Usa entre 8 y 15 dígitos, con "+" opcional al inicio.';
   }
+  if (statusCode === 409) {
+    return 'Ese número de teléfono ya está en uso por otra cuenta.';
+  }
   return 'No se pudo guardar el teléfono. Intenta de nuevo.';
+}
+
+export function translateNameUpdateError(error: unknown): string {
+  const statusCode = getApiStatusCode(error);
+
+  if (statusCode === 400) {
+    return 'El nombre no es válido.';
+  }
+  return 'No se pudo guardar el nombre. Intenta de nuevo.';
 }

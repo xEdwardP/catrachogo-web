@@ -6,6 +6,7 @@ export interface AuthUser {
   email: string;
   phone: string | null;
   role: UserRole;
+  profilePhotoUrl: string | null;
   createdAt?: string;
 }
 

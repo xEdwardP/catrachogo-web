@@ -9,6 +9,8 @@ export interface AuthContextValue {
   registerAccount: (payload: RegisterPayload) => Promise<AuthUser>;
   loginWithGoogleToken: (idToken: string) => Promise<AuthUser>;
   completePhone: (phone: string) => Promise<AuthUser>;
+  updateName: (name: string) => Promise<AuthUser>;
+  updateProfilePhoto: (profilePhotoUrl: string) => Promise<AuthUser>;
   logout: () => void;
 }
 
