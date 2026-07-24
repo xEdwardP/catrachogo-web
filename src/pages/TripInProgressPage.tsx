@@ -14,7 +14,7 @@ import { RatingModal } from '../components/RatingModal';
 import { CancelTripConfirmModal } from '../components/CancelTripConfirmModal';
 import { EndTripEarlyConfirmModal } from '../components/EndTripEarlyConfirmModal';
 import { MapAutoRecenter } from '../components/MapAutoRecenter';
-import type { TripDetail, TripDriverInfo, TripStatus } from '../types/trip';
+import type { CancellationReason, TripDetail, TripDriverInfo, TripStatus } from '../types/trip';
 
 interface TripInProgressLocationState {
   originAddress?: string;
@@ -84,11 +84,11 @@ export function TripInProgressPage() {
     Boolean(tripId) && isTrackable,
   );
 
-  async function handleCancel() {
+  async function handleCancel(reason: CancellationReason) {
     if (!tripId) return;
     setIsCancelling(true);
     try {
-      const cancelled = await cancelTrip(tripId);
+      const cancelled = await cancelTrip(tripId, reason);
       toast.success(
         cancelled.cancellationFee
           ? `Viaje cancelado. Se aplicó un cargo de L. ${cancelled.cancellationFee.toFixed(2)}.`
@@ -104,11 +104,7 @@ export function TripInProgressPage() {
   }
 
   function handleCancelClick() {
-    if (trip?.status === 'accepted') {
-      setShowCancelConfirm(true);
-      return;
-    }
-    handleCancel();
+    setShowCancelConfirm(true);
   }
 
   async function handleEndTripEarly() {
@@ -245,6 +241,7 @@ export function TripInProgressPage() {
       {showCancelConfirm && (
         <CancelTripConfirmModal
           isSubmitting={isCancelling}
+          chargesFee={trip?.status === 'accepted'}
           onConfirm={handleCancel}
           onDismiss={() => setShowCancelConfirm(false)}
         />

@@ -1,6 +1,6 @@
 import { apiClient } from './client';
 import type { PaginatedResult } from '../types/pagination';
-import type { CreateTripPayload, DriverLocation, FareEstimate, Trip, TripDetail } from '../types/trip';
+import type { CancellationReason, CreateTripPayload, DriverLocation, FareEstimate, Trip, TripDetail } from '../types/trip';
 
 export async function estimateFare(payload: {
   originLat: number;
@@ -22,8 +22,8 @@ export async function getTripDetail(tripId: string): Promise<TripDetail> {
   return data;
 }
 
-export async function cancelTrip(tripId: string): Promise<Trip> {
-  const { data } = await apiClient.patch<Trip>(`/trips/${tripId}/cancel`);
+export async function cancelTrip(tripId: string, reason: CancellationReason): Promise<Trip> {
+  const { data } = await apiClient.patch<Trip>(`/trips/${tripId}/cancel`, { reason });
   return data;
 }
 

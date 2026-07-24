@@ -2,6 +2,8 @@ import type { DriverVehicle } from './driver';
 
 export type TripStatus = 'pending' | 'accepted' | 'in_progress' | 'completed' | 'cancelled';
 
+export type CancellationReason = 'changed_plans' | 'found_other_ride' | 'took_too_long' | 'other' | 'no_show';
+
 export interface FareEstimate {
   distanceKm: number;
   fare: number;
@@ -35,6 +37,7 @@ export interface Trip {
   arrivedAt?: string | null;
   ratedByMe?: boolean;
   cancellationFee?: number | null;
+  cancellationReason?: CancellationReason | null;
 }
 
 export interface TripDriverInfo {
