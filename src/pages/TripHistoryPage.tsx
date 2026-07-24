@@ -1,12 +1,16 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
-import { ArrowLeft, CarFront } from 'lucide-react';
+import { ArrowLeft, CarFront, Flag } from 'lucide-react';
 import { getTripHistory } from '../api/trips';
+import { createIncidentReport } from '../api/incidentReports';
+import { translateCreateIncidentReportError } from '../api/incidentReportErrorMessages';
+import { ReportIncidentModal } from '../components/ReportIncidentModal';
 import { useAuth } from '../hooks/useAuth';
 import { homePathForRole } from '../utils/roleRoutes';
 import { TRIP_STATUS_COLORS, TRIP_STATUS_LABELS } from '../utils/tripStatusLabels';
 import type { Trip } from '../types/trip';
+import type { IncidentReportCategory } from '../types/incidentReport';
 
 const PAGE_SIZE = 20;
 
@@ -17,6 +21,8 @@ export function TripHistoryPage() {
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [reportingTripId, setReportingTripId] = useState<string | null>(null);
+  const [isSubmittingReport, setIsSubmittingReport] = useState(false);
 
   useEffect(() => {
     getTripHistory(page, PAGE_SIZE)
@@ -33,6 +39,20 @@ export function TripHistoryPage() {
   function goToPage(newPage: number) {
     setIsLoading(true);
     setPage(newPage);
+  }
+
+  async function handleSubmitReport(payload: { category: IncidentReportCategory; description: string }) {
+    if (!reportingTripId) return;
+    setIsSubmittingReport(true);
+    try {
+      await createIncidentReport({ tripId: reportingTripId, ...payload });
+      toast.success('Reporte enviado. Gracias por avisarnos.');
+      setReportingTripId(null);
+    } catch (error) {
+      toast.error(translateCreateIncidentReportError(error));
+    } finally {
+      setIsSubmittingReport(false);
+    }
   }
 
   return (
@@ -80,6 +100,15 @@ export function TripHistoryPage() {
                       </p>
                     )}
                   </Link>
+                  {user?.role === 'passenger' && trip.driverId && (
+                    <button
+                      type="button"
+                      onClick={() => setReportingTripId(trip.id)}
+                      className="mt-1 flex items-center gap-1 text-xs font-medium text-gray-400 hover:text-red-500"
+                    >
+                      <Flag className="h-3 w-3" /> Reportar
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>
@@ -110,6 +139,14 @@ export function TripHistoryPage() {
           )}
         </div>
       </div>
+
+      {reportingTripId && (
+        <ReportIncidentModal
+          isSubmitting={isSubmittingReport}
+          onSubmit={handleSubmitReport}
+          onDismiss={() => setReportingTripId(null)}
+        />
+      )}
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { apiClient } from './client';
 import type { PaginatedResult } from '../types/pagination';
 import type { AdminDriverRow, AdminWithdrawalRow, VerificationStatus, WithdrawalStatus } from '../types/admin';
 import type { Trip } from '../types/trip';
+import type { AdminIncidentReportRow, IncidentReportStatus } from '../types/incidentReport';
 
 export async function getAdminDrivers(status?: VerificationStatus): Promise<AdminDriverRow[]> {
   const { data } = await apiClient.get<AdminDriverRow[]>('/admin/drivers', { params: { status } });
@@ -36,4 +37,15 @@ export async function resolveWithdrawal(
   status: 'completed' | 'rejected',
 ): Promise<void> {
   await apiClient.patch(`/admin/withdrawals/${requestId}`, { status });
+}
+
+export async function getAdminIncidentReports(status?: IncidentReportStatus): Promise<AdminIncidentReportRow[]> {
+  const { data } = await apiClient.get<AdminIncidentReportRow[]>('/admin/incident-reports', {
+    params: { status },
+  });
+  return data;
+}
+
+export async function markIncidentReportReviewed(id: string): Promise<void> {
+  await apiClient.patch(`/admin/incident-reports/${id}/review`);
 }

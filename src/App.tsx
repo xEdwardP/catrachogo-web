@@ -15,6 +15,7 @@ import { AdminDashboardPage } from './pages/AdminDashboardPage';
 import { AdminDriversPage } from './pages/AdminDriversPage';
 import { AdminTripsPage } from './pages/AdminTripsPage';
 import { AdminWithdrawalsPage } from './pages/AdminWithdrawalsPage';
+import { AdminIncidentReportsPage } from './pages/AdminIncidentReportsPage';
 import { AdminFareZonesPage } from './pages/AdminFareZonesPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { SupportPage } from './pages/SupportPage';
@@ -55,6 +56,7 @@ function App() {
         <Route path="/admin/drivers" element={<AdminDriversPage />} />
         <Route path="/admin/trips" element={<AdminTripsPage />} />
         <Route path="/admin/withdrawals" element={<AdminWithdrawalsPage />} />
+        <Route path="/admin/incident-reports" element={<AdminIncidentReportsPage />} />
         <Route path="/admin/fare-zones" element={<AdminFareZonesPage />} />
       </Route>
 
