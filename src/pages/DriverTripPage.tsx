@@ -196,37 +196,45 @@ export function DriverTripPage() {
   const remainingLabel = `${Math.floor(remainingMs / 60000)}:${String(Math.floor((remainingMs % 60000) / 1000)).padStart(2, '0')}`;
 
   return (
-    <div className="relative h-screen w-full overflow-hidden">
-      <div className="absolute inset-x-0 top-0 z-10 bg-success text-white shadow-md">
-        <div className="flex items-center justify-center gap-2 p-3 text-center text-sm font-semibold">
-          {BannerIcon && <BannerIcon className="h-4 w-4 shrink-0" />}
-          {bannerText}
-          {route.durationText && isOnTrip && ` · ${route.durationText}`}
-        </div>
-        {(isPickupPhase || isTripPhase) && (
-          <div className="flex gap-1 px-4 pb-2">
-            <span className="h-1 flex-1 rounded-full bg-white" />
-            <span className={`h-1 flex-1 rounded-full ${isTripPhase ? 'bg-white' : 'bg-white/30'}`} />
+    <div className="relative flex h-screen w-full flex-col overflow-hidden lg:flex-row">
+      <div className="relative h-full w-full lg:flex-1">
+        <div className="absolute inset-x-0 top-0 z-10 bg-success text-white shadow-md lg:hidden">
+          <div className="flex items-center justify-center gap-2 p-3 text-center text-sm font-semibold">
+            {BannerIcon && <BannerIcon className="h-4 w-4 shrink-0" />}
+            {bannerText}
+            {route.durationText && isOnTrip && ` · ${route.durationText}`}
           </div>
-        )}
+          {(isPickupPhase || isTripPhase) && (
+            <div className="flex gap-1 px-4 pb-2">
+              <span className="h-1 flex-1 rounded-full bg-white" />
+              <span className={`h-1 flex-1 rounded-full ${isTripPhase ? 'bg-white' : 'bg-white/30'}`} />
+            </div>
+          )}
+        </div>
+
+        <GoogleMap
+          defaultCenter={DEFAULT_CENTER}
+          defaultZoom={14}
+          disableDefaultUI
+          gestureHandling="greedy"
+          className="h-full w-full"
+        >
+          <MapAutoRecenter position={smoothedPosition} />
+          {route.path && (
+            <Polyline path={route.path} strokeColor={ROUTE_COLOR} strokeOpacity={0.9} strokeWeight={4} />
+          )}
+          {smoothedPosition && <Marker position={smoothedPosition} />}
+        </GoogleMap>
       </div>
 
-      <GoogleMap
-        defaultCenter={DEFAULT_CENTER}
-        defaultZoom={14}
-        disableDefaultUI
-        gestureHandling="greedy"
-        className="h-full w-full"
-      >
-        <MapAutoRecenter position={smoothedPosition} />
-        {route.path && (
-          <Polyline path={route.path} strokeColor={ROUTE_COLOR} strokeOpacity={0.9} strokeWeight={4} />
-        )}
-        {smoothedPosition && <Marker position={smoothedPosition} />}
-      </GoogleMap>
+      <div className="absolute inset-x-0 bottom-0 flex justify-center p-0 sm:p-4 lg:static lg:w-[420px] lg:shrink-0 lg:p-0">
+        <div className="w-full rounded-t-2xl bg-white p-4 shadow-lg sm:max-w-md sm:rounded-2xl lg:h-full lg:max-w-none lg:overflow-y-auto lg:rounded-none lg:border-l lg:border-gray-100 lg:p-6 lg:shadow-none">
+          <div className="mb-4 hidden items-center gap-2 rounded-lg bg-success p-3 text-center text-sm font-semibold text-white lg:flex lg:justify-center">
+            {BannerIcon && <BannerIcon className="h-4 w-4 shrink-0" />}
+            {bannerText}
+            {route.durationText && isOnTrip && ` · ${route.durationText}`}
+          </div>
 
-      <div className="absolute inset-x-0 bottom-0 flex justify-center p-0 sm:p-4">
-        <div className="w-full rounded-t-2xl bg-white p-4 shadow-lg sm:max-w-md sm:rounded-2xl">
           {(isPickupPhase || isTripPhase) && (
             <div className="mb-3 flex items-center gap-3 border-b border-gray-100 pb-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-pale text-sm font-bold text-brand">

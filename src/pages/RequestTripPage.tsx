@@ -340,54 +340,56 @@ export function RequestTripPage() {
   }
 
   return (
-    <div className="relative h-screen w-full overflow-hidden">
-      <GoogleMap
-        defaultCenter={DEFAULT_CENTER}
-        defaultZoom={14}
-        disableDefaultUI
-        gestureHandling="greedy"
-        className="h-full w-full"
-      >
-        <MapAutoRecenter position={recenterTarget} />
-        {plannedRoute.path && (
-          <Polyline path={plannedRoute.path} strokeColor={ROUTE_COLOR} strokeOpacity={0.9} strokeWeight={4} />
-        )}
-        {origin && <Marker position={origin} />}
-        {destination && <Marker position={destination} />}
-      </GoogleMap>
-
-      <div className="absolute inset-x-0 top-0 mx-auto flex w-full max-w-2xl items-start gap-2 p-4">
-        <button
-          type="button"
-          onClick={() => setStep('home')}
-          aria-label="Volver al inicio"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-white text-gray-600 shadow-md hover:bg-gray-100"
+    <div className="relative flex h-screen w-full flex-col overflow-hidden lg:flex-row">
+      <div className="relative h-full w-full lg:flex-1">
+        <GoogleMap
+          defaultCenter={DEFAULT_CENTER}
+          defaultZoom={14}
+          disableDefaultUI
+          gestureHandling="greedy"
+          className="h-full w-full"
         >
-          <ArrowLeft className="h-5 w-5" />
-        </button>
-        <div className="flex-1">
-          <PlacesAutocompleteInput
-            id="destination-search"
-            placeholder="¿A dónde vas?"
-            displayValue={destinationInputValue}
-            locationBias={origin ? { lat: origin.lat, lng: origin.lng } : DEFAULT_CENTER}
-            onPlaceSelected={(place) => {
-              setDestination(place);
-              setDestinationInputValue(place.address);
-              setFare(null);
-            }}
+          <MapAutoRecenter position={recenterTarget} />
+          {plannedRoute.path && (
+            <Polyline path={plannedRoute.path} strokeColor={ROUTE_COLOR} strokeOpacity={0.9} strokeWeight={4} />
+          )}
+          {origin && <Marker position={origin} />}
+          {destination && <Marker position={destination} />}
+        </GoogleMap>
+
+        <div className="absolute inset-x-0 top-0 mx-auto flex w-full max-w-2xl items-start gap-2 p-4">
+          <button
+            type="button"
+            onClick={() => setStep('home')}
+            aria-label="Volver al inicio"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-white text-gray-600 shadow-md hover:bg-gray-100"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+          <div className="flex-1">
+            <PlacesAutocompleteInput
+              id="destination-search"
+              placeholder="¿A dónde vas?"
+              displayValue={destinationInputValue}
+              locationBias={origin ? { lat: origin.lat, lng: origin.lng } : DEFAULT_CENTER}
+              onPlaceSelected={(place) => {
+                setDestination(place);
+                setDestinationInputValue(place.address);
+                setFare(null);
+              }}
+            />
+          </div>
+          <HeaderActionsPill
+            historyPath="/passenger/trips/history"
+            walletPath="/passenger/wallet"
+            profilePath="/passenger/profile"
+            shadow="md"
           />
         </div>
-        <HeaderActionsPill
-          historyPath="/passenger/trips/history"
-          walletPath="/passenger/wallet"
-          profilePath="/passenger/profile"
-          shadow="md"
-        />
       </div>
 
-      <div className="absolute inset-x-0 bottom-0 flex justify-center p-0 sm:p-4">
-        <div className="w-full rounded-t-2xl bg-white p-4 shadow-lg sm:max-w-md sm:rounded-2xl">
+      <div className="absolute inset-x-0 bottom-0 flex justify-center p-0 sm:p-4 lg:static lg:w-[420px] lg:shrink-0 lg:p-0">
+        <div className="w-full rounded-t-2xl bg-white p-4 shadow-lg sm:max-w-md sm:rounded-2xl lg:h-full lg:max-w-none lg:overflow-y-auto lg:rounded-none lg:border-l lg:border-gray-100 lg:p-6 lg:shadow-none">
           <div className="mb-3">
             <label htmlFor="origin-input" className="mb-1 flex items-center gap-1 text-xs font-semibold text-gray-500">
               <Navigation className="h-3 w-3" /> ORIGEN
