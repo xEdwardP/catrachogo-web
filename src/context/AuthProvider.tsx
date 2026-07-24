@@ -6,7 +6,9 @@ import {
   login as loginRequest,
   loginWithGoogle as loginWithGoogleRequest,
   register as registerRequest,
+  updateName as updateNameRequest,
   updatePhone as updatePhoneRequest,
+  updateProfilePhoto as updateProfilePhotoRequest,
 } from '../api/auth';
 import { clearStoredToken, getStoredToken, setStoredToken } from '../api/tokenStorage';
 import { onSessionExpired } from '../api/sessionEvents';
@@ -69,6 +71,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return profile;
   }
 
+  async function updateName(name: string): Promise<AuthUser> {
+    await updateNameRequest(name);
+    const profile = await getProfile();
+    setUser(profile);
+    return profile;
+  }
+
+  async function updateProfilePhoto(profilePhotoUrl: string): Promise<AuthUser> {
+    await updateProfilePhotoRequest(profilePhotoUrl);
+    const profile = await getProfile();
+    setUser(profile);
+    return profile;
+  }
+
   function logout() {
     clearStoredToken();
     setUser(null);
@@ -83,6 +99,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       registerAccount,
       loginWithGoogleToken,
       completePhone,
+      updateName,
+      updateProfilePhoto,
       logout,
     }),
     [user, isLoading],

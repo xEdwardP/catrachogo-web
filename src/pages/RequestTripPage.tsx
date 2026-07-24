@@ -2,10 +2,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Map as GoogleMap, Marker, Polyline } from '@vis.gl/react-google-maps';
-import { ArrowLeft, Clock, Loader2, LogOut, MapPin, Navigation, Wallet } from 'lucide-react';
+import { ArrowLeft, Loader2, MapPin, Navigation } from 'lucide-react';
 import { PlacesAutocompleteInput } from '../components/PlacesAutocompleteInput';
 import type { PlaceSelection } from '../components/PlacesAutocompleteInput';
-import { NotificationBell } from '../components/NotificationBell';
+import { HeaderActionsPill } from '../components/HeaderActionsPill';
 import { MapAutoRecenter } from '../components/MapAutoRecenter';
 import { createTrip, estimateFare, getTripHistory } from '../api/trips';
 import { getApiStatusCode } from '../api/client';
@@ -71,7 +71,7 @@ function FareEstimatePanel({ origin, destination, durationText, onResult }: Fare
 
 export function RequestTripPage() {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [step, setStep] = useState<'home' | 'confirm'>('home');
   const [origin, setOrigin] = useState<PlaceSelection | null>(null);
   const [originInputValue, setOriginInputValue] = useState('');
@@ -181,33 +181,11 @@ export function RequestTripPage() {
                 <p className="font-semibold text-gray-800">{firstName}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2 rounded-lg bg-white p-1.5 shadow-sm">
-              <NotificationBell />
-              <button
-                type="button"
-                onClick={() => navigate('/passenger/trips/history')}
-                aria-label="Historial de viajes"
-                className="rounded-md p-1.5 text-gray-600 hover:bg-gray-100"
-              >
-                <Clock className="h-5 w-5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate('/passenger/wallet')}
-                aria-label="Wallet"
-                className="rounded-md p-1.5 text-gray-600 hover:bg-gray-100"
-              >
-                <Wallet className="h-5 w-5" />
-              </button>
-              <button
-                type="button"
-                onClick={logout}
-                aria-label="Cerrar sesión"
-                className="rounded-md p-1.5 text-gray-600 hover:bg-gray-100"
-              >
-                <LogOut className="h-5 w-5" />
-              </button>
-            </div>
+            <HeaderActionsPill
+              historyPath="/passenger/trips/history"
+              walletPath="/passenger/wallet"
+              profilePath="/passenger/profile"
+            />
           </div>
 
           <div className="mb-4 rounded-2xl bg-white p-1 shadow-sm">
@@ -297,33 +275,12 @@ export function RequestTripPage() {
             }}
           />
         </div>
-        <div className="flex items-center gap-2 rounded-lg bg-white p-1.5 shadow-md">
-          <NotificationBell />
-          <button
-            type="button"
-            onClick={() => navigate('/passenger/trips/history')}
-            aria-label="Historial de viajes"
-            className="rounded-md p-1.5 text-gray-600 hover:bg-gray-100"
-          >
-            <Clock className="h-5 w-5" />
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate('/passenger/wallet')}
-            aria-label="Wallet"
-            className="rounded-md p-1.5 text-gray-600 hover:bg-gray-100"
-          >
-            <Wallet className="h-5 w-5" />
-          </button>
-          <button
-            type="button"
-            onClick={logout}
-            aria-label="Cerrar sesión"
-            className="rounded-md p-1.5 text-gray-600 hover:bg-gray-100"
-          >
-            <LogOut className="h-5 w-5" />
-          </button>
-        </div>
+        <HeaderActionsPill
+          historyPath="/passenger/trips/history"
+          walletPath="/passenger/wallet"
+          profilePath="/passenger/profile"
+          shadow="md"
+        />
       </div>
 
       <div className="absolute inset-x-0 bottom-0 flex justify-center p-0 sm:p-4">

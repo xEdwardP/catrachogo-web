@@ -2,10 +2,10 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Map as GoogleMap, Marker } from '@vis.gl/react-google-maps';
-import { CarFront, ChevronRight, Clock, DollarSign, LogOut, Star, Wallet } from 'lucide-react';
+import { CarFront, ChevronRight, DollarSign, Star } from 'lucide-react';
 import { getDriverSummary, getPendingRequest, updateAvailability } from '../api/drivers';
 import { getTripHistory } from '../api/trips';
-import { NotificationBell } from '../components/NotificationBell';
+import { HeaderActionsPill } from '../components/HeaderActionsPill';
 import { MapAutoRecenter } from '../components/MapAutoRecenter';
 import { sendDriverLocation } from '../api/tracking';
 import { getApiStatusCode } from '../api/client';
@@ -23,7 +23,7 @@ const DEFAULT_CENTER = { lat: 15.5, lng: -88.03 };
 
 export function DriverHomePage() {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
   const [summary, setSummary] = useState<DriverSummary | null>(null);
   const [isLoadingSummary, setIsLoadingSummary] = useState(true);
@@ -112,33 +112,11 @@ export function DriverHomePage() {
               <p className="font-semibold text-gray-800">{user?.name}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2 rounded-lg bg-white p-1.5 shadow-sm">
-            <NotificationBell />
-            <button
-              type="button"
-              onClick={() => navigate('/driver/trips/history')}
-              aria-label="Historial de viajes"
-              className="rounded-md p-1.5 text-gray-600 hover:bg-gray-100"
-            >
-              <Clock className="h-5 w-5" />
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate('/driver/wallet')}
-              aria-label="Wallet"
-              className="rounded-md p-1.5 text-gray-600 hover:bg-gray-100"
-            >
-              <Wallet className="h-5 w-5" />
-            </button>
-            <button
-              type="button"
-              onClick={logout}
-              aria-label="Cerrar sesión"
-              className="rounded-md p-1.5 text-gray-600 hover:bg-gray-100"
-            >
-              <LogOut className="h-5 w-5" />
-            </button>
-          </div>
+          <HeaderActionsPill
+            historyPath="/driver/trips/history"
+            walletPath="/driver/wallet"
+            profilePath="/driver/profile"
+          />
         </div>
 
         <button
