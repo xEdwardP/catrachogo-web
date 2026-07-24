@@ -1,8 +1,12 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ChevronDown, Mail } from 'lucide-react';
+import { ArrowLeft, ChevronDown, ChevronRight, Mail } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { homePathForRole } from '../utils/roleRoutes';
+import { LEGAL_DOCUMENTS } from '../data/legalContent';
+import type { LegalDocId } from '../data/legalContent';
+
+const LEGAL_DOC_IDS = Object.keys(LEGAL_DOCUMENTS) as LegalDocId[];
 
 const SUPPORT_EMAIL = import.meta.env.VITE_SUPPORT_EMAIL;
 
@@ -98,11 +102,27 @@ export function SupportPage() {
           )}
         </div>
 
-        <div className="rounded-2xl bg-white p-4 shadow-sm">
+        <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm">
           <p className="mb-1 text-sm font-semibold text-gray-700">Preguntas frecuentes</p>
           <div>
             {FAQ_ITEMS.map((item) => (
               <FaqItem key={item.question} question={item.question} answer={item.answer} />
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-2xl bg-white p-4 shadow-sm">
+          <p className="mb-1 text-sm font-semibold text-gray-700">Legal</p>
+          <div className="flex flex-col">
+            {LEGAL_DOC_IDS.map((id) => (
+              <Link
+                key={id}
+                to={`/legal/${id}`}
+                className="flex items-center justify-between border-b border-gray-100 py-3 text-sm text-gray-700 last:border-0 hover:text-brand"
+              >
+                {LEGAL_DOCUMENTS[id].title}
+                <ChevronRight className="h-4 w-4 text-gray-400" />
+              </Link>
             ))}
           </div>
         </div>

@@ -19,6 +19,7 @@ import { AdminIncidentReportsPage } from './pages/AdminIncidentReportsPage';
 import { AdminFareZonesPage } from './pages/AdminFareZonesPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { SupportPage } from './pages/SupportPage';
+import { LegalDocumentPage } from './pages/LegalDocumentPage';
 import { RootRedirect } from './pages/RootRedirect';
 
 function App() {
@@ -50,6 +51,7 @@ function App() {
       </Route>
 
       <Route path="/support" element={<SupportPage />} />
+      <Route path="/legal/:doc" element={<LegalDocumentPage />} />
 
       <Route element={<ProtectedRoute roles={['admin']} />}>
         <Route path="/admin" element={<AdminDashboardPage />} />
