@@ -174,32 +174,43 @@ export function TripInProgressPage() {
     !ratingDismissed && trip?.status === 'completed' && Boolean(driver?.userId) && trip?.ratedByMe === false;
 
   return (
-    <div className="relative h-screen w-full overflow-hidden">
-      <div
-        className={`absolute inset-x-0 top-0 z-10 p-3 text-center text-sm font-semibold text-white ${
-          trip?.status === 'cancelled' ? 'bg-gray-500' : 'bg-success'
-        }`}
-      >
-        {bannerText}
-        {route.durationText && isTrackable && ` · llega en ${route.durationText}`}
+    <div className="relative flex h-screen w-full flex-col overflow-hidden lg:flex-row">
+      <div className="relative h-full w-full lg:flex-1">
+        <div
+          className={`absolute inset-x-0 top-0 z-10 p-3 text-center text-sm font-semibold text-white lg:hidden ${
+            trip?.status === 'cancelled' ? 'bg-gray-500' : 'bg-success'
+          }`}
+        >
+          {bannerText}
+          {route.durationText && isTrackable && ` · llega en ${route.durationText}`}
+        </div>
+
+        <GoogleMap
+          defaultCenter={fallbackCenter}
+          defaultZoom={14}
+          disableDefaultUI
+          gestureHandling="greedy"
+          className="h-full w-full"
+        >
+          <MapAutoRecenter position={smoothedDriverPosition} />
+          {route.path && (
+            <Polyline path={route.path} strokeColor={ROUTE_COLOR} strokeOpacity={0.9} strokeWeight={4} />
+          )}
+          {smoothedDriverPosition && <Marker position={smoothedDriverPosition} />}
+        </GoogleMap>
       </div>
 
-      <GoogleMap
-        defaultCenter={fallbackCenter}
-        defaultZoom={14}
-        disableDefaultUI
-        gestureHandling="greedy"
-        className="h-full w-full"
-      >
-        <MapAutoRecenter position={smoothedDriverPosition} />
-        {route.path && (
-          <Polyline path={route.path} strokeColor={ROUTE_COLOR} strokeOpacity={0.9} strokeWeight={4} />
-        )}
-        {smoothedDriverPosition && <Marker position={smoothedDriverPosition} />}
-      </GoogleMap>
+      <div className="absolute inset-x-0 bottom-0 flex justify-center p-0 sm:p-4 lg:static lg:w-[420px] lg:shrink-0 lg:p-0">
+        <div className="w-full rounded-t-2xl bg-white p-4 shadow-lg sm:max-w-md sm:rounded-2xl lg:h-full lg:max-w-none lg:overflow-y-auto lg:rounded-none lg:border-l lg:border-gray-100 lg:p-6 lg:shadow-none">
+          <div
+            className={`mb-4 hidden rounded-lg p-3 text-center text-sm font-semibold text-white lg:block ${
+              trip?.status === 'cancelled' ? 'bg-gray-500' : 'bg-success'
+            }`}
+          >
+            {bannerText}
+            {route.durationText && isTrackable && ` · llega en ${route.durationText}`}
+          </div>
 
-      <div className="absolute inset-x-0 bottom-0 flex justify-center p-0 sm:p-4">
-        <div className="w-full rounded-t-2xl bg-white p-4 shadow-lg sm:max-w-md sm:rounded-2xl">
           <div className="mb-3 flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-200 text-xs text-gray-400">
               {driver ? driver.name.charAt(0).toUpperCase() : '?'}
