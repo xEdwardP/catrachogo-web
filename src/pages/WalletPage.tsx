@@ -84,33 +84,34 @@ export function WalletPage() {
   const parsedTopupAmount = Number(topupAmount);
 
   return (
-    <div className="min-h-screen bg-cream p-4">
-      <div className="mx-auto max-w-md">
+    <div className="min-h-screen bg-cream p-4 lg:p-8">
+      <div className="mx-auto max-w-md lg:max-w-4xl">
         <Link
           to={user ? homePathForRole(user.role) : '/'}
           className="mb-4 inline-flex items-center gap-1 text-sm text-gray-600 hover:text-gray-800"
         >
           <ArrowLeft className="h-4 w-4" /> Volver
         </Link>
-        <h1 className="mb-4 text-xl font-bold text-gray-800">Mi Wallet</h1>
+        <h1 className="mb-4 text-xl font-bold text-gray-800 lg:mb-6">Mi Wallet</h1>
 
-        <div className="relative mb-4 overflow-hidden rounded-2xl bg-gradient-to-br from-success to-success-dark p-6 text-white shadow-lg shadow-success/20">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -right-8 -top-10 h-32 w-32 rounded-full bg-white/10"
-          />
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -bottom-12 right-10 h-24 w-24 rounded-full bg-white/10"
-          />
-          <p className="text-xs font-semibold uppercase tracking-wide opacity-80">Saldo disponible</p>
-          <p className="mt-1 text-3xl font-bold">
-            {isLoadingBalance || balance === null ? '...' : `L. ${balance.toFixed(2)}`}
-          </p>
-        </div>
+        <div className="lg:grid lg:grid-cols-3 lg:gap-6">
+          <div className="relative mb-4 overflow-hidden rounded-2xl bg-gradient-to-br from-success to-success-dark p-6 text-white shadow-lg shadow-success/20 lg:col-span-3">
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -right-8 -top-10 h-32 w-32 rounded-full bg-white/10"
+            />
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -bottom-12 right-10 h-24 w-24 rounded-full bg-white/10"
+            />
+            <p className="text-xs font-semibold uppercase tracking-wide opacity-80">Saldo disponible</p>
+            <p className="mt-1 text-3xl font-bold">
+              {isLoadingBalance || balance === null ? '...' : `L. ${balance.toFixed(2)}`}
+            </p>
+          </div>
 
-        {user?.role === 'passenger' && (
-          <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm">
+          {user?.role === 'passenger' && (
+            <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm lg:col-span-1 lg:mb-0 lg:self-start">
             <label htmlFor="topup-amount" className="mb-2 block text-sm font-medium text-gray-700">
               Recargar con PayPal
             </label>
@@ -133,8 +134,8 @@ export function WalletPage() {
           </div>
         )}
 
-        {user?.role === 'driver' && (
-          <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm">
+          {user?.role === 'driver' && (
+          <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm lg:col-span-1 lg:mb-0 lg:self-start">
             {!showWithdrawalForm ? (
               <button
                 type="button"
@@ -192,10 +193,10 @@ export function WalletPage() {
               </form>
             )}
           </div>
-        )}
+          )}
 
-        <div className="rounded-2xl bg-white p-4 shadow-sm">
-          <p className="mb-3 text-sm font-semibold text-gray-700">Historial de movimientos</p>
+          <div className="rounded-2xl bg-white p-4 shadow-sm lg:col-span-2">
+            <p className="mb-3 text-sm font-semibold text-gray-700">Historial de movimientos</p>
           {isLoadingTransactions ? (
             <p className="text-sm text-gray-400">Cargando...</p>
           ) : transactions.length === 0 ? (
@@ -262,6 +263,7 @@ export function WalletPage() {
               </button>
             </div>
           )}
+          </div>
         </div>
       </div>
     </div>

@@ -63,27 +63,28 @@ export function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-cream p-4">
-      <div className="mx-auto max-w-md">
+    <div className="min-h-screen bg-cream p-4 lg:p-8">
+      <div className="mx-auto max-w-md lg:max-w-2xl">
         <Link
           to={homePathForRole(user.role)}
           className="mb-4 inline-flex items-center gap-1 text-sm text-gray-600 hover:text-gray-800"
         >
           <ArrowLeft className="h-4 w-4" /> Volver
         </Link>
-        <h1 className="mb-4 text-xl font-bold text-gray-800">Mi perfil</h1>
+        <h1 className="mb-4 text-xl font-bold text-gray-800 lg:mb-6">Mi perfil</h1>
 
-        <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm">
-          <CloudinaryFileInput
-            id="profile-photo"
-            label="Foto de perfil"
-            value={user.profilePhotoUrl}
-            onUploaded={handlePhotoUploaded}
-          />
-        </div>
+        <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-6">
+          <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm lg:mb-0">
+            <CloudinaryFileInput
+              id="profile-photo"
+              label="Foto de perfil"
+              value={user.profilePhotoUrl}
+              onUploaded={handlePhotoUploaded}
+            />
+          </div>
 
-        <div className="rounded-2xl bg-white p-4 shadow-sm">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div className="rounded-2xl bg-white p-4 shadow-sm">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
               <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700">
                 Correo
@@ -134,7 +135,8 @@ export function ProfilePage() {
             >
               {isSubmitting ? 'Guardando...' : 'Guardar cambios'}
             </button>
-          </form>
+            </form>
+          </div>
         </div>
       </div>
     </div>
