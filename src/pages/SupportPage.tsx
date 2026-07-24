@@ -66,8 +66,8 @@ export function SupportPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-cream p-4">
-      <div className="mx-auto max-w-md">
+    <div className="min-h-screen bg-cream p-4 lg:p-8">
+      <div className="mx-auto max-w-md lg:max-w-3xl">
         {user ? (
           <Link
             to={homePathForRole(user.role)}
@@ -85,45 +85,47 @@ export function SupportPage() {
           </button>
         )}
 
-        <h1 className="mb-4 text-xl font-bold text-gray-800">Ayuda y soporte</h1>
+        <h1 className="mb-4 text-xl font-bold text-gray-800 lg:mb-6">Ayuda y soporte</h1>
 
-        <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm">
-          <p className="mb-2 text-sm font-semibold text-gray-700">¿Necesitas ayuda?</p>
-          <p className="mb-3 text-sm text-gray-500">
-            Escríbenos y te responderemos lo antes posible.
-          </p>
-          {SUPPORT_EMAIL && (
-            <a
-              href={`mailto:${SUPPORT_EMAIL}`}
-              className="flex items-center gap-2 rounded-lg bg-brand-pale px-3 py-2.5 text-sm font-medium text-brand"
-            >
-              <Mail className="h-4 w-4" /> {SUPPORT_EMAIL}
-            </a>
-          )}
-        </div>
-
-        <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm">
-          <p className="mb-1 text-sm font-semibold text-gray-700">Preguntas frecuentes</p>
-          <div>
-            {FAQ_ITEMS.map((item) => (
-              <FaqItem key={item.question} question={item.question} answer={item.answer} />
-            ))}
-          </div>
-        </div>
-
-        <div className="rounded-2xl bg-white p-4 shadow-sm">
-          <p className="mb-1 text-sm font-semibold text-gray-700">Legal</p>
-          <div className="flex flex-col">
-            {LEGAL_DOC_IDS.map((id) => (
-              <Link
-                key={id}
-                to={`/legal/${id}`}
-                className="flex items-center justify-between border-b border-gray-100 py-3 text-sm text-gray-700 last:border-0 hover:text-brand"
+        <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-6">
+          <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm">
+            <p className="mb-2 text-sm font-semibold text-gray-700">¿Necesitas ayuda?</p>
+            <p className="mb-3 text-sm text-gray-500">
+              Escríbenos y te responderemos lo antes posible.
+            </p>
+            {SUPPORT_EMAIL && (
+              <a
+                href={`mailto:${SUPPORT_EMAIL}`}
+                className="flex items-center gap-2 rounded-lg bg-brand-pale px-3 py-2.5 text-sm font-medium text-brand"
               >
-                {LEGAL_DOCUMENTS[id].title}
-                <ChevronRight className="h-4 w-4 text-gray-400" />
-              </Link>
-            ))}
+                <Mail className="h-4 w-4" /> {SUPPORT_EMAIL}
+              </a>
+            )}
+          </div>
+
+          <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm lg:row-span-2 lg:mb-0">
+            <p className="mb-1 text-sm font-semibold text-gray-700">Preguntas frecuentes</p>
+            <div>
+              {FAQ_ITEMS.map((item) => (
+                <FaqItem key={item.question} question={item.question} answer={item.answer} />
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-2xl bg-white p-4 shadow-sm">
+            <p className="mb-1 text-sm font-semibold text-gray-700">Legal</p>
+            <div className="flex flex-col">
+              {LEGAL_DOC_IDS.map((id) => (
+                <Link
+                  key={id}
+                  to={`/legal/${id}`}
+                  className="flex items-center justify-between border-b border-gray-100 py-3 text-sm text-gray-700 last:border-0 hover:text-brand"
+                >
+                  {LEGAL_DOCUMENTS[id].title}
+                  <ChevronRight className="h-4 w-4 text-gray-400" />
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </div>
