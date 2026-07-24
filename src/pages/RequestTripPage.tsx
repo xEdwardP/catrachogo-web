@@ -2,18 +2,28 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Map as GoogleMap, Marker, Polyline } from '@vis.gl/react-google-maps';
-import { ArrowLeft, Loader2, MapPin, Navigation } from 'lucide-react';
+import { ArrowLeft, Briefcase, Home, Loader2, MapPin, Navigation, Plus, Trash2 } from 'lucide-react';
 import { PlacesAutocompleteInput } from '../components/PlacesAutocompleteInput';
 import type { PlaceSelection } from '../components/PlacesAutocompleteInput';
 import { HeaderActionsPill } from '../components/HeaderActionsPill';
 import { MapAutoRecenter } from '../components/MapAutoRecenter';
+import { SaveFavoriteAddressModal } from '../components/SaveFavoriteAddressModal';
 import { createTrip, estimateFare, getTripHistory } from '../api/trips';
+import { createSavedAddress, deleteSavedAddress, getSavedAddresses } from '../api/savedAddresses';
 import { getApiStatusCode } from '../api/client';
 import { translateCreateTripError, translateEstimateError } from '../api/tripErrorMessages';
 import { useAuth } from '../hooks/useAuth';
 import { useDirectionsRoute } from '../hooks/useDirectionsRoute';
 import { ROUTE_COLOR } from '../utils/mapColors';
+import { savedAddressDisplayLabel } from '../utils/savedAddressLabels';
 import type { FareEstimate } from '../types/trip';
+import type { CreateSavedAddressPayload, SavedAddress } from '../types/savedAddress';
+
+const SAVED_ADDRESS_ICONS: Record<SavedAddress['label'], typeof Home> = {
+  home: Home,
+  work: Briefcase,
+  other: MapPin,
+};
 
 const DEFAULT_CENTER = { lat: 15.5, lng: -88.03 };
 const RECENT_DESTINATIONS_LIMIT = 5;
@@ -80,6 +90,15 @@ export function RequestTripPage() {
   const [fare, setFare] = useState<FareEstimate | null>(null);
   const [isRequesting, setIsRequesting] = useState(false);
   const [recentDestinations, setRecentDestinations] = useState<PlaceSelection[]>([]);
+  const [favorites, setFavorites] = useState<SavedAddress[]>([]);
+  const [showSaveFavoriteModal, setShowSaveFavoriteModal] = useState(false);
+  const [isSavingFavorite, setIsSavingFavorite] = useState(false);
+
+  useEffect(() => {
+    getSavedAddresses()
+      .then(setFavorites)
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     getTripHistory(1, 20)
@@ -165,6 +184,31 @@ export function RequestTripPage() {
     }
   }
 
+  async function handleSaveFavorite(payload: CreateSavedAddressPayload) {
+    setIsSavingFavorite(true);
+    try {
+      const saved = await createSavedAddress(payload);
+      setFavorites((current) => [...current, saved]);
+      toast.success('Dirección guardada.');
+      setShowSaveFavoriteModal(false);
+    } catch {
+      toast.error('No se pudo guardar la dirección. Intenta de nuevo.');
+    } finally {
+      setIsSavingFavorite(false);
+    }
+  }
+
+  async function handleDeleteFavorite(id: string) {
+    const previous = favorites;
+    setFavorites((current) => current.filter((favorite) => favorite.id !== id));
+    try {
+      await deleteSavedAddress(id);
+    } catch {
+      setFavorites(previous);
+      toast.error('No se pudo eliminar la dirección. Intenta de nuevo.');
+    }
+  }
+
   const recenterTarget = destination ?? origin ?? null;
 
   if (step === 'home') {
@@ -196,6 +240,56 @@ export function RequestTripPage() {
               locationBias={origin ? { lat: origin.lat, lng: origin.lng } : DEFAULT_CENTER}
               onPlaceSelected={selectDestination}
             />
+          </div>
+
+          <div className="mb-4">
+            <div className="mb-2 flex items-center justify-between">
+              <p className="text-sm font-semibold text-gray-700">Direcciones favoritas</p>
+              <button
+                type="button"
+                onClick={() => setShowSaveFavoriteModal(true)}
+                className="flex items-center gap-1 text-xs font-medium text-brand hover:text-brand-dark"
+              >
+                <Plus className="h-3.5 w-3.5" /> Agregar
+              </button>
+            </div>
+            {favorites.length > 0 && (
+              <div className="flex flex-col gap-2">
+                {favorites.map((favorite) => {
+                  const Icon = SAVED_ADDRESS_ICONS[favorite.label];
+                  return (
+                    <div
+                      key={favorite.id}
+                      className="flex items-center gap-2 rounded-xl bg-white p-3 shadow-sm transition hover:bg-cream/70"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => selectDestination({ address: favorite.address, lat: favorite.lat, lng: favorite.lng })}
+                        className="flex flex-1 items-center gap-2 text-left"
+                      >
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-pale text-brand">
+                          <Icon className="h-4 w-4" />
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-sm font-medium text-gray-800">
+                            {savedAddressDisplayLabel(favorite)}
+                          </span>
+                          <span className="block truncate text-xs text-gray-500">{favorite.address}</span>
+                        </span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteFavorite(favorite.id)}
+                        aria-label="Eliminar dirección favorita"
+                        className="shrink-0 rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-red-500"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {recentDestinations.length > 0 && (
@@ -232,6 +326,15 @@ export function RequestTripPage() {
             </GoogleMap>
           </div>
         </div>
+
+        {showSaveFavoriteModal && (
+          <SaveFavoriteAddressModal
+            isSubmitting={isSavingFavorite}
+            locationBias={origin ? { lat: origin.lat, lng: origin.lng } : DEFAULT_CENTER}
+            onSave={handleSaveFavorite}
+            onDismiss={() => setShowSaveFavoriteModal(false)}
+          />
+        )}
       </div>
     );
   }
