@@ -2,9 +2,11 @@ import { useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Map as GoogleMap, Marker, Polyline } from '@vis.gl/react-google-maps';
-import { Flag, Phone, Star, X } from 'lucide-react';
+import { Flag, Phone, ShieldAlert, Star, X } from 'lucide-react';
 import { cancelTrip, endTripEarly, getDriverLocation, getTripDetail } from '../api/trips';
 import { getDriverPublicProfile } from '../api/drivers';
+import { createIncidentReport } from '../api/incidentReports';
+import { translateCreateIncidentReportError } from '../api/incidentReportErrorMessages';
 import { translateCancelTripError, translateEndTripEarlyError } from '../api/tripErrorMessages';
 import { usePolling } from '../hooks/usePolling';
 import { useSmoothedPosition } from '../hooks/useSmoothedPosition';
@@ -13,8 +15,10 @@ import { ROUTE_COLOR } from '../utils/mapColors';
 import { RatingModal } from '../components/RatingModal';
 import { CancelTripConfirmModal } from '../components/CancelTripConfirmModal';
 import { EndTripEarlyConfirmModal } from '../components/EndTripEarlyConfirmModal';
+import { ReportIncidentModal } from '../components/ReportIncidentModal';
 import { MapAutoRecenter } from '../components/MapAutoRecenter';
 import type { CancellationReason, TripDetail, TripDriverInfo, TripStatus } from '../types/trip';
+import type { IncidentReportCategory } from '../types/incidentReport';
 
 interface TripInProgressLocationState {
   originAddress?: string;
@@ -47,6 +51,8 @@ export function TripInProgressPage() {
   const [isEndingEarly, setIsEndingEarly] = useState(false);
   const [showEndEarlyConfirm, setShowEndEarlyConfirm] = useState(false);
   const [ratingDismissed, setRatingDismissed] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [isSubmittingReport, setIsSubmittingReport] = useState(false);
   const fetchedDriverIdRef = useRef<string | null>(null);
 
   usePolling(
@@ -119,6 +125,20 @@ export function TripInProgressPage() {
     } finally {
       setIsEndingEarly(false);
       setShowEndEarlyConfirm(false);
+    }
+  }
+
+  async function handleSubmitReport(payload: { category: IncidentReportCategory; description: string }) {
+    if (!tripId) return;
+    setIsSubmittingReport(true);
+    try {
+      await createIncidentReport({ tripId, ...payload });
+      toast.success('Reporte enviado. Gracias por avisarnos.');
+      setShowReportModal(false);
+    } catch (error) {
+      toast.error(translateCreateIncidentReportError(error));
+    } finally {
+      setIsSubmittingReport(false);
     }
   }
 
@@ -235,6 +255,16 @@ export function TripInProgressPage() {
               <Phone className="h-4 w-4" /> Llamar
             </a>
           </div>
+
+          {driver && (
+            <button
+              type="button"
+              onClick={() => setShowReportModal(true)}
+              className="mt-3 flex w-full items-center justify-center gap-1 text-xs font-medium text-gray-400 hover:text-red-500"
+            >
+              <ShieldAlert className="h-3.5 w-3.5" /> Reportar un problema
+            </button>
+          )}
         </div>
       </div>
 
@@ -252,6 +282,14 @@ export function TripInProgressPage() {
           isSubmitting={isEndingEarly}
           onConfirm={handleEndTripEarly}
           onDismiss={() => setShowEndEarlyConfirm(false)}
+        />
+      )}
+
+      {showReportModal && (
+        <ReportIncidentModal
+          isSubmitting={isSubmittingReport}
+          onSubmit={handleSubmitReport}
+          onDismiss={() => setShowReportModal(false)}
         />
       )}
 
