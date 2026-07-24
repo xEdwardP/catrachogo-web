@@ -8,11 +8,39 @@
 
 ## Qué es CatrachoGo
 
-**CatrachoGo** es el frontend web de una plataforma de ride-hailing (tipo Uber/InDriver) pensada para Honduras. Cubre los tres roles de la plataforma — pasajero, conductor y administrador — con autenticación por contraseña o Google, wallet con recargas por PayPal, seguimiento de viajes en tiempo real sobre Google Maps, y un panel de administración con dashboard, gestión de conductores, viajes, retiros y zonas tarifarias.
+**CatrachoGo** es el frontend web de una plataforma de ride-hailing (tipo Uber/InDriver) pensada para Honduras. Cubre los tres roles de la plataforma — pasajero, conductor y administrador — con autenticación por contraseña o Google, wallet con recargas por PayPal, seguimiento de viajes en tiempo real sobre Google Maps, y un panel de administración con dashboard, gestión de conductores, viajes, retiros, zonas tarifarias y reportes de incidencias.
+
+En pantallas de escritorio, las vistas de pasajero y conductor usan un layout de aplicación web real (panel de información junto al mapa, listas tipo tabla) en vez de una app móvil estirada; por debajo del breakpoint de escritorio el diseño mobile se mantiene sin cambios.
 
 Este repositorio consume la API de [`catrachogo-api`](https://github.com/xEdwardP/catrachogo-api) (NestJS + PostgreSQL/PostGIS) — no la modifica. Ambos proyectos corren en paralelo en desarrollo.
 
 Proyecto académico del equipo "Los Inges".
+
+## Funcionalidades
+
+**Pasajero**
+- Solicitar viaje con autocompletado de direcciones (Google Places), tarifa estimada antes de confirmar, y ruta trazada sobre el mapa.
+- Direcciones favoritas (casa, trabajo, otro) y destinos recientes, disponibles desde la pantalla de inicio.
+- Seguimiento del viaje en curso con la ubicación del conductor y datos de contacto una vez aceptado.
+- Terminar un viaje antes de llegar al destino, con tarifa recalculada de forma prorrateada.
+- Cancelar un viaje (con confirmación y motivo) tanto en espera de conductor como ya con conductor asignado.
+- Reportar un problema o a un conductor específico desde el historial o el viaje activo.
+- Wallet con recarga vía PayPal e historial de movimientos traducido.
+- Perfil editable (nombre, teléfono, foto) y sección de ayuda/soporte con FAQ.
+
+**Conductor**
+- Activarse/desactivarse para recibir viajes (bloqueado hasta que el administrador aprueba sus documentos).
+- Recibir y responder solicitudes entrantes con ventana de tiempo límite.
+- Marcar llegada al punto de recogida y cancelar por no-show del pasajero tras un periodo de gracia, con cargo aplicado al pasajero.
+- Wallet de solo ganancias/retiros (sin opción de recarga, exclusiva de pasajeros) y solicitud de retiro vía PayPal.
+- Mismo perfil, soporte y reporte de incidencias que el pasajero.
+
+**Administración**
+- Dashboard con KPIs de la plataforma (viajes activos, ingresos del día, conductores disponibles, retiros y conductores pendientes) y gráfico de viajes completados por día.
+- Gestión de conductores (aprobación/rechazo de documentos), viajes, retiros, zonas tarifarias y reportes de incidencias enviados por pasajeros.
+
+**Legal**
+- Páginas de Términos de uso, Política de privacidad y Licencias, enlazadas desde el footer y la sección de soporte.
 
 ## Stack técnico
 
@@ -33,7 +61,7 @@ Proyecto académico del equipo "Los Inges".
 |---|---|
 | ![Landing](screenshots/landing.png) | ![Login](screenshots/login.png) |
 
-| Pasajero — solicitar viaje | Conductor — panel principal |
+| Pasajero — solicitar viaje (escritorio) | Conductor — panel principal (escritorio) |
 |---|---|
 | ![Pasajero](screenshots/passenger-request.png) | ![Conductor](screenshots/driver-home.png) |
 
