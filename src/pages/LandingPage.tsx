@@ -553,6 +553,33 @@ export function LandingPage() {
                   </li>
                 </ul>
               </div>
+              <div>
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                  Legal
+                </p>
+                <ul className="flex flex-col gap-2 text-sm text-gray-500">
+                  <li>
+                    <Link to="/legal/terms" className="hover:text-gray-800">
+                      Términos de uso
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/legal/privacy" className="hover:text-gray-800">
+                      Política de privacidad
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/legal/licenses" className="hover:text-gray-800">
+                      Licencias
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/support" className="hover:text-gray-800">
+                      Soporte
+                    </Link>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
           <div className="mt-8 border-t border-gray-100 pt-6 text-center text-sm text-gray-400 sm:text-left">

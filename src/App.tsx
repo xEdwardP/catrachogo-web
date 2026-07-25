@@ -15,7 +15,11 @@ import { AdminDashboardPage } from './pages/AdminDashboardPage';
 import { AdminDriversPage } from './pages/AdminDriversPage';
 import { AdminTripsPage } from './pages/AdminTripsPage';
 import { AdminWithdrawalsPage } from './pages/AdminWithdrawalsPage';
+import { AdminIncidentReportsPage } from './pages/AdminIncidentReportsPage';
 import { AdminFareZonesPage } from './pages/AdminFareZonesPage';
+import { ProfilePage } from './pages/ProfilePage';
+import { SupportPage } from './pages/SupportPage';
+import { LegalDocumentPage } from './pages/LegalDocumentPage';
 import { RootRedirect } from './pages/RootRedirect';
 
 function App() {
@@ -33,6 +37,7 @@ function App() {
         <Route path="/passenger/trips/history" element={<TripHistoryPage />} />
         <Route path="/passenger/trips/:tripId" element={<TripInProgressPage />} />
         <Route path="/passenger/wallet" element={<WalletPage />} />
+        <Route path="/passenger/profile" element={<ProfilePage />} />
       </Route>
 
       <Route element={<ProtectedRoute roles={['driver']} requirePhone />}>
@@ -42,13 +47,18 @@ function App() {
         <Route path="/driver/trips/:tripId" element={<DriverTripPage />} />
         <Route path="/driver/trips/history" element={<TripHistoryPage />} />
         <Route path="/driver/wallet" element={<WalletPage />} />
+        <Route path="/driver/profile" element={<ProfilePage />} />
       </Route>
+
+      <Route path="/support" element={<SupportPage />} />
+      <Route path="/legal/:doc" element={<LegalDocumentPage />} />
 
       <Route element={<ProtectedRoute roles={['admin']} />}>
         <Route path="/admin" element={<AdminDashboardPage />} />
         <Route path="/admin/drivers" element={<AdminDriversPage />} />
         <Route path="/admin/trips" element={<AdminTripsPage />} />
         <Route path="/admin/withdrawals" element={<AdminWithdrawalsPage />} />
+        <Route path="/admin/incident-reports" element={<AdminIncidentReportsPage />} />
         <Route path="/admin/fare-zones" element={<AdminFareZonesPage />} />
       </Route>
 

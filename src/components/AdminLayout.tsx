@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Car, LayoutDashboard, LogOut, MapPinned, Users, Wallet } from 'lucide-react';
+import { Car, Flag, LayoutDashboard, LogOut, MapPinned, Users, Wallet } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { NotificationBell } from './NotificationBell';
 
@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { to: '/admin/drivers', label: 'Conductores', icon: Users, end: false },
   { to: '/admin/trips', label: 'Viajes', icon: Car, end: false },
   { to: '/admin/withdrawals', label: 'Retiros', icon: Wallet, end: false },
+  { to: '/admin/incident-reports', label: 'Reportes', icon: Flag, end: false },
   { to: '/admin/fare-zones', label: 'Zonas y tarifas', icon: MapPinned, end: false },
 ];
 

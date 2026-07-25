@@ -57,6 +57,12 @@ export function PlacesAutocompleteInput({
     element.id = id;
     if (placeholder) element.placeholder = placeholder;
     element.style.width = '100%';
+    element.style.setProperty('color-scheme', 'light');
+    element.style.setProperty('--gmp-mat-color-surface', '#ffffff');
+    element.style.setProperty('--gmp-mat-color-on-surface', '#1f2937');
+    element.style.setProperty('--gmp-mat-color-on-surface-variant', '#6b7280');
+    element.style.setProperty('--gmp-mat-color-primary', '#e8532e');
+    element.style.setProperty('--gmp-mat-color-outline', '#e5e7eb');
     if (displayValueRef.current !== undefined) {
       element.value = displayValueRef.current;
     }

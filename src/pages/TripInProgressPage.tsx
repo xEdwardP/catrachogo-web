@@ -2,17 +2,23 @@ import { useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Map as GoogleMap, Marker, Polyline } from '@vis.gl/react-google-maps';
-import { Phone, Star, X } from 'lucide-react';
-import { cancelTrip, getDriverLocation, getTripDetail } from '../api/trips';
+import { Flag, Phone, ShieldAlert, Star, X } from 'lucide-react';
+import { cancelTrip, endTripEarly, getDriverLocation, getTripDetail } from '../api/trips';
 import { getDriverPublicProfile } from '../api/drivers';
-import { translateCancelTripError } from '../api/tripErrorMessages';
+import { createIncidentReport } from '../api/incidentReports';
+import { translateCreateIncidentReportError } from '../api/incidentReportErrorMessages';
+import { translateCancelTripError, translateEndTripEarlyError } from '../api/tripErrorMessages';
 import { usePolling } from '../hooks/usePolling';
 import { useSmoothedPosition } from '../hooks/useSmoothedPosition';
 import { useDirectionsRoute } from '../hooks/useDirectionsRoute';
 import { ROUTE_COLOR } from '../utils/mapColors';
 import { RatingModal } from '../components/RatingModal';
 import { CancelTripConfirmModal } from '../components/CancelTripConfirmModal';
-import type { TripDetail, TripDriverInfo, TripStatus } from '../types/trip';
+import { EndTripEarlyConfirmModal } from '../components/EndTripEarlyConfirmModal';
+import { ReportIncidentModal } from '../components/ReportIncidentModal';
+import { MapAutoRecenter } from '../components/MapAutoRecenter';
+import type { CancellationReason, TripDetail, TripDriverInfo, TripStatus } from '../types/trip';
+import type { IncidentReportCategory } from '../types/incidentReport';
 
 interface TripInProgressLocationState {
   originAddress?: string;
@@ -42,7 +48,11 @@ export function TripInProgressPage() {
   const [driverPosition, setDriverPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [isCancelling, setIsCancelling] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [isEndingEarly, setIsEndingEarly] = useState(false);
+  const [showEndEarlyConfirm, setShowEndEarlyConfirm] = useState(false);
   const [ratingDismissed, setRatingDismissed] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [isSubmittingReport, setIsSubmittingReport] = useState(false);
   const fetchedDriverIdRef = useRef<string | null>(null);
 
   usePolling(
@@ -80,11 +90,11 @@ export function TripInProgressPage() {
     Boolean(tripId) && isTrackable,
   );
 
-  async function handleCancel() {
+  async function handleCancel(reason: CancellationReason) {
     if (!tripId) return;
     setIsCancelling(true);
     try {
-      const cancelled = await cancelTrip(tripId);
+      const cancelled = await cancelTrip(tripId, reason);
       toast.success(
         cancelled.cancellationFee
           ? `Viaje cancelado. Se aplicó un cargo de L. ${cancelled.cancellationFee.toFixed(2)}.`
@@ -100,11 +110,36 @@ export function TripInProgressPage() {
   }
 
   function handleCancelClick() {
-    if (trip?.status === 'accepted') {
-      setShowCancelConfirm(true);
-      return;
+    setShowCancelConfirm(true);
+  }
+
+  async function handleEndTripEarly() {
+    if (!tripId) return;
+    setIsEndingEarly(true);
+    try {
+      const ended = await endTripEarly(tripId);
+      toast.success(`Viaje finalizado. Se cobró L. ${ended.fare.toFixed(2)} por la distancia recorrida.`);
+      navigate('/passenger');
+    } catch (error) {
+      toast.error(translateEndTripEarlyError(error));
+    } finally {
+      setIsEndingEarly(false);
+      setShowEndEarlyConfirm(false);
     }
-    handleCancel();
+  }
+
+  async function handleSubmitReport(payload: { category: IncidentReportCategory; description: string }) {
+    if (!tripId) return;
+    setIsSubmittingReport(true);
+    try {
+      await createIncidentReport({ tripId, ...payload });
+      toast.success('Reporte enviado. Gracias por avisarnos.');
+      setShowReportModal(false);
+    } catch (error) {
+      toast.error(translateCreateIncidentReportError(error));
+    } finally {
+      setIsSubmittingReport(false);
+    }
   }
 
   const smoothedDriverPosition = useSmoothedPosition(driverPosition, 3500);
@@ -123,45 +158,59 @@ export function TripInProgressPage() {
     return null;
   }
 
-  const bannerText = trip ? STATUS_BANNER[trip.status] : 'Cargando...';
+  const bannerText = trip
+    ? trip.status === 'accepted' && trip.arrivedAt
+      ? 'Tu conductor ha llegado'
+      : STATUS_BANNER[trip.status]
+    : 'Cargando...';
   const canCall = Boolean(trip?.driverPhone);
   const destinationAddress = trip?.destinationAddress ?? state?.destinationAddress ?? '';
   const fallbackCenter =
     state?.originLat !== undefined && state?.originLng !== undefined
       ? { lat: state.originLat, lng: state.originLng }
       : DEFAULT_CENTER;
-  const mapCenter = smoothedDriverPosition ?? fallbackCenter;
   const canCancel = trip?.status === 'pending' || trip?.status === 'accepted';
   const shouldShowRating =
     !ratingDismissed && trip?.status === 'completed' && Boolean(driver?.userId) && trip?.ratedByMe === false;
 
   return (
-    <div className="relative h-screen w-full overflow-hidden">
-      <div
-        className={`absolute inset-x-0 top-0 z-10 p-3 text-center text-sm font-semibold text-white ${
-          trip?.status === 'cancelled' ? 'bg-gray-500' : 'bg-success'
-        }`}
-      >
-        {bannerText}
-        {route.durationText && isTrackable && ` · llega en ${route.durationText}`}
+    <div className="relative flex h-screen w-full flex-col overflow-hidden lg:flex-row">
+      <div className="relative h-full w-full lg:flex-1">
+        <div
+          className={`absolute inset-x-0 top-0 z-10 p-3 text-center text-sm font-semibold text-white lg:hidden ${
+            trip?.status === 'cancelled' ? 'bg-gray-500' : 'bg-success'
+          }`}
+        >
+          {bannerText}
+          {route.durationText && isTrackable && ` · llega en ${route.durationText}`}
+        </div>
+
+        <GoogleMap
+          defaultCenter={fallbackCenter}
+          defaultZoom={14}
+          disableDefaultUI
+          gestureHandling="greedy"
+          className="h-full w-full"
+        >
+          <MapAutoRecenter position={smoothedDriverPosition} />
+          {route.path && (
+            <Polyline path={route.path} strokeColor={ROUTE_COLOR} strokeOpacity={0.9} strokeWeight={4} />
+          )}
+          {smoothedDriverPosition && <Marker position={smoothedDriverPosition} />}
+        </GoogleMap>
       </div>
 
-      <GoogleMap
-        center={mapCenter}
-        zoom={14}
-        onCameraChanged={() => {}}
-        disableDefaultUI
-        gestureHandling="greedy"
-        className="h-full w-full"
-      >
-        {route.path && (
-          <Polyline path={route.path} strokeColor={ROUTE_COLOR} strokeOpacity={0.9} strokeWeight={4} />
-        )}
-        {smoothedDriverPosition && <Marker position={smoothedDriverPosition} />}
-      </GoogleMap>
+      <div className="absolute inset-x-0 bottom-0 flex justify-center p-0 sm:p-4 lg:static lg:w-[420px] lg:shrink-0 lg:p-0">
+        <div className="w-full rounded-t-2xl bg-white p-4 shadow-lg sm:max-w-md sm:rounded-2xl lg:h-full lg:max-w-none lg:overflow-y-auto lg:rounded-none lg:border-l lg:border-gray-100 lg:p-6 lg:shadow-none">
+          <div
+            className={`mb-4 hidden rounded-lg p-3 text-center text-sm font-semibold text-white lg:block ${
+              trip?.status === 'cancelled' ? 'bg-gray-500' : 'bg-success'
+            }`}
+          >
+            {bannerText}
+            {route.durationText && isTrackable && ` · llega en ${route.durationText}`}
+          </div>
 
-      <div className="absolute inset-x-0 bottom-0 flex justify-center p-0 sm:p-4">
-        <div className="w-full rounded-t-2xl bg-white p-4 shadow-lg sm:max-w-md sm:rounded-2xl">
           <div className="mb-3 flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-200 text-xs text-gray-400">
               {driver ? driver.name.charAt(0).toUpperCase() : '?'}
@@ -188,14 +237,25 @@ export function TripInProgressPage() {
           </div>
 
           <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={handleCancelClick}
-              disabled={isCancelling || !canCancel}
-              className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-300 py-2.5 text-sm font-medium text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <X className="h-4 w-4" /> Cancelar
-            </button>
+            {trip?.status === 'in_progress' ? (
+              <button
+                type="button"
+                onClick={() => setShowEndEarlyConfirm(true)}
+                disabled={isEndingEarly}
+                className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-300 py-2.5 text-sm font-medium text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Flag className="h-4 w-4" /> Finalizar viaje
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleCancelClick}
+                disabled={isCancelling || !canCancel}
+                className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-300 py-2.5 text-sm font-medium text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <X className="h-4 w-4" /> Cancelar
+              </button>
+            )}
             <a
               href={canCall ? `tel:${trip?.driverPhone}` : undefined}
               aria-disabled={!canCall}
@@ -206,14 +266,41 @@ export function TripInProgressPage() {
               <Phone className="h-4 w-4" /> Llamar
             </a>
           </div>
+
+          {driver && (
+            <button
+              type="button"
+              onClick={() => setShowReportModal(true)}
+              className="mt-3 flex w-full items-center justify-center gap-1 text-xs font-medium text-gray-400 hover:text-red-500"
+            >
+              <ShieldAlert className="h-3.5 w-3.5" /> Reportar un problema
+            </button>
+          )}
         </div>
       </div>
 
       {showCancelConfirm && (
         <CancelTripConfirmModal
           isSubmitting={isCancelling}
+          chargesFee={trip?.status === 'accepted'}
           onConfirm={handleCancel}
           onDismiss={() => setShowCancelConfirm(false)}
+        />
+      )}
+
+      {showEndEarlyConfirm && (
+        <EndTripEarlyConfirmModal
+          isSubmitting={isEndingEarly}
+          onConfirm={handleEndTripEarly}
+          onDismiss={() => setShowEndEarlyConfirm(false)}
+        />
+      )}
+
+      {showReportModal && (
+        <ReportIncidentModal
+          isSubmitting={isSubmittingReport}
+          onSubmit={handleSubmitReport}
+          onDismiss={() => setShowReportModal(false)}
         />
       )}
 

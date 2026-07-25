@@ -63,8 +63,8 @@ export function IncomingRequestPage() {
   const isUrgent = secondsLeft <= URGENT_THRESHOLD_SECONDS;
 
   return (
-    <div className="relative min-h-screen bg-cream p-4">
-      <div className="mx-auto max-w-md">
+    <div className="relative min-h-screen bg-cream p-4 lg:flex lg:items-center lg:justify-center lg:p-8">
+      <div className="mx-auto max-w-md lg:max-w-lg">
         <div className="overflow-hidden rounded-2xl bg-white shadow-lg">
           <div className="h-1.5 w-full bg-gray-100">
             <div
@@ -75,7 +75,7 @@ export function IncomingRequestPage() {
             />
           </div>
 
-          <div className="p-5">
+          <div className="p-5 lg:p-7">
             <div className="mb-4 flex items-center justify-between">
               <span className="rounded-full bg-brand px-3 py-1 text-xs font-bold text-white">
                 NUEVA SOLICITUD
@@ -99,19 +99,21 @@ export function IncomingRequestPage() {
               </div>
             </div>
 
-            <div className="mb-4 flex items-start gap-2 rounded-lg bg-brand-pale px-3 py-2">
-              <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-success" />
-              <div>
-                <p className="text-xs font-semibold text-gray-500">RECOGER EN</p>
-                <p className="text-sm text-gray-800">{request?.originAddress ?? '—'}</p>
+            <div className="lg:grid lg:grid-cols-2 lg:gap-3">
+              <div className="mb-4 flex items-start gap-2 rounded-lg bg-brand-pale px-3 py-2 lg:mb-0">
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-success" />
+                <div>
+                  <p className="text-xs font-semibold text-gray-500">RECOGER EN</p>
+                  <p className="text-sm text-gray-800">{request?.originAddress ?? '—'}</p>
+                </div>
               </div>
-            </div>
 
-            <div className="mb-5 flex items-center justify-between">
-              <span className="text-xs font-semibold text-gray-500">TARIFA</span>
-              <span className="text-lg font-bold text-gray-800">
-                {request ? `L. ${request.fare.toFixed(2)} · ${request.distanceKm.toFixed(1)} km` : '—'}
-              </span>
+              <div className="mb-5 flex items-center justify-between lg:mb-0 lg:flex-col lg:items-start lg:justify-center lg:rounded-lg lg:bg-brand-pale lg:px-3 lg:py-2">
+                <span className="text-xs font-semibold text-gray-500">TARIFA</span>
+                <span className="text-lg font-bold text-gray-800">
+                  {request ? `L. ${request.fare.toFixed(2)} · ${request.distanceKm.toFixed(1)} km` : '—'}
+                </span>
+              </div>
             </div>
 
             <div className="flex gap-3">

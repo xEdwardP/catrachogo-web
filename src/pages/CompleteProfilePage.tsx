@@ -6,9 +6,7 @@ import { AuthLayout } from '../components/AuthLayout';
 import { useAuth } from '../hooks/useAuth';
 import { translatePhoneUpdateError } from '../api/authErrorMessages';
 import { homePathForRole } from '../utils/roleRoutes';
-import { sanitizePhoneInput } from '../utils/phone';
-
-const PHONE_PATTERN = /^\+?\d{8,15}$/;
+import { PHONE_PATTERN, sanitizePhoneInput } from '../utils/phone';
 
 export function CompleteProfilePage() {
   const { user, completePhone } = useAuth();

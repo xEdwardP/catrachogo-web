@@ -31,3 +31,13 @@ export async function updatePhone(phone: string): Promise<{ phone: string }> {
   const { data } = await apiClient.patch<{ phone: string }>('/auth/phone', { phone });
   return data;
 }
+
+export async function updateName(name: string): Promise<{ name: string }> {
+  const { data } = await apiClient.patch<{ name: string }>('/auth/name', { name });
+  return data;
+}
+
+export async function updateProfilePhoto(profilePhotoUrl: string): Promise<{ profilePhotoUrl: string }> {
+  const { data } = await apiClient.patch<{ profilePhotoUrl: string }>('/auth/profile-photo', { profilePhotoUrl });
+  return data;
+}

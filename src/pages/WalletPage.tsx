@@ -8,14 +8,8 @@ import { translateWithdrawalError } from '../api/walletErrorMessages';
 import { PayPalTopupButtons } from '../components/PayPalTopupButtons';
 import { useAuth } from '../hooks/useAuth';
 import { homePathForRole } from '../utils/roleRoutes';
+import { WALLET_TRANSACTION_LABELS } from '../utils/walletTransactionLabels';
 import type { WalletTransaction } from '../types/wallet';
-
-const TRANSACTION_LABELS: Record<string, string> = {
-  paypal_topup: 'Recarga PayPal',
-  trip_charge: 'Pago de viaje',
-  trip_payout: 'Cobro de viaje',
-  withdrawal_adjustment: 'Retiro',
-};
 
 const PAGE_SIZE = 20;
 
@@ -90,55 +84,58 @@ export function WalletPage() {
   const parsedTopupAmount = Number(topupAmount);
 
   return (
-    <div className="min-h-screen bg-cream p-4">
-      <div className="mx-auto max-w-md">
+    <div className="min-h-screen bg-cream p-4 lg:p-8">
+      <div className="mx-auto max-w-md lg:max-w-4xl">
         <Link
           to={user ? homePathForRole(user.role) : '/'}
           className="mb-4 inline-flex items-center gap-1 text-sm text-gray-600 hover:text-gray-800"
         >
           <ArrowLeft className="h-4 w-4" /> Volver
         </Link>
-        <h1 className="mb-4 text-xl font-bold text-gray-800">Mi Wallet</h1>
+        <h1 className="mb-4 text-xl font-bold text-gray-800 lg:mb-6">Mi Wallet</h1>
 
-        <div className="relative mb-4 overflow-hidden rounded-2xl bg-gradient-to-br from-success to-success-dark p-6 text-white shadow-lg shadow-success/20">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -right-8 -top-10 h-32 w-32 rounded-full bg-white/10"
-          />
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -bottom-12 right-10 h-24 w-24 rounded-full bg-white/10"
-          />
-          <p className="text-xs font-semibold uppercase tracking-wide opacity-80">Saldo disponible</p>
-          <p className="mt-1 text-3xl font-bold">
-            {isLoadingBalance || balance === null ? '...' : `L. ${balance.toFixed(2)}`}
-          </p>
-        </div>
+        <div className="lg:grid lg:grid-cols-3 lg:gap-6">
+          <div className="relative mb-4 overflow-hidden rounded-2xl bg-gradient-to-br from-success to-success-dark p-6 text-white shadow-lg shadow-success/20 lg:col-span-3">
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -right-8 -top-10 h-32 w-32 rounded-full bg-white/10"
+            />
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -bottom-12 right-10 h-24 w-24 rounded-full bg-white/10"
+            />
+            <p className="text-xs font-semibold uppercase tracking-wide opacity-80">Saldo disponible</p>
+            <p className="mt-1 text-3xl font-bold">
+              {isLoadingBalance || balance === null ? '...' : `L. ${balance.toFixed(2)}`}
+            </p>
+          </div>
 
-        <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm">
-          <label htmlFor="topup-amount" className="mb-2 block text-sm font-medium text-gray-700">
-            Recargar con PayPal
-          </label>
-          <input
-            id="topup-amount"
-            type="number"
-            min={1}
-            step="0.01"
-            value={topupAmount}
-            onChange={(event) => setTopupAmount(event.target.value)}
-            className="mb-3 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
-          />
-          <PayPalTopupButtons
-            amount={parsedTopupAmount}
-            onSuccess={(newBalance) => {
-              setBalance(newBalance);
-              setPage(1);
-            }}
-          />
-        </div>
+          {user?.role === 'passenger' && (
+            <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm lg:col-span-1 lg:mb-0 lg:self-start">
+            <label htmlFor="topup-amount" className="mb-2 block text-sm font-medium text-gray-700">
+              Recargar con PayPal
+            </label>
+            <input
+              id="topup-amount"
+              type="number"
+              min={1}
+              step="0.01"
+              value={topupAmount}
+              onChange={(event) => setTopupAmount(event.target.value)}
+              className="mb-3 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            />
+            <PayPalTopupButtons
+              amount={parsedTopupAmount}
+              onSuccess={(newBalance) => {
+                setBalance(newBalance);
+                setPage(1);
+              }}
+            />
+          </div>
+        )}
 
-        {user?.role === 'driver' && (
-          <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm">
+          {user?.role === 'driver' && (
+          <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm lg:col-span-1 lg:mb-0 lg:self-start">
             {!showWithdrawalForm ? (
               <button
                 type="button"
@@ -196,10 +193,10 @@ export function WalletPage() {
               </form>
             )}
           </div>
-        )}
+          )}
 
-        <div className="rounded-2xl bg-white p-4 shadow-sm">
-          <p className="mb-3 text-sm font-semibold text-gray-700">Historial de movimientos</p>
+          <div className="rounded-2xl bg-white p-4 shadow-sm lg:col-span-2">
+            <p className="mb-3 text-sm font-semibold text-gray-700">Historial de movimientos</p>
           {isLoadingTransactions ? (
             <p className="text-sm text-gray-400">Cargando...</p>
           ) : transactions.length === 0 ? (
@@ -208,7 +205,11 @@ export function WalletPage() {
                 <ArrowDownCircle className="h-6 w-6" />
               </span>
               <p className="text-sm font-medium text-gray-600">Todavía no tienes movimientos</p>
-              <p className="text-xs text-gray-400">Recarga tu wallet para empezar a usar CatrachoGo.</p>
+              <p className="text-xs text-gray-400">
+                {user?.role === 'passenger'
+                  ? 'Recarga tu wallet para empezar a usar CatrachoGo.'
+                  : 'Aquí verás tus ganancias y retiros.'}
+              </p>
             </div>
           ) : (
             <ul className="flex flex-col gap-3">
@@ -224,7 +225,7 @@ export function WalletPage() {
                       <ArrowUpCircle className="h-5 w-5 text-red-500" />
                     )}
                     <div>
-                      <p className="text-sm text-gray-800">{TRANSACTION_LABELS[tx.type] ?? tx.type}</p>
+                      <p className="text-sm text-gray-800">{WALLET_TRANSACTION_LABELS[tx.type] ?? tx.type}</p>
                       <p className="text-xs text-gray-400">
                         {new Date(tx.createdAt).toLocaleDateString('es-HN')}
                       </p>
@@ -262,6 +263,7 @@ export function WalletPage() {
               </button>
             </div>
           )}
+          </div>
         </div>
       </div>
     </div>

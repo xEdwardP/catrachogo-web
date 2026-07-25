@@ -56,3 +56,36 @@ export function translateCompleteTripError(error: unknown): string {
   }
   return 'No se pudo completar el viaje. Intenta de nuevo.';
 }
+
+export function translateEndTripEarlyError(error: unknown): string {
+  const statusCode = getApiStatusCode(error);
+  if (statusCode === 403) {
+    return 'Este viaje no te pertenece.';
+  }
+  if (statusCode === 400) {
+    return 'El viaje debe estar en curso para poder finalizarlo anticipadamente.';
+  }
+  return 'No se pudo finalizar el viaje. Intenta de nuevo.';
+}
+
+export function translateMarkArrivedError(error: unknown): string {
+  const statusCode = getApiStatusCode(error);
+  if (statusCode === 403) {
+    return 'Este viaje no te pertenece.';
+  }
+  if (statusCode === 400) {
+    return 'El viaje debe estar aceptado para marcar tu llegada.';
+  }
+  return 'No se pudo marcar tu llegada. Intenta de nuevo.';
+}
+
+export function translateNoShowError(error: unknown): string {
+  const statusCode = getApiStatusCode(error);
+  if (statusCode === 403) {
+    return 'Este viaje no te pertenece.';
+  }
+  if (statusCode === 400) {
+    return 'Todavía no puedes reportar esto. Espera el periodo de gracia desde que marcaste tu llegada.';
+  }
+  return 'No se pudo reportar el problema. Intenta de nuevo.';
+}
