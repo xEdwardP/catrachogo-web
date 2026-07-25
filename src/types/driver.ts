@@ -40,6 +40,7 @@ export interface DriverSummary {
   earningsToday: number;
   tripsToday: number;
   averageRating: number;
+  available: boolean;
 }
 
 export interface PendingTripRequest {
