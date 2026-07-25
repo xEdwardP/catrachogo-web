@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Flag, Loader2 } from 'lucide-react';
 import { AdminLayout } from '../components/AdminLayout';
+import { AdminIncidentReportDetailModal } from '../components/AdminIncidentReportDetailModal';
 import { EmptyTableState } from '../components/EmptyTableState';
 import { getAdminIncidentReports, markIncidentReportReviewed } from '../api/admin';
 import { INCIDENT_REPORT_CATEGORY_LABELS } from '../utils/incidentReportLabels';
@@ -17,6 +18,7 @@ export function AdminIncidentReportsPage() {
   const [reports, setReports] = useState<AdminIncidentReportRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [resolvingId, setResolvingId] = useState<string | null>(null);
+  const [selectedReport, setSelectedReport] = useState<AdminIncidentReportRow | null>(null);
 
   const fetchReports = useCallback((forStatus: IncidentReportStatus) => {
     getAdminIncidentReports(forStatus)
@@ -40,6 +42,7 @@ export function AdminIncidentReportsPage() {
       await markIncidentReportReviewed(id);
       toast.success('Reporte marcado como revisado.');
       setReports((current) => current.filter((report) => report.id !== id));
+      setSelectedReport((current) => (current?.id === id ? null : current));
     } catch {
       toast.error('No se pudo actualizar el reporte. Intenta de nuevo.');
     } finally {
@@ -98,11 +101,13 @@ export function AdminIncidentReportsPage() {
             )}
             {!isLoading &&
               reports.map((report) => (
-                <tr key={report.id} className="border-b border-gray-50 transition last:border-0 hover:bg-cream/50">
+                <tr
+                  key={report.id}
+                  onClick={() => setSelectedReport(report)}
+                  className="cursor-pointer border-b border-gray-50 transition last:border-0 hover:bg-cream/50"
+                >
                   <td className="px-5 py-3 text-gray-600">{INCIDENT_REPORT_CATEGORY_LABELS[report.category]}</td>
-                  <td className="max-w-[280px] px-5 py-3 text-gray-600" title={report.description}>
-                    <span className="line-clamp-2">{report.description}</span>
-                  </td>
+                  <td className="max-w-[280px] truncate px-5 py-3 text-gray-600">{report.description}</td>
                   <td className="max-w-[160px] truncate px-5 py-3 text-gray-600">
                     {report.trip?.destinationAddress ?? '—'}
                   </td>
@@ -115,7 +120,10 @@ export function AdminIncidentReportsPage() {
                     <td className="px-5 py-3">
                       <button
                         type="button"
-                        onClick={() => handleMarkReviewed(report.id)}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          handleMarkReviewed(report.id);
+                        }}
                         disabled={resolvingId === report.id}
                         className="rounded-lg bg-success px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-60"
                       >
@@ -128,6 +136,15 @@ export function AdminIncidentReportsPage() {
           </tbody>
         </table>
       </div>
+
+      {selectedReport && (
+        <AdminIncidentReportDetailModal
+          report={selectedReport}
+          isResolving={resolvingId === selectedReport.id}
+          onMarkReviewed={() => handleMarkReviewed(selectedReport.id)}
+          onClose={() => setSelectedReport(null)}
+        />
+      )}
     </AdminLayout>
   );
 }

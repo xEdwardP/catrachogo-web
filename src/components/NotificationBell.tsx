@@ -24,7 +24,11 @@ function tripPathForRole(role: UserRole | undefined, tripId: string): string | n
   return null;
 }
 
-export function NotificationBell() {
+interface NotificationBellProps {
+  align?: 'left' | 'right';
+}
+
+export function NotificationBell({ align = 'right' }: NotificationBellProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
@@ -107,7 +111,11 @@ export function NotificationBell() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full z-30 mt-2 w-80 max-w-[90vw] rounded-2xl bg-white p-3 shadow-lg">
+        <div
+          className={`absolute top-full z-30 mt-2 w-80 max-w-[90vw] rounded-2xl bg-white p-3 shadow-lg ${
+            align === 'left' ? 'left-0' : 'right-0'
+          }`}
+        >
           <div className="mb-2 flex items-center justify-between px-1">
             <p className="text-sm font-semibold text-gray-800">Notificaciones</p>
             {unreadCount > 0 && (
