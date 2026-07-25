@@ -35,7 +35,10 @@ export function DriverHomePage() {
 
   const fetchSummary = useCallback(() => {
     getDriverSummary()
-      .then(setSummary)
+      .then((result) => {
+        setSummary(result);
+        setIsAvailable(result.available);
+      })
       .catch((error) => {
         if (getApiStatusCode(error) === 403) {
           navigate('/driver/complete-profile', { replace: true });
