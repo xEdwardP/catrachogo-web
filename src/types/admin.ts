@@ -34,6 +34,16 @@ export interface AdminDriverRow {
   }[];
 }
 
+export interface AdminDashboardStats {
+  tripsByStatus: Record<'pending' | 'accepted' | 'in_progress' | 'completed' | 'cancelled', number>;
+  revenueToday: number;
+  tripsCompletedToday: number;
+  availableDrivers: number;
+  pendingDrivers: number;
+  pendingWithdrawals: number;
+  dailyCompleted: { date: string; tripsCompleted: number; revenue: number }[];
+}
+
 export interface AdminWithdrawalRow {
   id: string;
   driverId: string;

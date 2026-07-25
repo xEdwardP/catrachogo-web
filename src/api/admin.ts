@@ -1,8 +1,19 @@
 import { apiClient } from './client';
 import type { PaginatedResult } from '../types/pagination';
-import type { AdminDriverRow, AdminWithdrawalRow, VerificationStatus, WithdrawalStatus } from '../types/admin';
+import type {
+  AdminDashboardStats,
+  AdminDriverRow,
+  AdminWithdrawalRow,
+  VerificationStatus,
+  WithdrawalStatus,
+} from '../types/admin';
 import type { Trip } from '../types/trip';
 import type { AdminIncidentReportRow, IncidentReportStatus } from '../types/incidentReport';
+
+export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
+  const { data } = await apiClient.get<AdminDashboardStats>('/admin/stats');
+  return data;
+}
 
 export async function getAdminDrivers(status?: VerificationStatus): Promise<AdminDriverRow[]> {
   const { data } = await apiClient.get<AdminDriverRow[]>('/admin/drivers', { params: { status } });
