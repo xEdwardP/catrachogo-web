@@ -20,6 +20,8 @@ const VEHICLE_TYPE_LABELS: Record<string, string> = {
   motorcycle: 'Motocicleta',
 };
 
+const PAGE_SIZE = 20;
+
 type SortField = 'name' | 'date';
 type SortDirection = 'asc' | 'desc';
 
@@ -62,6 +64,8 @@ export function AdminDriversPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const status = parseStatusParam(searchParams.get('status'));
   const [drivers, setDrivers] = useState<AdminDriverRow[]>([]);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedDriver, setSelectedDriver] = useState<AdminDriverRow | null>(null);
   const [isResolving, setIsResolving] = useState(false);
@@ -69,21 +73,30 @@ export function AdminDriversPage() {
   const [sortField, setSortField] = useState<SortField>('date');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
-  const fetchDrivers = useCallback((forStatus: VerificationStatus) => {
-    getAdminDrivers(forStatus)
-      .then(setDrivers)
+  const fetchDrivers = useCallback((forStatus: VerificationStatus, forPage: number) => {
+    getAdminDrivers(forStatus, forPage, PAGE_SIZE)
+      .then((result) => {
+        setDrivers(result.data);
+        setTotal(result.total);
+      })
       .catch(() => toast.error('No se pudo cargar la lista de conductores.'))
       .finally(() => setIsLoading(false));
   }, []);
 
   useEffect(() => {
-    fetchDrivers(status);
-  }, [status, fetchDrivers]);
+    fetchDrivers(status, page);
+  }, [status, page, fetchDrivers]);
 
   function handleStatusChange(nextStatus: VerificationStatus) {
     setIsLoading(true);
     setSearch('');
+    setPage(1);
     setSearchParams({ status: nextStatus }, { replace: true });
+  }
+
+  function goToPage(newPage: number) {
+    setIsLoading(true);
+    setPage(newPage);
   }
 
   function handleSort(field: SortField) {
@@ -132,11 +145,13 @@ export function AdminDriversPage() {
     return sorted;
   }, [drivers, search, sortField, sortDirection]);
 
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
   return (
     <AdminLayout>
       <h1 className="mb-1 text-2xl font-bold text-gray-800">Conductores</h1>
       <p className="mb-6 text-sm text-gray-500">
-        {isLoading ? 'Cargando...' : `${visibleDrivers.length} conductores ${STATUS_TABS.find((t) => t.value === status)?.label.toLowerCase()}`}
+        {isLoading ? 'Cargando...' : `${total} conductores ${STATUS_TABS.find((t) => t.value === status)?.label.toLowerCase()}`}
       </p>
 
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -254,6 +269,30 @@ export function AdminDriversPage() {
             ))}
           </tbody>
         </table>
+
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between border-t border-gray-100 px-5 py-3 text-sm">
+            <button
+              type="button"
+              onClick={() => goToPage(Math.max(1, page - 1))}
+              disabled={page <= 1}
+              className="text-gray-600 disabled:opacity-40"
+            >
+              Anterior
+            </button>
+            <span className="text-gray-400">
+              Página {page} de {totalPages}
+            </span>
+            <button
+              type="button"
+              onClick={() => goToPage(Math.min(totalPages, page + 1))}
+              disabled={page >= totalPages}
+              className="text-gray-600 disabled:opacity-40"
+            >
+              Siguiente
+            </button>
+          </div>
+        )}
       </div>
 
       {selectedDriver && (

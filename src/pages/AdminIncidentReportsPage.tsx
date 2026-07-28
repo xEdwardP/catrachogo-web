@@ -13,27 +13,40 @@ const STATUS_TABS: { value: IncidentReportStatus; label: string }[] = [
   { value: 'reviewed', label: 'Revisados' },
 ];
 
+const PAGE_SIZE = 20;
+
 export function AdminIncidentReportsPage() {
   const [status, setStatus] = useState<IncidentReportStatus>('pending');
   const [reports, setReports] = useState<AdminIncidentReportRow[]>([]);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [resolvingId, setResolvingId] = useState<string | null>(null);
   const [selectedReport, setSelectedReport] = useState<AdminIncidentReportRow | null>(null);
 
-  const fetchReports = useCallback((forStatus: IncidentReportStatus) => {
-    getAdminIncidentReports(forStatus)
-      .then(setReports)
+  const fetchReports = useCallback((forStatus: IncidentReportStatus, forPage: number) => {
+    getAdminIncidentReports(forStatus, forPage, PAGE_SIZE)
+      .then((result) => {
+        setReports(result.data);
+        setTotal(result.total);
+      })
       .catch(() => toast.error('No se pudo cargar los reportes.'))
       .finally(() => setIsLoading(false));
   }, []);
 
   useEffect(() => {
-    fetchReports(status);
-  }, [status, fetchReports]);
+    fetchReports(status, page);
+  }, [status, page, fetchReports]);
 
   function handleStatusChange(nextStatus: IncidentReportStatus) {
     setIsLoading(true);
+    setPage(1);
     setStatus(nextStatus);
+  }
+
+  function goToPage(newPage: number) {
+    setIsLoading(true);
+    setPage(newPage);
   }
 
   async function handleMarkReviewed(id: string) {
@@ -49,6 +62,8 @@ export function AdminIncidentReportsPage() {
       setResolvingId(null);
     }
   }
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
     <AdminLayout>
@@ -135,6 +150,30 @@ export function AdminIncidentReportsPage() {
               ))}
           </tbody>
         </table>
+
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between border-t border-gray-100 px-5 py-3 text-sm">
+            <button
+              type="button"
+              onClick={() => goToPage(Math.max(1, page - 1))}
+              disabled={page <= 1}
+              className="text-gray-600 disabled:opacity-40"
+            >
+              Anterior
+            </button>
+            <span className="text-gray-400">
+              Página {page} de {totalPages}
+            </span>
+            <button
+              type="button"
+              onClick={() => goToPage(Math.min(totalPages, page + 1))}
+              disabled={page >= totalPages}
+              className="text-gray-600 disabled:opacity-40"
+            >
+              Siguiente
+            </button>
+          </div>
+        )}
       </div>
 
       {selectedReport && (
