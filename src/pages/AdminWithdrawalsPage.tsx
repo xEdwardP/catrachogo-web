@@ -17,6 +17,8 @@ const STATUS_TABS: { value: WithdrawalStatus; label: string }[] = [
 type SortField = 'amount' | 'date';
 type SortDirection = 'asc' | 'desc';
 
+const PAGE_SIZE = 20;
+
 function SortableHeader({
   label,
   field,
@@ -49,6 +51,8 @@ function SortableHeader({
 export function AdminWithdrawalsPage() {
   const [status, setStatus] = useState<WithdrawalStatus>('pending');
   const [withdrawals, setWithdrawals] = useState<AdminWithdrawalRow[]>([]);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [resolvingId, setResolvingId] = useState<string | null>(null);
   const [selectedWithdrawal, setSelectedWithdrawal] = useState<AdminWithdrawalRow | null>(null);
@@ -56,21 +60,30 @@ export function AdminWithdrawalsPage() {
   const [sortField, setSortField] = useState<SortField>('date');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
-  const fetchWithdrawals = useCallback((forStatus: WithdrawalStatus) => {
-    getAdminWithdrawals(forStatus)
-      .then(setWithdrawals)
+  const fetchWithdrawals = useCallback((forStatus: WithdrawalStatus, forPage: number) => {
+    getAdminWithdrawals(forStatus, forPage, PAGE_SIZE)
+      .then((result) => {
+        setWithdrawals(result.data);
+        setTotal(result.total);
+      })
       .catch(() => toast.error('No se pudo cargar las solicitudes de retiro.'))
       .finally(() => setIsLoading(false));
   }, []);
 
   useEffect(() => {
-    fetchWithdrawals(status);
-  }, [status, fetchWithdrawals]);
+    fetchWithdrawals(status, page);
+  }, [status, page, fetchWithdrawals]);
 
   function handleStatusChange(nextStatus: WithdrawalStatus) {
     setIsLoading(true);
     setSearch('');
+    setPage(1);
     setStatus(nextStatus);
+  }
+
+  function goToPage(newPage: number) {
+    setIsLoading(true);
+    setPage(newPage);
   }
 
   function handleSort(field: SortField) {
@@ -116,6 +129,8 @@ export function AdminWithdrawalsPage() {
       return sortDirection === 'asc' ? comparison : -comparison;
     });
   }, [withdrawals, search, sortField, sortDirection]);
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
     <AdminLayout>
@@ -244,6 +259,30 @@ export function AdminWithdrawalsPage() {
             ))}
           </tbody>
         </table>
+
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between border-t border-gray-100 px-5 py-3 text-sm">
+            <button
+              type="button"
+              onClick={() => goToPage(Math.max(1, page - 1))}
+              disabled={page <= 1}
+              className="text-gray-600 disabled:opacity-40"
+            >
+              Anterior
+            </button>
+            <span className="text-gray-400">
+              Página {page} de {totalPages}
+            </span>
+            <button
+              type="button"
+              onClick={() => goToPage(Math.min(totalPages, page + 1))}
+              disabled={page >= totalPages}
+              className="text-gray-600 disabled:opacity-40"
+            >
+              Siguiente
+            </button>
+          </div>
+        )}
       </div>
 
       {selectedWithdrawal && (
