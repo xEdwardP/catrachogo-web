@@ -27,7 +27,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
               <p className="text-xs font-medium text-brand">Administración</p>
             </div>
           </div>
-          <NotificationBell />
+          <NotificationBell align="left" />
         </div>
 
         <nav className="flex flex-1 flex-col gap-1 px-3 pt-2">

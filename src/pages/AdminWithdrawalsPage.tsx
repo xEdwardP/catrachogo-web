@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { ArrowDown, ArrowUp, ArrowUpDown, Loader2, Search, Wallet } from 'lucide-react';
 import { AdminLayout } from '../components/AdminLayout';
+import { AdminWithdrawalDetailModal } from '../components/AdminWithdrawalDetailModal';
 import { EmptyTableState } from '../components/EmptyTableState';
 import { getAdminWithdrawals, resolveWithdrawal } from '../api/admin';
 import { translateResolveWithdrawalError } from '../api/adminErrorMessages';
@@ -50,6 +51,7 @@ export function AdminWithdrawalsPage() {
   const [withdrawals, setWithdrawals] = useState<AdminWithdrawalRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [resolvingId, setResolvingId] = useState<string | null>(null);
+  const [selectedWithdrawal, setSelectedWithdrawal] = useState<AdminWithdrawalRow | null>(null);
   const [search, setSearch] = useState('');
   const [sortField, setSortField] = useState<SortField>('date');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
@@ -88,6 +90,7 @@ export function AdminWithdrawalsPage() {
         nextStatus === 'completed' ? 'Retiro marcado como completado.' : 'Retiro rechazado, saldo revertido.',
       );
       setWithdrawals((current) => current.filter((item) => item.id !== requestId));
+      setSelectedWithdrawal((current) => (current?.id === requestId ? null : current));
     } catch (error) {
       toast.error(translateResolveWithdrawalError(error));
     } finally {
@@ -196,7 +199,11 @@ export function AdminWithdrawalsPage() {
               />
             )}
             {!isLoading && visibleWithdrawals.map((withdrawal) => (
-              <tr key={withdrawal.id} className="border-b border-gray-50 transition last:border-0 hover:bg-cream/50">
+              <tr
+                key={withdrawal.id}
+                onClick={() => setSelectedWithdrawal(withdrawal)}
+                className="cursor-pointer border-b border-gray-50 transition last:border-0 hover:bg-cream/50"
+              >
                 <td className="px-5 py-3 font-medium text-gray-800">{withdrawal.driver.user.name}</td>
                 <td className="px-5 py-3 text-gray-600">{withdrawal.paypalEmail}</td>
                 <td className="px-5 py-3 font-semibold text-gray-800">
@@ -210,7 +217,10 @@ export function AdminWithdrawalsPage() {
                     <div className="flex gap-2">
                       <button
                         type="button"
-                        onClick={() => handleResolve(withdrawal.id, 'rejected')}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          handleResolve(withdrawal.id, 'rejected');
+                        }}
                         disabled={resolvingId === withdrawal.id}
                         className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 disabled:opacity-50"
                       >
@@ -218,7 +228,10 @@ export function AdminWithdrawalsPage() {
                       </button>
                       <button
                         type="button"
-                        onClick={() => handleResolve(withdrawal.id, 'completed')}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          handleResolve(withdrawal.id, 'completed');
+                        }}
                         disabled={resolvingId === withdrawal.id}
                         className="rounded-lg bg-success px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-60"
                       >
@@ -232,6 +245,15 @@ export function AdminWithdrawalsPage() {
           </tbody>
         </table>
       </div>
+
+      {selectedWithdrawal && (
+        <AdminWithdrawalDetailModal
+          withdrawal={selectedWithdrawal}
+          isResolving={resolvingId === selectedWithdrawal.id}
+          onResolve={(nextStatus) => handleResolve(selectedWithdrawal.id, nextStatus)}
+          onClose={() => setSelectedWithdrawal(null)}
+        />
+      )}
     </AdminLayout>
   );
 }
