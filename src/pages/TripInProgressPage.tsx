@@ -18,6 +18,7 @@ import { CancelTripConfirmModal } from '../components/CancelTripConfirmModal';
 import { EndTripEarlyConfirmModal } from '../components/EndTripEarlyConfirmModal';
 import { ReportIncidentModal } from '../components/ReportIncidentModal';
 import { MapAutoRecenter } from '../components/MapAutoRecenter';
+import { MapResizeObserver } from '../components/MapResizeObserver';
 import type { CancellationReason, TripDetail, TripDriverInfo, TripStatus } from '../types/trip';
 import type { IncidentReportCategory } from '../types/incidentReport';
 
@@ -214,6 +215,7 @@ export function TripInProgressPage() {
           className="h-full w-full"
         >
           <MapAutoRecenter position={smoothedDriverPosition} />
+          <MapResizeObserver />
           {route.path && (
             <Polyline path={route.path} strokeColor={ROUTE_COLOR} strokeOpacity={0.9} strokeWeight={4} />
           )}

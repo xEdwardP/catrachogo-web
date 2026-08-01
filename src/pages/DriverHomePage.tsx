@@ -6,11 +6,14 @@ import { CarFront, ChevronRight, DollarSign, Star } from 'lucide-react';
 import { getDriverSummary, getPendingRequest, updateAvailability } from '../api/drivers';
 import { getTripHistory } from '../api/trips';
 import { HeaderActionsPill } from '../components/HeaderActionsPill';
+import { LocateMeButton } from '../components/LocateMeButton';
 import { MapAutoRecenter } from '../components/MapAutoRecenter';
+import { MapResizeObserver } from '../components/MapResizeObserver';
 import { sendDriverLocation } from '../api/tracking';
 import { getApiStatusCode } from '../api/client';
 import { translateAvailabilityError } from '../api/driverErrorMessages';
 import { usePolling } from '../hooks/usePolling';
+import { useGeolocation } from '../hooks/useGeolocation';
 import { useSmoothedPosition } from '../hooks/useSmoothedPosition';
 import { useAuth } from '../hooks/useAuth';
 import { TRIP_STATUS_COLORS, TRIP_STATUS_LABELS } from '../utils/tripStatusLabels';
@@ -20,6 +23,7 @@ import type { Trip } from '../types/trip';
 const RECENT_TRIPS_LIMIT = 5;
 
 const DEFAULT_CENTER = { lat: 15.5, lng: -88.03 };
+const LOCATE_ZOOM = 16;
 
 export function DriverHomePage() {
   const navigate = useNavigate();
@@ -101,6 +105,19 @@ export function DriverHomePage() {
   }
 
   const smoothedPosition = useSmoothedPosition(position, 3000);
+
+  const { isLoading: isLocating, locate } = useGeolocation();
+  const [locateFocusKey, setLocateFocusKey] = useState(0);
+
+  async function handleLocateMe() {
+    const here = await locate();
+    if (!here) {
+      toast.error('No se pudo obtener tu ubicación.');
+      return;
+    }
+    setPosition(here);
+    setLocateFocusKey((key) => key + 1);
+  }
 
   return (
     <div className="min-h-screen bg-cream p-4 lg:p-8">
@@ -244,9 +261,11 @@ export function DriverHomePage() {
               gestureHandling="greedy"
               className="h-full w-full"
             >
-              <MapAutoRecenter position={smoothedPosition} />
+              <MapAutoRecenter position={smoothedPosition} zoom={LOCATE_ZOOM} focusKey={locateFocusKey} />
+              <MapResizeObserver />
               {smoothedPosition && <Marker position={smoothedPosition} />}
             </GoogleMap>
+            <LocateMeButton isLoading={isLocating} onClick={handleLocateMe} className="absolute bottom-3 right-3" />
             {isAvailable && (
               <div className="pointer-events-none absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-success shadow-sm">
                 <span className="relative flex h-2 w-2">
