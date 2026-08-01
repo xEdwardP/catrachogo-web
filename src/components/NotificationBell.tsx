@@ -154,7 +154,9 @@ export function NotificationBell({ align = 'right' }: NotificationBellProps) {
                         <span className="block truncate text-sm font-medium text-gray-800">
                           {notification.title}
                         </span>
-                        <span className="block truncate text-xs text-gray-500">{notification.body}</span>
+                        <span className="block whitespace-normal break-words text-xs text-gray-500">
+                          {notification.body}
+                        </span>
                         <span className="block text-[11px] text-gray-400">
                           {formatRelativeTime(notification.createdAt)}
                         </span>

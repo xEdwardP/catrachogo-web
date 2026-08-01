@@ -12,6 +12,7 @@ import { usePolling } from '../hooks/usePolling';
 import { useSmoothedPosition } from '../hooks/useSmoothedPosition';
 import { useDirectionsRoute } from '../hooks/useDirectionsRoute';
 import { ROUTE_COLOR } from '../utils/mapColors';
+import { boundsWithPadding, isPlausibleMovement } from '../utils/geo';
 import { RatingModal } from '../components/RatingModal';
 import { CancelTripConfirmModal } from '../components/CancelTripConfirmModal';
 import { EndTripEarlyConfirmModal } from '../components/EndTripEarlyConfirmModal';
@@ -54,6 +55,7 @@ export function TripInProgressPage() {
   const [showReportModal, setShowReportModal] = useState(false);
   const [isSubmittingReport, setIsSubmittingReport] = useState(false);
   const fetchedDriverIdRef = useRef<string | null>(null);
+  const lastDriverPositionRef = useRef<{ lat: number; lng: number; timestampMs: number } | null>(null);
 
   usePolling(
     () => {
@@ -82,7 +84,12 @@ export function TripInProgressPage() {
       if (!tripId) return;
       getDriverLocation(tripId)
         .then((loc) => {
-          if (loc) setDriverPosition({ lat: loc.lat, lng: loc.lng });
+          if (!loc) return;
+          const next = { lat: loc.lat, lng: loc.lng, timestampMs: Date.now() };
+          const last = lastDriverPositionRef.current;
+          if (last && !isPlausibleMovement(last, next)) return;
+          lastDriverPositionRef.current = next;
+          setDriverPosition({ lat: loc.lat, lng: loc.lng });
         })
         .catch(() => {});
     },
@@ -154,6 +161,19 @@ export function TripInProgressPage() {
     isTrackable ? routeDestinationLng : undefined,
   );
 
+  const zonePoints: { lat: number; lng: number }[] = [];
+  if (trip?.originLat != null && trip?.originLng != null) {
+    zonePoints.push({ lat: trip.originLat, lng: trip.originLng });
+  }
+  if (trip?.destinationLat != null && trip?.destinationLng != null) {
+    zonePoints.push({ lat: trip.destinationLat, lng: trip.destinationLng });
+  }
+  if (zonePoints.length === 0 && state?.originLat !== undefined && state?.originLng !== undefined) {
+    zonePoints.push({ lat: state.originLat, lng: state.originLng });
+  }
+  if (zonePoints.length === 0) zonePoints.push(DEFAULT_CENTER);
+  const zoneRestriction = { latLngBounds: boundsWithPadding(zonePoints, 5), strictBounds: false };
+
   if (!tripId) {
     return null;
   }
@@ -190,6 +210,7 @@ export function TripInProgressPage() {
           defaultZoom={14}
           disableDefaultUI
           gestureHandling="greedy"
+          restriction={zoneRestriction}
           className="h-full w-full"
         >
           <MapAutoRecenter position={smoothedDriverPosition} />

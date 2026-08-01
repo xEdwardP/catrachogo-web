@@ -67,7 +67,10 @@ export function useDirectionsRoute(
     serviceRef.current.route(
       { origin, destination, travelMode: google.maps.TravelMode.DRIVING },
       (response, status) => {
-        if (status !== 'OK' || !response?.routes[0]?.legs[0]) return;
+        if (status !== 'OK' || !response?.routes[0]?.legs[0]) {
+          setRoute(EMPTY_ROUTE);
+          return;
+        }
         const leg = response.routes[0].legs[0];
         setRoute({
           path: response.routes[0].overview_path.map((point) => ({ lat: point.lat(), lng: point.lng() })),
