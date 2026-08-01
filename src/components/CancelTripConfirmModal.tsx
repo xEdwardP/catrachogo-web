@@ -12,7 +12,7 @@ interface CancelTripConfirmModalProps {
 }
 
 export function CancelTripConfirmModal({ isSubmitting, chargesFee, onConfirm, onDismiss }: CancelTripConfirmModalProps) {
-  const [reason, setReason] = useState<CancellationReason>(PASSENGER_CANCELLATION_REASONS[0]);
+  const [reason, setReason] = useState<CancellationReason | null>(null);
 
   return (
     <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/40 p-4">
@@ -43,7 +43,17 @@ export function CancelTripConfirmModal({ isSubmitting, chargesFee, onConfirm, on
           )}
         </p>
 
-        <p className="mb-2 text-xs font-semibold text-gray-500">¿Por qué cancelas?</p>
+        <div className="mb-2 flex items-center justify-between">
+          <p className="text-xs font-semibold text-gray-500">¿Por qué cancelas? (opcional)</p>
+          <button
+            type="button"
+            onClick={() => onConfirm('other')}
+            disabled={isSubmitting}
+            className="text-xs font-medium text-gray-400 underline hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            Omitir
+          </button>
+        </div>
         <div className="mb-5 flex flex-col gap-2">
           {PASSENGER_CANCELLATION_REASONS.map((value) => (
             <label
@@ -74,8 +84,8 @@ export function CancelTripConfirmModal({ isSubmitting, chargesFee, onConfirm, on
           </button>
           <button
             type="button"
-            onClick={() => onConfirm(reason)}
-            disabled={isSubmitting}
+            onClick={() => reason && onConfirm(reason)}
+            disabled={isSubmitting || !reason}
             className="flex-1 rounded-lg bg-brand py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? 'Cancelando...' : 'Sí, cancelar'}

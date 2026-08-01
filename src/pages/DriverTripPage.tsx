@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Map as GoogleMap, Marker, Polyline } from '@vis.gl/react-google-maps';
-import { Flag, Navigation, Phone } from 'lucide-react';
+import { Flag, MapPinCheck, Navigation, Phone } from 'lucide-react';
 import { completeTrip, getTripDetail, markDriverArrived, reportNoShow, startTrip } from '../api/trips';
 import { sendDriverLocation } from '../api/tracking';
 import {
@@ -15,13 +15,14 @@ import { usePolling } from '../hooks/usePolling';
 import { useSmoothedPosition } from '../hooks/useSmoothedPosition';
 import { useDirectionsRoute } from '../hooks/useDirectionsRoute';
 import { ROUTE_COLOR } from '../utils/mapColors';
-import { distanceMeters } from '../utils/geo';
+import { boundsWithPadding, distanceMeters, isPlausibleMovement } from '../utils/geo';
 import { NO_SHOW_GRACE_PERIOD_MS } from '../utils/noShowGracePeriod';
 import { MapAutoRecenter } from '../components/MapAutoRecenter';
 import { ReportNoShowConfirmModal } from '../components/ReportNoShowConfirmModal';
 import type { TripDetail, TripStatus } from '../types/trip';
 
 const ARRIVAL_RADIUS_METERS = 150;
+const DEMO_MODE_ENABLED = import.meta.env.VITE_ENABLE_DEMO_MODE === 'true';
 
 interface DriverTripLocationState {
   passengerName?: string;
@@ -54,6 +55,8 @@ export function DriverTripPage() {
   const [isReportingNoShow, setIsReportingNoShow] = useState(false);
   const [showNoShowConfirm, setShowNoShowConfirm] = useState(false);
   const [nowTick, setNowTick] = useState(() => Date.now());
+  const [isSimulating, setIsSimulating] = useState(false);
+  const lastPositionRef = useRef<{ lat: number; lng: number; timestampMs: number } | null>(null);
 
   usePolling(
     () => {
@@ -70,14 +73,21 @@ export function DriverTripPage() {
   usePolling(
     () => {
       if (!tripId || !navigator.geolocation) return;
-      navigator.geolocation.getCurrentPosition((pos) => {
-        const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        setPosition(coords);
-        sendDriverLocation(coords.lat, coords.lng, tripId).catch(() => {});
-      });
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const next = { lat: pos.coords.latitude, lng: pos.coords.longitude, timestampMs: Date.now() };
+          const last = lastPositionRef.current;
+          if (last && !isPlausibleMovement(last, next)) return;
+          lastPositionRef.current = next;
+          setPosition({ lat: next.lat, lng: next.lng });
+          sendDriverLocation(next.lat, next.lng, tripId).catch(() => {});
+        },
+        undefined,
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 },
+      );
     },
     5000,
-    Boolean(tripId) && isOnTrip,
+    Boolean(tripId) && isOnTrip && !isSimulating,
   );
 
   const smoothedPosition = useSmoothedPosition(position, 3000);
@@ -115,8 +125,26 @@ export function DriverTripPage() {
       : null;
   const isNearTarget = distanceToTarget != null && distanceToTarget <= ARRIVAL_RADIUS_METERS;
 
+  const zonePoints: { lat: number; lng: number }[] = [];
+  if (trip?.originLat != null && trip?.originLng != null) zonePoints.push({ lat: trip.originLat, lng: trip.originLng });
+  if (trip?.destinationLat != null && trip?.destinationLng != null) {
+    zonePoints.push({ lat: trip.destinationLat, lng: trip.destinationLng });
+  }
+  if (zonePoints.length === 0) zonePoints.push(DEFAULT_CENTER);
+  const zoneRestriction = { latLngBounds: boundsWithPadding(zonePoints, 5), strictBounds: false };
+
   if (!tripId) {
     return null;
+  }
+
+  function handleSimulateArrival() {
+    if (routeDestinationLat == null || routeDestinationLng == null || !tripId) return;
+    const coords = { lat: routeDestinationLat, lng: routeDestinationLng };
+    lastPositionRef.current = { ...coords, timestampMs: Date.now() };
+    setIsSimulating(true);
+    setPosition(coords);
+    sendDriverLocation(coords.lat, coords.lng, tripId).catch(() => {});
+    toast.success('Ubicación simulada en el punto de destino.');
   }
 
   async function handleStart() {
@@ -217,6 +245,7 @@ export function DriverTripPage() {
           defaultZoom={14}
           disableDefaultUI
           gestureHandling="greedy"
+          restriction={zoneRestriction}
           className="h-full w-full"
         >
           <MapAutoRecenter position={smoothedPosition} />
@@ -225,6 +254,16 @@ export function DriverTripPage() {
           )}
           {smoothedPosition && <Marker position={smoothedPosition} />}
         </GoogleMap>
+
+        {DEMO_MODE_ENABLED && isOnTrip && (
+          <button
+            type="button"
+            onClick={handleSimulateArrival}
+            className="absolute bottom-4 right-4 flex items-center gap-1.5 rounded-full bg-gray-800/90 px-3 py-2 text-xs font-semibold text-white shadow-md hover:bg-gray-900"
+          >
+            <MapPinCheck className="h-3.5 w-3.5" /> Simular llegada (demo)
+          </button>
+        )}
       </div>
 
       <div className="absolute inset-x-0 bottom-0 flex justify-center p-0 sm:p-4 lg:static lg:w-[420px] lg:shrink-0 lg:p-0">

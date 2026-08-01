@@ -37,7 +37,7 @@ export interface Trip {
   arrivedAt?: string | null;
   ratedByMe?: boolean;
   cancellationFee?: number | null;
-  cancellationReason?: CancellationReason | null;
+  cancelReason?: CancellationReason | null;
 }
 
 export interface TripDriverInfo {

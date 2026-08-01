@@ -197,8 +197,8 @@ export function AdminTripsPage() {
                 <td className="max-w-[200px] truncate px-5 py-3 text-gray-600">{trip.originAddress}</td>
                 <td className="max-w-[200px] truncate px-5 py-3 text-gray-600">{trip.destinationAddress}</td>
                 <td className="px-5 py-3 text-gray-600">
-                  {trip.status === 'cancelled' && trip.cancellationReason
-                    ? CANCELLATION_REASON_LABELS[trip.cancellationReason]
+                  {trip.status === 'cancelled' && trip.cancelReason
+                    ? (CANCELLATION_REASON_LABELS[trip.cancelReason] ?? trip.cancelReason)
                     : '—'}
                 </td>
                 <td className="px-5 py-3 font-semibold text-gray-800">L. {trip.fare.toFixed(2)}</td>

@@ -14,7 +14,10 @@ import { getApiStatusCode } from '../api/client';
 import { translateCreateTripError, translateEstimateError } from '../api/tripErrorMessages';
 import { useAuth } from '../hooks/useAuth';
 import { useDirectionsRoute } from '../hooks/useDirectionsRoute';
+import { useGeolocation } from '../hooks/useGeolocation';
+import { LocateMeButton } from '../components/LocateMeButton';
 import { ROUTE_COLOR } from '../utils/mapColors';
+import { boundsWithPadding } from '../utils/geo';
 import { savedAddressDisplayLabel } from '../utils/savedAddressLabels';
 import type { FareEstimate } from '../types/trip';
 import type { CreateSavedAddressPayload, SavedAddress } from '../types/savedAddress';
@@ -117,25 +120,24 @@ export function RequestTripPage() {
       .catch(() => {});
   }, []);
 
-  useEffect(() => {
-    if (!navigator.geolocation) {
+  const { isLoading: isLocating, locate } = useGeolocation();
+
+  const handleLocateMe = useCallback(async () => {
+    const position = await locate();
+    if (!position) {
+      toast.error('No se pudo obtener tu ubicación. Escribe tu punto de partida.');
       return;
     }
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setOrigin({
-          address: 'Mi ubicación actual',
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        });
-        setOriginInputValue('Mi ubicación actual');
-        setFare(null);
-      },
-      () => {
-        setOriginInputValue('');
-        toast.error('No se pudo obtener tu ubicación. Escribe tu punto de partida.');
-      },
-    );
+    setOrigin({ address: 'Mi ubicación actual', lat: position.lat, lng: position.lng });
+    setOriginInputValue('Mi ubicación actual');
+    setFare(null);
+  }, [locate]);
+
+  useEffect(() => {
+    const id = setTimeout(() => {
+      void handleLocateMe();
+    }, 0);
+    return () => clearTimeout(id);
   }, []);
 
   const handleFareResult = useCallback((result: FareEstimate | null) => setFare(result), []);
@@ -210,6 +212,18 @@ export function RequestTripPage() {
   }
 
   const recenterTarget = destination ?? origin ?? null;
+
+  const homeRestriction = useMemo(
+    () => ({ latLngBounds: boundsWithPadding([origin ?? DEFAULT_CENTER], 20), strictBounds: false }),
+    [origin],
+  );
+  const confirmRestriction = useMemo(
+    () => ({
+      latLngBounds: boundsWithPadding([origin ?? DEFAULT_CENTER, destination ?? DEFAULT_CENTER], 5),
+      strictBounds: false,
+    }),
+    [origin, destination],
+  );
 
   if (step === 'home') {
     return (
@@ -326,11 +340,13 @@ export function RequestTripPage() {
                 defaultZoom={14}
                 disableDefaultUI
                 gestureHandling="greedy"
+                restriction={homeRestriction}
                 className="h-full w-full"
               >
                 <MapAutoRecenter position={origin} />
                 {origin && <Marker position={origin} />}
               </GoogleMap>
+              <LocateMeButton isLoading={isLocating} onClick={handleLocateMe} className="absolute bottom-2 right-2" />
             </div>
           </div>
         </div>
@@ -355,6 +371,7 @@ export function RequestTripPage() {
           defaultZoom={14}
           disableDefaultUI
           gestureHandling="greedy"
+          restriction={confirmRestriction}
           className="h-full w-full"
         >
           <MapAutoRecenter position={recenterTarget} />
@@ -364,6 +381,7 @@ export function RequestTripPage() {
           {origin && <Marker position={origin} />}
           {destination && <Marker position={destination} />}
         </GoogleMap>
+        <LocateMeButton isLoading={isLocating} onClick={handleLocateMe} className="absolute bottom-24 right-4 sm:bottom-4" />
 
         <div className="absolute inset-x-0 top-0 mx-auto flex w-full max-w-2xl items-start gap-2 p-4">
           <button

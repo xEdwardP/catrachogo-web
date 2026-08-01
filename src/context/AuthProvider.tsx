@@ -11,6 +11,7 @@ import {
   updateProfilePhoto as updateProfilePhotoRequest,
 } from '../api/auth';
 import { clearStoredToken, getStoredToken, setStoredToken } from '../api/tokenStorage';
+import { getApiStatusCode } from '../api/client';
 import { onSessionExpired } from '../api/sessionEvents';
 import type { AuthUser, RegisterPayload } from '../types/auth';
 import { AuthContext } from './AuthContext';
@@ -26,8 +27,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     getProfile()
       .then(setUser)
-      .catch(() => {
-        clearStoredToken();
+      .catch((error) => {
+        if (getApiStatusCode(error) === 401) {
+          clearStoredToken();
+        }
         setUser(null);
       })
       .finally(() => setIsLoading(false));
