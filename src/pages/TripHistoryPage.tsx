@@ -86,7 +86,7 @@ export function TripHistoryPage() {
                 >
                   <Link
                     to={`${tripDetailBasePath}/${trip.id}`}
-                    className="-mx-2 block rounded-lg px-2 py-1 transition hover:bg-cream/70 lg:flex lg:flex-1 lg:items-center lg:gap-4"
+                    className="-mx-2 block min-w-0 rounded-lg px-2 py-1 transition hover:bg-cream/70 lg:flex lg:min-w-0 lg:flex-1 lg:items-center lg:gap-4"
                   >
                     <div className="mb-1 flex items-center justify-between lg:mb-0 lg:w-44 lg:shrink-0 lg:gap-3">
                       <span

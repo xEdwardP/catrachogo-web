@@ -6,6 +6,7 @@ import { AdminWithdrawalDetailModal } from '../components/AdminWithdrawalDetailM
 import { EmptyTableState } from '../components/EmptyTableState';
 import { getAdminWithdrawals, resolveWithdrawal } from '../api/admin';
 import { translateResolveWithdrawalError } from '../api/adminErrorMessages';
+import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import type { AdminWithdrawalRow, WithdrawalStatus } from '../types/admin';
 
 const STATUS_TABS: { value: WithdrawalStatus; label: string }[] = [
@@ -60,8 +61,10 @@ export function AdminWithdrawalsPage() {
   const [sortField, setSortField] = useState<SortField>('date');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
-  const fetchWithdrawals = useCallback((forStatus: WithdrawalStatus, forPage: number) => {
-    getAdminWithdrawals(forStatus, forPage, PAGE_SIZE)
+  const debouncedSearch = useDebouncedValue(search, 350);
+
+  const fetchWithdrawals = useCallback((forStatus: WithdrawalStatus, forPage: number, forSearch: string) => {
+    getAdminWithdrawals(forStatus, forPage, PAGE_SIZE, forSearch)
       .then((result) => {
         setWithdrawals(result.data);
         setTotal(result.total);
@@ -71,14 +74,20 @@ export function AdminWithdrawalsPage() {
   }, []);
 
   useEffect(() => {
-    fetchWithdrawals(status, page);
-  }, [status, page, fetchWithdrawals]);
+    fetchWithdrawals(status, page, debouncedSearch);
+  }, [status, page, debouncedSearch, fetchWithdrawals]);
 
   function handleStatusChange(nextStatus: WithdrawalStatus) {
     setIsLoading(true);
     setSearch('');
     setPage(1);
     setStatus(nextStatus);
+  }
+
+  function handleSearchChange(value: string) {
+    setIsLoading(true);
+    setSearch(value);
+    setPage(1);
   }
 
   function goToPage(newPage: number) {
@@ -111,24 +120,17 @@ export function AdminWithdrawalsPage() {
     }
   }
 
-  const visibleWithdrawals = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    const filtered = query
-      ? withdrawals.filter(
-          (withdrawal) =>
-            withdrawal.driver.user.name.toLowerCase().includes(query) ||
-            withdrawal.paypalEmail.toLowerCase().includes(query),
-        )
-      : withdrawals;
+  const isSearching = search.trim().length > 0;
 
-    return [...filtered].sort((a, b) => {
+  const visibleWithdrawals = useMemo(() => {
+    return [...withdrawals].sort((a, b) => {
       const comparison =
         sortField === 'amount'
           ? Number(a.amount) - Number(b.amount)
           : new Date(a.requestedAt).getTime() - new Date(b.requestedAt).getTime();
       return sortDirection === 'asc' ? comparison : -comparison;
     });
-  }, [withdrawals, search, sortField, sortDirection]);
+  }, [withdrawals, sortField, sortDirection]);
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
@@ -159,7 +161,7 @@ export function AdminWithdrawalsPage() {
           <input
             type="search"
             value={search}
-            onChange={(event) => setSearch(event.target.value)}
+            onChange={(event) => handleSearchChange(event.target.value)}
             placeholder="Buscar por conductor o correo"
             className="w-full rounded-lg border border-gray-200 bg-white py-2 pl-9 pr-3 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           />
@@ -197,7 +199,7 @@ export function AdminWithdrawalsPage() {
                 </td>
               </tr>
             )}
-            {!isLoading && visibleWithdrawals.length === 0 && withdrawals.length > 0 && (
+            {!isLoading && visibleWithdrawals.length === 0 && isSearching && (
               <EmptyTableState
                 icon={Search}
                 colSpan={5}
@@ -205,7 +207,7 @@ export function AdminWithdrawalsPage() {
                 description="Ninguna solicitud coincide con tu búsqueda."
               />
             )}
-            {!isLoading && withdrawals.length === 0 && (
+            {!isLoading && visibleWithdrawals.length === 0 && !isSearching && (
               <EmptyTableState
                 icon={Wallet}
                 colSpan={5}

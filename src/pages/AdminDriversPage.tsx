@@ -7,6 +7,7 @@ import { AdminDriverDetailModal } from '../components/AdminDriverDetailModal';
 import { EmptyTableState } from '../components/EmptyTableState';
 import { getAdminDrivers, updateDriverVerification } from '../api/admin';
 import { translateDriverVerificationError } from '../api/adminErrorMessages';
+import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import type { AdminDriverRow, VerificationStatus } from '../types/admin';
 
 const STATUS_TABS: { value: VerificationStatus; label: string }[] = [
@@ -73,8 +74,10 @@ export function AdminDriversPage() {
   const [sortField, setSortField] = useState<SortField>('date');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
-  const fetchDrivers = useCallback((forStatus: VerificationStatus, forPage: number) => {
-    getAdminDrivers(forStatus, forPage, PAGE_SIZE)
+  const debouncedSearch = useDebouncedValue(search, 350);
+
+  const fetchDrivers = useCallback((forStatus: VerificationStatus, forPage: number, forSearch: string) => {
+    getAdminDrivers(forStatus, forPage, PAGE_SIZE, forSearch)
       .then((result) => {
         setDrivers(result.data);
         setTotal(result.total);
@@ -84,14 +87,20 @@ export function AdminDriversPage() {
   }, []);
 
   useEffect(() => {
-    fetchDrivers(status, page);
-  }, [status, page, fetchDrivers]);
+    fetchDrivers(status, page, debouncedSearch);
+  }, [status, page, debouncedSearch, fetchDrivers]);
 
   function handleStatusChange(nextStatus: VerificationStatus) {
     setIsLoading(true);
     setSearch('');
     setPage(1);
     setSearchParams({ status: nextStatus }, { replace: true });
+  }
+
+  function handleSearchChange(value: string) {
+    setIsLoading(true);
+    setSearch(value);
+    setPage(1);
   }
 
   function goToPage(newPage: number) {
@@ -124,26 +133,17 @@ export function AdminDriversPage() {
     }
   }
 
-  const visibleDrivers = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    const filtered = query
-      ? drivers.filter(
-          (driver) =>
-            driver.user.name.toLowerCase().includes(query) ||
-            driver.vehicles[0]?.plate.toLowerCase().includes(query),
-        )
-      : drivers;
+  const isSearching = search.trim().length > 0;
 
-    const sorted = [...filtered].sort((a, b) => {
+  const visibleDrivers = useMemo(() => {
+    return [...drivers].sort((a, b) => {
       const comparison =
         sortField === 'name'
           ? a.user.name.localeCompare(b.user.name)
           : new Date(a.user.createdAt).getTime() - new Date(b.user.createdAt).getTime();
       return sortDirection === 'asc' ? comparison : -comparison;
     });
-
-    return sorted;
-  }, [drivers, search, sortField, sortDirection]);
+  }, [drivers, sortField, sortDirection]);
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
@@ -151,7 +151,11 @@ export function AdminDriversPage() {
     <AdminLayout>
       <h1 className="mb-1 text-2xl font-bold text-gray-800">Conductores</h1>
       <p className="mb-6 text-sm text-gray-500">
-        {isLoading ? 'Cargando...' : `${total} conductores ${STATUS_TABS.find((t) => t.value === status)?.label.toLowerCase()}`}
+        {isLoading
+          ? 'Cargando...'
+          : isSearching
+            ? `${total} resultados`
+            : `${total} conductores ${STATUS_TABS.find((t) => t.value === status)?.label.toLowerCase()}`}
       </p>
 
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -174,7 +178,7 @@ export function AdminDriversPage() {
           <input
             type="search"
             value={search}
-            onChange={(event) => setSearch(event.target.value)}
+            onChange={(event) => handleSearchChange(event.target.value)}
             placeholder="Buscar por nombre o placa"
             className="w-full rounded-lg border border-gray-200 bg-white py-2 pl-9 pr-3 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           />
@@ -212,7 +216,7 @@ export function AdminDriversPage() {
                 </td>
               </tr>
             )}
-            {!isLoading && visibleDrivers.length === 0 && drivers.length > 0 && (
+            {!isLoading && visibleDrivers.length === 0 && isSearching && (
               <EmptyTableState
                 icon={Search}
                 colSpan={5}
@@ -220,7 +224,7 @@ export function AdminDriversPage() {
                 description="Ningún conductor coincide con tu búsqueda."
               />
             )}
-            {!isLoading && drivers.length === 0 && (
+            {!isLoading && visibleDrivers.length === 0 && !isSearching && (
               <EmptyTableState
                 icon={Users}
                 colSpan={5}

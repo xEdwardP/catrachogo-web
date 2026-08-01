@@ -7,6 +7,7 @@ import { PlacesAutocompleteInput } from '../components/PlacesAutocompleteInput';
 import type { PlaceSelection } from '../components/PlacesAutocompleteInput';
 import { HeaderActionsPill } from '../components/HeaderActionsPill';
 import { MapAutoRecenter } from '../components/MapAutoRecenter';
+import { MapResizeObserver } from '../components/MapResizeObserver';
 import { SaveFavoriteAddressModal } from '../components/SaveFavoriteAddressModal';
 import { createTrip, estimateFare, getTripHistory } from '../api/trips';
 import { createSavedAddress, deleteSavedAddress, getSavedAddresses } from '../api/savedAddresses';
@@ -15,6 +16,7 @@ import { translateCreateTripError, translateEstimateError } from '../api/tripErr
 import { useAuth } from '../hooks/useAuth';
 import { useDirectionsRoute } from '../hooks/useDirectionsRoute';
 import { useGeolocation } from '../hooks/useGeolocation';
+import { useReverseGeocode } from '../hooks/useReverseGeocode';
 import { LocateMeButton } from '../components/LocateMeButton';
 import { ROUTE_COLOR } from '../utils/mapColors';
 import { boundsWithPadding } from '../utils/geo';
@@ -30,6 +32,7 @@ const SAVED_ADDRESS_ICONS: Record<SavedAddress['label'], typeof Home> = {
 
 const DEFAULT_CENTER = { lat: 15.5, lng: -88.03 };
 const RECENT_DESTINATIONS_LIMIT = 5;
+const LOCATE_ZOOM = 16;
 
 interface FareEstimatePanelProps {
   origin: PlaceSelection;
@@ -121,6 +124,8 @@ export function RequestTripPage() {
   }, []);
 
   const { isLoading: isLocating, locate } = useGeolocation();
+  const reverseGeocode = useReverseGeocode();
+  const [locateFocusKey, setLocateFocusKey] = useState(0);
 
   const handleLocateMe = useCallback(async () => {
     const position = await locate();
@@ -128,16 +133,19 @@ export function RequestTripPage() {
       toast.error('No se pudo obtener tu ubicación. Escribe tu punto de partida.');
       return;
     }
-    setOrigin({ address: 'Mi ubicación actual', lat: position.lat, lng: position.lng });
-    setOriginInputValue('Mi ubicación actual');
+    const address = (await reverseGeocode(position.lat, position.lng)) ?? 'Mi ubicación actual';
+    setOrigin({ address, lat: position.lat, lng: position.lng });
+    setOriginInputValue(address);
     setFare(null);
-  }, [locate]);
+    setLocateFocusKey((key) => key + 1);
+  }, [locate, reverseGeocode]);
 
   useEffect(() => {
     const id = setTimeout(() => {
       void handleLocateMe();
     }, 0);
     return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount only
   }, []);
 
   const handleFareResult = useCallback((result: FareEstimate | null) => setFare(result), []);
@@ -343,7 +351,8 @@ export function RequestTripPage() {
                 restriction={homeRestriction}
                 className="h-full w-full"
               >
-                <MapAutoRecenter position={origin} />
+                <MapAutoRecenter position={origin} zoom={LOCATE_ZOOM} focusKey={locateFocusKey} />
+                <MapResizeObserver />
                 {origin && <Marker position={origin} />}
               </GoogleMap>
               <LocateMeButton isLoading={isLocating} onClick={handleLocateMe} className="absolute bottom-2 right-2" />
@@ -374,7 +383,8 @@ export function RequestTripPage() {
           restriction={confirmRestriction}
           className="h-full w-full"
         >
-          <MapAutoRecenter position={recenterTarget} />
+          <MapAutoRecenter position={recenterTarget} zoom={LOCATE_ZOOM} focusKey={locateFocusKey} />
+          <MapResizeObserver />
           {plannedRoute.path && (
             <Polyline path={plannedRoute.path} strokeColor={ROUTE_COLOR} strokeOpacity={0.9} strokeWeight={4} />
           )}

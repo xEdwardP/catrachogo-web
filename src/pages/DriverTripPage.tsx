@@ -12,17 +12,29 @@ import {
   translateStartTripError,
 } from '../api/tripErrorMessages';
 import { usePolling } from '../hooks/usePolling';
+import { useGeolocation } from '../hooks/useGeolocation';
 import { useSmoothedPosition } from '../hooks/useSmoothedPosition';
 import { useDirectionsRoute } from '../hooks/useDirectionsRoute';
 import { ROUTE_COLOR } from '../utils/mapColors';
 import { boundsWithPadding, distanceMeters, isPlausibleMovement } from '../utils/geo';
 import { NO_SHOW_GRACE_PERIOD_MS } from '../utils/noShowGracePeriod';
+import { LocateMeButton } from '../components/LocateMeButton';
 import { MapAutoRecenter } from '../components/MapAutoRecenter';
+import { MapResizeObserver } from '../components/MapResizeObserver';
 import { ReportNoShowConfirmModal } from '../components/ReportNoShowConfirmModal';
 import type { TripDetail, TripStatus } from '../types/trip';
 
 const ARRIVAL_RADIUS_METERS = 150;
 const DEMO_MODE_ENABLED = import.meta.env.VITE_ENABLE_DEMO_MODE === 'true';
+const LOCATE_ZOOM = 16;
+const SIMULATION_STEP_MS = 350;
+const SIMULATION_MAX_STEPS = 24;
+
+function resamplePath(path: { lat: number; lng: number }[], maxPoints: number): { lat: number; lng: number }[] {
+  if (path.length <= maxPoints) return path;
+  const step = (path.length - 1) / (maxPoints - 1);
+  return Array.from({ length: maxPoints }, (_, i) => path[Math.round(i * step)]);
+}
 
 interface DriverTripLocationState {
   passengerName?: string;
@@ -56,7 +68,16 @@ export function DriverTripPage() {
   const [showNoShowConfirm, setShowNoShowConfirm] = useState(false);
   const [nowTick, setNowTick] = useState(() => Date.now());
   const [isSimulating, setIsSimulating] = useState(false);
+  const [animatingPosition, setAnimatingPosition] = useState<{ lat: number; lng: number } | null>(null);
+  const [locateFocusKey, setLocateFocusKey] = useState(0);
   const lastPositionRef = useRef<{ lat: number; lng: number; timestampMs: number } | null>(null);
+  const simulationTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (simulationTimerRef.current) clearInterval(simulationTimerRef.current);
+    };
+  }, []);
 
   usePolling(
     () => {
@@ -90,7 +111,20 @@ export function DriverTripPage() {
     Boolean(tripId) && isOnTrip && !isSimulating,
   );
 
-  const smoothedPosition = useSmoothedPosition(position, 3000);
+  const displayPosition = animatingPosition ?? position;
+  const smoothedPosition = useSmoothedPosition(displayPosition, animatingPosition ? SIMULATION_STEP_MS : 3000);
+
+  const { isLoading: isLocating, locate } = useGeolocation();
+
+  async function handleLocateMe() {
+    const here = await locate();
+    if (!here) {
+      toast.error('No se pudo obtener tu ubicación.');
+      return;
+    }
+    setPosition(here);
+    setLocateFocusKey((key) => key + 1);
+  }
 
   useEffect(() => {
     if (trip?.status === 'cancelled') {
@@ -139,12 +173,31 @@ export function DriverTripPage() {
 
   function handleSimulateArrival() {
     if (routeDestinationLat == null || routeDestinationLng == null || !tripId) return;
-    const coords = { lat: routeDestinationLat, lng: routeDestinationLng };
-    lastPositionRef.current = { ...coords, timestampMs: Date.now() };
+    if (simulationTimerRef.current) clearInterval(simulationTimerRef.current);
+
+    const destination = { lat: routeDestinationLat, lng: routeDestinationLng };
+    const fullPath = route.path && route.path.length > 1 ? route.path : [position ?? destination, destination];
+    const steps = resamplePath(fullPath, SIMULATION_MAX_STEPS).slice(1);
+    if (steps.length === 0) steps.push(destination);
+
     setIsSimulating(true);
-    setPosition(coords);
-    sendDriverLocation(coords.lat, coords.lng, tripId).catch(() => {});
-    toast.success('Ubicación simulada en el punto de destino.');
+    let index = 0;
+
+    simulationTimerRef.current = setInterval(() => {
+      const point = steps[index];
+      setAnimatingPosition(point);
+      sendDriverLocation(point.lat, point.lng, tripId).catch(() => {});
+      index += 1;
+
+      if (index >= steps.length) {
+        if (simulationTimerRef.current) clearInterval(simulationTimerRef.current);
+        simulationTimerRef.current = null;
+        lastPositionRef.current = { ...destination, timestampMs: Date.now() };
+        setAnimatingPosition(null);
+        setPosition(destination);
+        toast.success('Ubicación simulada en el punto de destino.');
+      }
+    }, SIMULATION_STEP_MS);
   }
 
   async function handleStart() {
@@ -248,20 +301,24 @@ export function DriverTripPage() {
           restriction={zoneRestriction}
           className="h-full w-full"
         >
-          <MapAutoRecenter position={smoothedPosition} />
+          <MapAutoRecenter position={smoothedPosition} zoom={LOCATE_ZOOM} focusKey={locateFocusKey} />
+          <MapResizeObserver />
           {route.path && (
             <Polyline path={route.path} strokeColor={ROUTE_COLOR} strokeOpacity={0.9} strokeWeight={4} />
           )}
           {smoothedPosition && <Marker position={smoothedPosition} />}
         </GoogleMap>
 
+        <LocateMeButton isLoading={isLocating} onClick={handleLocateMe} className="absolute bottom-24 right-4 sm:bottom-4" />
+
         {DEMO_MODE_ENABLED && isOnTrip && (
           <button
             type="button"
             onClick={handleSimulateArrival}
-            className="absolute bottom-4 right-4 flex items-center gap-1.5 rounded-full bg-gray-800/90 px-3 py-2 text-xs font-semibold text-white shadow-md hover:bg-gray-900"
+            disabled={isSimulating}
+            className="absolute bottom-40 right-4 flex items-center gap-1.5 rounded-full bg-gray-800/90 px-3 py-2 text-xs font-semibold text-white shadow-md hover:bg-gray-900 disabled:cursor-not-allowed disabled:opacity-60 sm:bottom-16"
           >
-            <MapPinCheck className="h-3.5 w-3.5" /> Simular llegada (demo)
+            <MapPinCheck className="h-3.5 w-3.5" /> {isSimulating ? 'Simulando...' : 'Simular llegada (demo)'}
           </button>
         )}
       </div>
