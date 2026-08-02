@@ -99,8 +99,8 @@ export function IncomingRequestPage() {
               </div>
             </div>
 
-            <div className="lg:grid lg:grid-cols-2 lg:gap-3">
-              <div className="mb-4 flex items-start gap-2 rounded-lg bg-brand-pale px-3 py-2 lg:mb-0">
+            <div className="mb-5 flex flex-col gap-3 lg:grid lg:grid-cols-2 lg:gap-3">
+              <div className="flex items-start gap-2 rounded-lg bg-brand-pale px-3 py-2">
                 <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-success" />
                 <div>
                   <p className="text-xs font-semibold text-gray-500">RECOGER EN</p>
@@ -108,7 +108,7 @@ export function IncomingRequestPage() {
                 </div>
               </div>
 
-              <div className="mb-5 flex items-center justify-between lg:mb-0 lg:flex-col lg:items-start lg:justify-center lg:rounded-lg lg:bg-brand-pale lg:px-3 lg:py-2">
+              <div className="flex items-center justify-between lg:flex-col lg:items-start lg:justify-center lg:rounded-lg lg:bg-brand-pale lg:px-3 lg:py-2">
                 <span className="text-xs font-semibold text-gray-500">TARIFA</span>
                 <span className="text-lg font-bold text-gray-800">
                   {request ? `L. ${request.fare.toFixed(2)} · ${request.distanceKm.toFixed(1)} km` : '—'}
