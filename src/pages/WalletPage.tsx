@@ -11,7 +11,7 @@ import { homePathForRole } from '../utils/roleRoutes';
 import { WALLET_TRANSACTION_LABELS } from '../utils/walletTransactionLabels';
 import type { WalletTransaction } from '../types/wallet';
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 10;
 
 export function WalletPage() {
   const { user } = useAuth();

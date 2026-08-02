@@ -13,7 +13,7 @@ const STATUS_TABS: { value: IncidentReportStatus; label: string }[] = [
   { value: 'reviewed', label: 'Revisados' },
 ];
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 10;
 
 export function AdminIncidentReportsPage() {
   const [status, setStatus] = useState<IncidentReportStatus>('pending');

@@ -17,6 +17,7 @@ import { AdminTripsPage } from './pages/AdminTripsPage';
 import { AdminWithdrawalsPage } from './pages/AdminWithdrawalsPage';
 import { AdminIncidentReportsPage } from './pages/AdminIncidentReportsPage';
 import { AdminFareZonesPage } from './pages/AdminFareZonesPage';
+import { AdminProfilePage } from './pages/AdminProfilePage';
 import { ProfilePage } from './pages/ProfilePage';
 import { SupportPage } from './pages/SupportPage';
 import { LegalDocumentPage } from './pages/LegalDocumentPage';
@@ -60,6 +61,7 @@ function App() {
         <Route path="/admin/withdrawals" element={<AdminWithdrawalsPage />} />
         <Route path="/admin/incident-reports" element={<AdminIncidentReportsPage />} />
         <Route path="/admin/fare-zones" element={<AdminFareZonesPage />} />
+        <Route path="/admin/profile" element={<AdminProfilePage />} />
       </Route>
 
       <Route path="/" element={<RootRedirect />} />

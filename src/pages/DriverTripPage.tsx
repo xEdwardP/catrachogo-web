@@ -72,6 +72,7 @@ export function DriverTripPage() {
   const [locateFocusKey, setLocateFocusKey] = useState(0);
   const lastPositionRef = useRef<{ lat: number; lng: number; timestampMs: number } | null>(null);
   const simulationTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const previousStatusRef = useRef<TripStatus | null>(null);
 
   useEffect(() => {
     return () => {
@@ -127,7 +128,11 @@ export function DriverTripPage() {
   }
 
   useEffect(() => {
-    if (trip?.status === 'cancelled') {
+    const previousStatus = previousStatusRef.current;
+    previousStatusRef.current = trip?.status ?? null;
+
+    const wasJustCancelled = trip?.status === 'cancelled' && previousStatus != null && previousStatus !== 'cancelled';
+    if (wasJustCancelled) {
       toast.error('El pasajero canceló el viaje.');
       navigate('/driver', { replace: true });
     }
@@ -361,7 +366,7 @@ export function DriverTripPage() {
             </span>
           </div>
 
-          {trip?.status === 'completed' ? (
+          {trip?.status === 'completed' || trip?.status === 'cancelled' ? (
             <button
               type="button"
               onClick={() => navigate('/driver', { replace: true })}

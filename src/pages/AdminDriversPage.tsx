@@ -21,7 +21,7 @@ const VEHICLE_TYPE_LABELS: Record<string, string> = {
   motorcycle: 'Motocicleta',
 };
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 10;
 
 type SortField = 'name' | 'date';
 type SortDirection = 'asc' | 'desc';

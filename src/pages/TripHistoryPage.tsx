@@ -12,7 +12,7 @@ import { TRIP_STATUS_COLORS, TRIP_STATUS_LABELS } from '../utils/tripStatusLabel
 import type { Trip } from '../types/trip';
 import type { IncidentReportCategory } from '../types/incidentReport';
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 10;
 
 export function TripHistoryPage() {
   const { user } = useAuth();

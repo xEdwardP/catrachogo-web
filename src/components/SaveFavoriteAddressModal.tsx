@@ -1,7 +1,10 @@
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { toast } from 'sonner';
+import { Loader2, LocateFixed, X } from 'lucide-react';
 import { PlacesAutocompleteInput } from './PlacesAutocompleteInput';
 import type { PlaceSelection } from './PlacesAutocompleteInput';
+import { useGeolocation } from '../hooks/useGeolocation';
+import { useReverseGeocode } from '../hooks/useReverseGeocode';
 import { SAVED_ADDRESS_LABELS } from '../utils/savedAddressLabels';
 import type { CreateSavedAddressPayload, SavedAddressLabel } from '../types/savedAddress';
 
@@ -24,7 +27,21 @@ export function SaveFavoriteAddressModal({
   const [label, setLabel] = useState<SavedAddressLabel>('home');
   const [customLabel, setCustomLabel] = useState('');
 
+  const { isLoading: isLocating, locate } = useGeolocation();
+  const reverseGeocode = useReverseGeocode();
+
   const canSave = Boolean(place) && (label !== 'other' || customLabel.trim().length > 0);
+
+  async function handleUseCurrentLocation() {
+    const here = await locate();
+    if (!here) {
+      toast.error('No se pudo obtener tu ubicación.');
+      return;
+    }
+    const address = (await reverseGeocode(here.lat, here.lng)) ?? 'Mi ubicación actual';
+    setPlace({ address, lat: here.lat, lng: here.lng });
+    setLabel('other');
+  }
 
   function handleSave() {
     if (!place || !canSave) return;
@@ -64,6 +81,15 @@ export function SaveFavoriteAddressModal({
               onPlaceSelected={setPlace}
             />
           </div>
+          <button
+            type="button"
+            onClick={handleUseCurrentLocation}
+            disabled={isLocating}
+            className="mt-2 flex items-center gap-1.5 text-xs font-medium text-brand hover:underline disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isLocating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <LocateFixed className="h-3.5 w-3.5" />}
+            Usar mi ubicación actual
+          </button>
         </div>
 
         <p className="mb-2 text-xs font-semibold text-gray-500">ETIQUETA</p>

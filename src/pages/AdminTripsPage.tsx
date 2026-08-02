@@ -24,7 +24,7 @@ const STATUS_COLORS: Record<TripStatus, string> = {
   cancelled: 'bg-gray-100 text-gray-500',
 };
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 10;
 
 type SortField = 'fare' | 'date';
 type SortDirection = 'asc' | 'desc';

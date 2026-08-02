@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { Car, Flag, LayoutDashboard, LogOut, MapPinned, Users, Wallet } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { NotificationBell } from './NotificationBell';
@@ -51,7 +51,10 @@ export function AdminLayout({ children }: { children: ReactNode }) {
         </nav>
 
         <div className="border-t border-gray-100 px-4 py-4">
-          <div className="mb-3 flex items-center gap-2.5 px-1">
+          <Link
+            to="/admin/profile"
+            className="mb-3 flex items-center gap-2.5 rounded-lg px-1 py-1 transition hover:bg-cream"
+          >
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-pale text-xs font-bold text-brand">
               {user?.name.charAt(0).toUpperCase()}
             </div>
@@ -59,7 +62,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
               <p className="truncate text-sm font-medium text-gray-700">{user?.name}</p>
               <p className="truncate text-xs text-gray-400">{user?.email}</p>
             </div>
-          </div>
+          </Link>
           <button
             type="button"
             onClick={logout}

@@ -11,8 +11,13 @@ export function MapResizeObserver() {
     function triggerResize() {
       if (!map) return;
       const center = map.getCenter();
+      const zoom = map.getZoom();
       google.maps.event.trigger(map, 'resize');
       if (center) map.setCenter(center);
+      if (zoom != null) {
+        map.setZoom(zoom - 1);
+        requestAnimationFrame(() => map.setZoom(zoom));
+      }
     }
 
     const raf = requestAnimationFrame(triggerResize);

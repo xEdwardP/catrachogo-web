@@ -259,7 +259,7 @@ export function TripInProgressPage() {
             <p className="text-sm text-gray-800">{destinationAddress || '—'}</p>
           </div>
 
-          {trip?.status === 'completed' ? (
+          {trip?.status === 'completed' || trip?.status === 'cancelled' ? (
             <button
               type="button"
               onClick={() => navigate('/passenger')}

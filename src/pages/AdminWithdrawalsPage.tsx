@@ -18,7 +18,7 @@ const STATUS_TABS: { value: WithdrawalStatus; label: string }[] = [
 type SortField = 'amount' | 'date';
 type SortDirection = 'asc' | 'desc';
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 10;
 
 function SortableHeader({
   label,
