@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { AccountSwitchHeader } from '../components/AccountSwitchHeader';
 import { CloudinaryFileInput } from '../components/CloudinaryFileInput';
 import { completeDriverProfile } from '../api/drivers';
 import { isCloudinaryConfigured } from '../api/cloudinary';
@@ -61,6 +62,7 @@ export function DriverCompleteProfilePage() {
   return (
     <div className="min-h-screen bg-cream p-4">
       <div className="mx-auto max-w-md">
+        <AccountSwitchHeader />
         <h1 className="mb-1 text-xl font-bold text-gray-800">Completa tu perfil de conductor</h1>
         <p className="mb-4 text-sm text-gray-600">
           Necesitamos estos datos y documentos para verificar tu cuenta antes de que puedas

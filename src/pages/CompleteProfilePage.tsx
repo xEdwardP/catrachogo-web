@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { AccountSwitchHeader } from '../components/AccountSwitchHeader';
 import { AuthLayout } from '../components/AuthLayout';
 import { useAuth } from '../hooks/useAuth';
 import { translatePhoneUpdateError } from '../api/authErrorMessages';
@@ -36,6 +37,7 @@ export function CompleteProfilePage() {
 
   return (
     <AuthLayout>
+      <AccountSwitchHeader />
       <h2 className="mb-2 text-center text-lg font-semibold text-gray-800">Completa tu perfil</h2>
       <p className="mb-6 text-center text-sm text-gray-500">
         Hola{user?.name ? `, ${user.name}` : ''}. Necesitamos tu número de teléfono para poder

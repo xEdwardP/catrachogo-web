@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
-import { MapPin, Navigation, X } from 'lucide-react';
+import { Bell, DollarSign, MapPin, Navigation, X } from 'lucide-react';
 import { acceptTrip, rejectTrip } from '../api/trips';
 import { translateAcceptTripError } from '../api/driverErrorMessages';
 import type { PendingTripRequest } from '../types/driver';
@@ -63,56 +63,91 @@ export function IncomingRequestPage() {
   const isUrgent = secondsLeft <= URGENT_THRESHOLD_SECONDS;
 
   return (
-    <div className="relative min-h-screen bg-cream p-4 lg:flex lg:items-center lg:justify-center lg:p-8">
-      <div className="mx-auto max-w-md lg:max-w-lg">
-        <div className="overflow-hidden rounded-2xl bg-white shadow-lg">
-          <div className="h-1.5 w-full bg-gray-100">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-cream p-4 lg:p-8">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -left-24 -top-24 h-80 w-80 rounded-full bg-brand/10 blur-3xl"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-32 -right-24 h-96 w-96 rounded-full bg-success/10 blur-3xl"
+      />
+
+      <div className="relative mx-auto w-full max-w-md lg:max-w-lg">
+        <div className="overflow-hidden rounded-3xl bg-white shadow-2xl shadow-black/10 ring-1 ring-black/5">
+          <div
+            className={`relative px-5 py-4 text-white transition-colors duration-500 lg:px-7 ${
+              isUrgent ? 'bg-gradient-to-r from-red-500 to-red-600' : 'bg-gradient-to-r from-brand to-brand-dark'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/20">
+                  <Bell className="h-4 w-4" />
+                </span>
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-white/80">
+                    Nueva solicitud
+                  </p>
+                  <p className="text-sm font-bold">Tienes un viaje cerca</p>
+                </div>
+              </div>
+              <div
+                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+                  isUrgent ? 'animate-pulse bg-white text-red-600' : 'bg-white/20 text-white'
+                }`}
+              >
+                {secondsLeft}s
+              </div>
+            </div>
+          </div>
+
+          <div className="h-1 w-full bg-black/10">
             <div
-              className={`h-full transition-all duration-1000 ease-linear ${
-                isUrgent ? 'bg-red-500' : 'bg-brand'
-              }`}
+              className="h-full bg-white/80 transition-all duration-1000 ease-linear"
               style={{ width: `${(secondsLeft / RESPONSE_WINDOW_SECONDS) * 100}%` }}
             />
           </div>
 
           <div className="p-5 lg:p-7">
-            <div className="mb-4 flex items-center justify-between">
-              <span className="rounded-full bg-brand px-3 py-1 text-xs font-bold text-white">
-                NUEVA SOLICITUD
-              </span>
-              <span className={`text-sm font-bold ${isUrgent ? 'text-red-500' : 'text-gray-400'}`}>
-                {secondsLeft}s
-              </span>
-            </div>
-
-            <div className="mb-4 flex items-center gap-3">
-              <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand-pale text-sm font-bold text-brand">
+            <div className="mb-5 flex items-center gap-3">
+              <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-brand-pale text-base font-bold text-brand ring-4 ring-brand-pale/60">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand/20" />
                 <span className="relative">{request?.passengerName?.charAt(0).toUpperCase() ?? '?'}</span>
               </div>
-              <div>
-                <p className="font-semibold text-gray-800">{request?.passengerName ?? 'Pasajero'}</p>
-                <div className="flex items-center gap-1 text-xs text-gray-500">
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-base font-semibold text-gray-800">
+                  {request?.passengerName ?? 'Pasajero'}
+                </p>
+                <div className="mt-0.5 flex items-center gap-1 text-xs text-gray-500">
                   <Navigation className="h-3 w-3 text-gray-400" />
                   {request ? `${request.distanceKm.toFixed(1)} km de distancia` : ''}
                 </div>
               </div>
             </div>
 
-            <div className="mb-5 flex flex-col gap-3 lg:grid lg:grid-cols-2 lg:gap-3">
-              <div className="flex items-start gap-2 rounded-lg bg-brand-pale px-3 py-2">
-                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-success" />
-                <div>
-                  <p className="text-xs font-semibold text-gray-500">RECOGER EN</p>
-                  <p className="text-sm text-gray-800">{request?.originAddress ?? '—'}</p>
+            <div className="mb-5 flex flex-col gap-3 lg:grid lg:grid-cols-2">
+              <div className="flex items-start gap-2.5 rounded-xl bg-brand-pale px-3.5 py-3">
+                <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/70 text-brand">
+                  <MapPin className="h-3.5 w-3.5" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">Recoger en</p>
+                  <p className="truncate text-sm text-gray-800">{request?.originAddress ?? '—'}</p>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between lg:flex-col lg:items-start lg:justify-center lg:rounded-lg lg:bg-brand-pale lg:px-3 lg:py-2">
-                <span className="text-xs font-semibold text-gray-500">TARIFA</span>
-                <span className="text-lg font-bold text-gray-800">
-                  {request ? `L. ${request.fare.toFixed(2)} · ${request.distanceKm.toFixed(1)} km` : '—'}
+              <div className="flex items-center gap-2.5 rounded-xl bg-success/10 px-3.5 py-3">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/70 text-success">
+                  <DollarSign className="h-3.5 w-3.5" />
                 </span>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">Tarifa</p>
+                  <p className="text-base font-bold text-gray-800">
+                    {request ? `L. ${request.fare.toFixed(2)}` : '—'}
+                    {request && <span className="ml-1 text-xs font-medium text-gray-500">· {request.distanceKm.toFixed(1)} km</span>}
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -121,7 +156,7 @@ export function IncomingRequestPage() {
                 type="button"
                 onClick={handleReject}
                 disabled={isResponding}
-                className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-300 py-2.5 text-sm font-medium text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-gray-300 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <X className="h-4 w-4" /> Rechazar
               </button>
@@ -129,7 +164,7 @@ export function IncomingRequestPage() {
                 type="button"
                 onClick={handleAccept}
                 disabled={isResponding}
-                className="flex-1 rounded-lg bg-success py-2.5 text-sm font-semibold text-white shadow-lg shadow-success/20 transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+                className="flex-1 rounded-xl bg-gradient-to-r from-success to-success-dark py-3 text-sm font-semibold text-white shadow-lg shadow-success/25 transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
               >
                 Aceptar
               </button>
