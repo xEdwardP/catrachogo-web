@@ -11,6 +11,7 @@ export interface AuthContextValue {
   completePhone: (phone: string) => Promise<AuthUser>;
   updateName: (name: string) => Promise<AuthUser>;
   updateProfilePhoto: (profilePhotoUrl: string) => Promise<AuthUser>;
+  updatePassword: (currentPassword: string, newPassword: string) => Promise<void>;
   logout: () => void;
 }
 

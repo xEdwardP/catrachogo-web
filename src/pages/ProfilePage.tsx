@@ -4,17 +4,27 @@ import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { ArrowLeft } from 'lucide-react';
 import { CloudinaryFileInput } from '../components/CloudinaryFileInput';
-import { translateNameUpdateError, translatePhoneUpdateError } from '../api/authErrorMessages';
+import { PasswordInput } from '../components/PasswordInput';
+import {
+  translateNameUpdateError,
+  translatePasswordUpdateError,
+  translatePhoneUpdateError,
+} from '../api/authErrorMessages';
 import { useAuth } from '../hooks/useAuth';
 import { homePathForRole } from '../utils/roleRoutes';
 import { PHONE_PATTERN, sanitizePhoneInput } from '../utils/phone';
 
 export function ProfilePage() {
-  const { user, updateName, completePhone, updateProfilePhoto } = useAuth();
+  const { user, updateName, completePhone, updateProfilePhoto, updatePassword } = useAuth();
 
   const [name, setName] = useState(user?.name ?? '');
   const [phone, setPhone] = useState(user?.phone ?? '');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   if (!user) {
     return null;
@@ -59,6 +69,32 @@ export function ProfilePage() {
       );
     } finally {
       setIsSubmitting(false);
+    }
+  }
+
+  async function handleChangePassword(event: FormEvent) {
+    event.preventDefault();
+
+    if (newPassword.length < 8) {
+      toast.error('La nueva contraseña debe tener al menos 8 caracteres.');
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      toast.error('Las contraseñas nuevas no coinciden.');
+      return;
+    }
+
+    setIsChangingPassword(true);
+    try {
+      await updatePassword(currentPassword, newPassword);
+      toast.success('Contraseña actualizada.');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmNewPassword('');
+    } catch (error) {
+      toast.error(translatePasswordUpdateError(error));
+    } finally {
+      setIsChangingPassword(false);
     }
   }
 
@@ -137,6 +173,45 @@ export function ProfilePage() {
             </button>
             </form>
           </div>
+        </div>
+
+        <div className="mt-4 rounded-2xl bg-white p-4 shadow-sm lg:mt-6">
+          <h2 className="mb-4 text-base font-semibold text-gray-800">Cambiar contraseña</h2>
+          <form onSubmit={handleChangePassword} className="flex flex-col gap-4 lg:max-w-sm">
+            <PasswordInput
+              id="current-password"
+              label="Contraseña actual"
+              required
+              autoComplete="current-password"
+              value={currentPassword}
+              onChange={setCurrentPassword}
+            />
+            <PasswordInput
+              id="new-password"
+              label="Nueva contraseña"
+              required
+              minLength={8}
+              autoComplete="new-password"
+              value={newPassword}
+              onChange={setNewPassword}
+            />
+            <PasswordInput
+              id="confirm-new-password"
+              label="Confirmar nueva contraseña"
+              required
+              minLength={8}
+              autoComplete="new-password"
+              value={confirmNewPassword}
+              onChange={setConfirmNewPassword}
+            />
+            <button
+              type="submit"
+              disabled={isChangingPassword}
+              className="w-full rounded-lg bg-brand py-2.5 text-sm font-semibold text-white transition hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60 lg:w-auto lg:px-6"
+            >
+              {isChangingPassword ? 'Cambiando...' : 'Cambiar contraseña'}
+            </button>
+          </form>
         </div>
       </div>
     </div>

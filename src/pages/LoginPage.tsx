@@ -5,6 +5,7 @@ import type { Location } from 'react-router-dom';
 import { toast } from 'sonner';
 import { AuthLayout } from '../components/AuthLayout';
 import { GoogleSignInButton } from '../components/GoogleSignInButton';
+import { PasswordInput } from '../components/PasswordInput';
 import { useAuth } from '../hooks/useAuth';
 import { translateGoogleLoginError, translateLoginError } from '../api/authErrorMessages';
 import { resolvePostAuthPath } from '../utils/authRedirect';
@@ -73,20 +74,14 @@ export function LoginPage() {
           />
         </div>
 
-        <div>
-          <label htmlFor="password" className="mb-1 block text-sm font-medium text-gray-700">
-            Contraseña
-          </label>
-          <input
-            id="password"
-            type="password"
-            required
-            autoComplete="current-password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
-          />
-        </div>
+        <PasswordInput
+          id="password"
+          label="Contraseña"
+          required
+          autoComplete="current-password"
+          value={password}
+          onChange={setPassword}
+        />
 
         <button
           type="submit"

@@ -41,3 +41,7 @@ export async function updateProfilePhoto(profilePhotoUrl: string): Promise<{ pro
   const { data } = await apiClient.patch<{ profilePhotoUrl: string }>('/auth/profile-photo', { profilePhotoUrl });
   return data;
 }
+
+export async function updatePassword(currentPassword: string, newPassword: string): Promise<void> {
+  await apiClient.patch('/auth/password', { currentPassword, newPassword });
+}

@@ -9,6 +9,7 @@ import {
   updateName as updateNameRequest,
   updatePhone as updatePhoneRequest,
   updateProfilePhoto as updateProfilePhotoRequest,
+  updatePassword as updatePasswordRequest,
 } from '../api/auth';
 import { clearStoredToken, getStoredToken, setStoredToken } from '../api/tokenStorage';
 import { getApiStatusCode } from '../api/client';
@@ -88,6 +89,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return profile;
   }
 
+  async function updatePassword(currentPassword: string, newPassword: string): Promise<void> {
+    await updatePasswordRequest(currentPassword, newPassword);
+  }
+
   function logout() {
     clearStoredToken();
     setUser(null);
@@ -104,6 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       completePhone,
       updateName,
       updateProfilePhoto,
+      updatePassword,
       logout,
     }),
     [user, isLoading],

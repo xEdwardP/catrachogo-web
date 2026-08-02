@@ -55,3 +55,19 @@ export function translateNameUpdateError(error: unknown): string {
   }
   return 'No se pudo guardar el nombre. Intenta de nuevo.';
 }
+
+export function translatePasswordUpdateError(error: unknown): string {
+  const statusCode = getApiStatusCode(error);
+  const rawMessage = getApiErrorMessage(error, '').toLowerCase();
+
+  if (rawMessage.includes('google')) {
+    return 'Esta cuenta inició sesión con Google y no tiene una contraseña que cambiar.';
+  }
+  if (statusCode === 401) {
+    return 'La contraseña actual no es correcta.';
+  }
+  if (statusCode === 400) {
+    return 'La nueva contraseña debe tener al menos 8 caracteres.';
+  }
+  return 'No se pudo cambiar la contraseña. Intenta de nuevo.';
+}
