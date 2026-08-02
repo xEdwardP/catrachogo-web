@@ -195,6 +195,7 @@ export function DriverTripPage() {
         lastPositionRef.current = { ...destination, timestampMs: Date.now() };
         setAnimatingPosition(null);
         setPosition(destination);
+        setIsSimulating(false);
         toast.success('Ubicación simulada en el punto de destino.');
       }
     }, SIMULATION_STEP_MS);
