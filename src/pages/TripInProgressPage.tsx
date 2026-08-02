@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Map as GoogleMap, Marker, Polyline } from '@vis.gl/react-google-maps';
-import { Flag, Phone, ShieldAlert, Star, X } from 'lucide-react';
+import { Flag, Home, Phone, ShieldAlert, Star, X } from 'lucide-react';
 import { cancelTrip, endTripEarly, getDriverLocation, getTripDetail } from '../api/trips';
 import { getDriverPublicProfile } from '../api/drivers';
 import { createIncidentReport } from '../api/incidentReports';
@@ -259,36 +259,46 @@ export function TripInProgressPage() {
             <p className="text-sm text-gray-800">{destinationAddress || '—'}</p>
           </div>
 
-          <div className="flex gap-3">
-            {trip?.status === 'in_progress' ? (
-              <button
-                type="button"
-                onClick={() => setShowEndEarlyConfirm(true)}
-                disabled={isEndingEarly}
-                className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-300 py-2.5 text-sm font-medium text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <Flag className="h-4 w-4" /> Finalizar viaje
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={handleCancelClick}
-                disabled={isCancelling || !canCancel}
-                className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-300 py-2.5 text-sm font-medium text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <X className="h-4 w-4" /> Cancelar
-              </button>
-            )}
-            <a
-              href={canCall ? `tel:${trip?.driverPhone}` : undefined}
-              aria-disabled={!canCall}
-              className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold text-white ${
-                canCall ? 'bg-brand hover:bg-brand-dark' : 'pointer-events-none bg-gray-300'
-              }`}
+          {trip?.status === 'completed' ? (
+            <button
+              type="button"
+              onClick={() => navigate('/passenger')}
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-brand py-2.5 text-sm font-semibold text-white hover:bg-brand-dark"
             >
-              <Phone className="h-4 w-4" /> Llamar
-            </a>
-          </div>
+              <Home className="h-4 w-4" /> Volver al inicio
+            </button>
+          ) : (
+            <div className="flex gap-3">
+              {trip?.status === 'in_progress' ? (
+                <button
+                  type="button"
+                  onClick={() => setShowEndEarlyConfirm(true)}
+                  disabled={isEndingEarly}
+                  className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-300 py-2.5 text-sm font-medium text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Flag className="h-4 w-4" /> Finalizar viaje
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleCancelClick}
+                  disabled={isCancelling || !canCancel}
+                  className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-300 py-2.5 text-sm font-medium text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <X className="h-4 w-4" /> Cancelar
+                </button>
+              )}
+              <a
+                href={canCall ? `tel:${trip?.driverPhone}` : undefined}
+                aria-disabled={!canCall}
+                className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold text-white ${
+                  canCall ? 'bg-brand hover:bg-brand-dark' : 'pointer-events-none bg-gray-300'
+                }`}
+              >
+                <Phone className="h-4 w-4" /> Llamar
+              </a>
+            </div>
+          )}
 
           {driver && (
             <button

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Map as GoogleMap, Marker, Polyline } from '@vis.gl/react-google-maps';
-import { Flag, MapPinCheck, Navigation, Phone } from 'lucide-react';
+import { Flag, Home, MapPinCheck, Navigation, Phone } from 'lucide-react';
 import { completeTrip, getTripDetail, markDriverArrived, reportNoShow, startTrip } from '../api/trips';
 import { sendDriverLocation } from '../api/tracking';
 import {
@@ -130,9 +130,6 @@ export function DriverTripPage() {
     if (trip?.status === 'cancelled') {
       toast.error('El pasajero canceló el viaje.');
       navigate('/driver', { replace: true });
-    } else if (trip?.status === 'completed') {
-      toast.success('El pasajero finalizó el viaje. El cobro se aplicó automáticamente.');
-      navigate('/driver', { replace: true });
     }
   }, [trip?.status, navigate]);
 
@@ -257,7 +254,6 @@ export function DriverTripPage() {
     try {
       await completeTrip(tripId!);
       toast.success('Viaje completado. El cobro se aplicó automáticamente.');
-      navigate('/driver', { replace: true });
     } catch (error) {
       toast.error(translateCompleteTripError(error));
     } finally {
@@ -365,54 +361,64 @@ export function DriverTripPage() {
             </span>
           </div>
 
-          <div className="flex gap-3">
-            <a
-              href={canCall ? `tel:${trip?.passengerPhone}` : undefined}
-              aria-disabled={!canCall}
-              className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold ${
-                canCall
-                  ? 'border border-gray-300 text-gray-700'
-                  : 'pointer-events-none border border-gray-200 text-gray-400'
-              }`}
+          {trip?.status === 'completed' ? (
+            <button
+              type="button"
+              onClick={() => navigate('/driver', { replace: true })}
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-brand py-2.5 text-sm font-semibold text-white hover:bg-brand-dark"
             >
-              <Phone className="h-4 w-4" /> Llamar
-            </a>
-
-            {trip?.status === 'accepted' && !trip.arrivedAt && (
-              <button
-                type="button"
-                onClick={handleMarkArrived}
-                disabled={isUpdatingStatus || !isNearTarget}
-                title={isNearTarget ? undefined : 'Acércate al punto de recogida para habilitar este botón'}
-                className="flex-1 rounded-lg bg-brand py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+              <Home className="h-4 w-4" /> Volver al inicio
+            </button>
+          ) : (
+            <div className="flex gap-3">
+              <a
+                href={canCall ? `tel:${trip?.passengerPhone}` : undefined}
+                aria-disabled={!canCall}
+                className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold ${
+                  canCall
+                    ? 'border border-gray-300 text-gray-700'
+                    : 'pointer-events-none border border-gray-200 text-gray-400'
+                }`}
               >
-                Llegué
-              </button>
-            )}
+                <Phone className="h-4 w-4" /> Llamar
+              </a>
 
-            {trip?.status === 'accepted' && trip.arrivedAt && (
-              <button
-                type="button"
-                onClick={handleStart}
-                disabled={isUpdatingStatus}
-                className="flex-1 rounded-lg bg-brand py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                Iniciar viaje
-              </button>
-            )}
+              {trip?.status === 'accepted' && !trip.arrivedAt && (
+                <button
+                  type="button"
+                  onClick={handleMarkArrived}
+                  disabled={isUpdatingStatus || !isNearTarget}
+                  title={isNearTarget ? undefined : 'Acércate al punto de recogida para habilitar este botón'}
+                  className="flex-1 rounded-lg bg-brand py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Llegué
+                </button>
+              )}
 
-            {trip?.status === 'in_progress' && (
-              <button
-                type="button"
-                onClick={handleComplete}
-                disabled={isUpdatingStatus || !isNearTarget}
-                title={isNearTarget ? undefined : 'Acércate al destino para habilitar este botón'}
-                className="flex-1 rounded-lg bg-success py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                Completar viaje
-              </button>
-            )}
-          </div>
+              {trip?.status === 'accepted' && trip.arrivedAt && (
+                <button
+                  type="button"
+                  onClick={handleStart}
+                  disabled={isUpdatingStatus}
+                  className="flex-1 rounded-lg bg-brand py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Iniciar viaje
+                </button>
+              )}
+
+              {trip?.status === 'in_progress' && (
+                <button
+                  type="button"
+                  onClick={handleComplete}
+                  disabled={isUpdatingStatus || !isNearTarget}
+                  title={isNearTarget ? undefined : 'Acércate al destino para habilitar este botón'}
+                  className="flex-1 rounded-lg bg-success py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Completar viaje
+                </button>
+              )}
+            </div>
+          )}
 
           {isPickupPhase && !trip?.arrivedAt && !isNearTarget && (
             <p className="mt-2 text-center text-xs text-gray-400">
