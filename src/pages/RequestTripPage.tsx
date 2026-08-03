@@ -23,7 +23,8 @@ import { ROUTE_COLOR } from '../utils/mapColors';
 import { boundsWithPadding } from '../utils/geo';
 import { savedAddressDisplayLabel } from '../utils/savedAddressLabels';
 import { getGreeting } from '../utils/greeting';
-import type { FareEstimate } from '../types/trip';
+import { TRIP_STATUS_COLORS, TRIP_STATUS_LABELS } from '../utils/tripStatusLabels';
+import type { FareEstimate, TripStatus } from '../types/trip';
 import type { CreateSavedAddressPayload, SavedAddress } from '../types/savedAddress';
 
 const SAVED_ADDRESS_ICONS: Record<SavedAddress['label'], typeof Home> = {
@@ -87,6 +88,91 @@ function FareEstimatePanel({ origin, destination, durationText, onResult }: Fare
   );
 }
 
+interface RecentTripSummary {
+  id: string;
+  status: TripStatus;
+  fare: number;
+  requestedAt?: string;
+}
+
+interface RecentTripInfoModalProps {
+  trip: RecentTripSummary;
+  onClose: () => void;
+}
+
+function RecentTripInfoModal({ trip, onClose }: RecentTripInfoModalProps) {
+  return (
+    <div className="fixed inset-0 z-30 flex items-center justify-center bg-black/40 p-4">
+      <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-900">
+        <div className="mb-4 flex items-start justify-between">
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Detalle del viaje</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Cerrar"
+            className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <div className="grid grid-cols-2 gap-3 rounded-xl bg-cream p-4 text-sm dark:bg-gray-800">
+          <div>
+            <p className="mb-1 text-xs text-gray-500 dark:text-gray-400">Estado</p>
+            <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${TRIP_STATUS_COLORS[trip.status]}`}>
+              {TRIP_STATUS_LABELS[trip.status]}
+            </span>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Tarifa</p>
+            <p className="font-semibold text-gray-800 dark:text-gray-100">L. {trip.fare.toFixed(2)}</p>
+          </div>
+          <div className="col-span-2">
+            <p className="text-xs text-gray-500 dark:text-gray-400">Fecha</p>
+            <p className="font-medium text-gray-800 dark:text-gray-100">
+              {trip.requestedAt ? new Date(trip.requestedAt).toLocaleString('es-HN') : '—'}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+interface FavoriteAddressInfoModalProps {
+  favorite: SavedAddress;
+  onClose: () => void;
+}
+
+function FavoriteAddressInfoModal({ favorite, onClose }: FavoriteAddressInfoModalProps) {
+  const Icon = SAVED_ADDRESS_ICONS[favorite.label];
+  return (
+    <div className="fixed inset-0 z-30 flex items-center justify-center bg-black/40 p-4">
+      <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-900">
+        <div className="mb-4 flex items-start justify-between">
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Dirección favorita</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Cerrar"
+            className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <div className="flex items-start gap-3 rounded-xl bg-cream p-4 text-sm dark:bg-gray-800">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-pale text-brand dark:bg-brand/15">
+            <Icon className="h-4 w-4" />
+          </span>
+          <div className="min-w-0">
+            <p className="font-semibold text-gray-800 dark:text-gray-100">{savedAddressDisplayLabel(favorite)}</p>
+            <p className="text-gray-600 dark:text-gray-300">{favorite.address}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function RequestTripPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -97,8 +183,10 @@ export function RequestTripPage() {
   const [destinationInputValue, setDestinationInputValue] = useState('');
   const [fare, setFare] = useState<FareEstimate | null>(null);
   const [isRequesting, setIsRequesting] = useState(false);
-  const [recentDestinations, setRecentDestinations] = useState<PlaceSelection[]>([]);
+  const [recentDestinations, setRecentDestinations] = useState<RecentTripSummary[]>([]);
+  const [viewingRecentTrip, setViewingRecentTrip] = useState<RecentTripSummary | null>(null);
   const [favorites, setFavorites] = useState<SavedAddress[]>([]);
+  const [viewingFavorite, setViewingFavorite] = useState<SavedAddress | null>(null);
   const [showSaveFavoriteModal, setShowSaveFavoriteModal] = useState(false);
   const [isSavingFavorite, setIsSavingFavorite] = useState(false);
   const { dismissed: dismissedDestinations, dismiss: dismissDestination } = useDismissedItems(
@@ -115,12 +203,12 @@ export function RequestTripPage() {
     getTripHistory(1, 20)
       .then((result) => {
         const seen = new Set<string>();
-        const recents: PlaceSelection[] = [];
+        const recents: RecentTripSummary[] = [];
         for (const trip of result.data) {
-          if (!trip.destinationAddress || trip.destinationLat == null || trip.destinationLng == null) continue;
+          if (!trip.destinationAddress) continue;
           if (seen.has(trip.destinationAddress)) continue;
           seen.add(trip.destinationAddress);
-          recents.push({ address: trip.destinationAddress, lat: trip.destinationLat, lng: trip.destinationLng });
+          recents.push({ id: trip.id, status: trip.status, fare: trip.fare, requestedAt: trip.requestedAt });
           if (recents.length >= RECENT_DESTINATIONS_LIMIT) break;
         }
         setRecentDestinations(recents);
@@ -246,7 +334,7 @@ export function RequestTripPage() {
     });
 
     const visibleRecentDestinations = recentDestinations.filter(
-      (place) => !dismissedDestinations.has(place.address),
+      (trip) => !dismissedDestinations.has(trip.id),
     );
 
     return (
@@ -337,7 +425,7 @@ export function RequestTripPage() {
                       <li key={favorite.id} className="flex min-w-0 items-center gap-3 rounded-xl px-1 py-2 transition hover:bg-cream/70 lg:px-2 dark:hover:bg-gray-800">
                         <button
                           type="button"
-                          onClick={() => selectDestination({ address: favorite.address, lat: favorite.lat, lng: favorite.lng })}
+                          onClick={() => setViewingFavorite(favorite)}
                           className="flex min-w-0 flex-1 items-center gap-3 text-left"
                         >
                           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-pale text-brand dark:bg-brand/15">
@@ -373,24 +461,35 @@ export function RequestTripPage() {
                 <p className="py-2 text-sm text-gray-400 dark:text-gray-500">Ocultaste todos tus destinos recientes.</p>
               ) : (
                 <ul className="flex flex-col gap-1">
-                  {visibleRecentDestinations.map((place) => (
+                  {visibleRecentDestinations.map((trip) => (
                     <li
-                      key={place.address}
+                      key={trip.id}
                       className="flex min-w-0 items-center rounded-xl transition hover:bg-cream/70 dark:hover:bg-gray-800"
                     >
                       <button
                         type="button"
-                        onClick={() => selectDestination(place)}
+                        onClick={() => setViewingRecentTrip(trip)}
                         className="flex min-w-0 flex-1 items-center gap-3 px-1 py-2 text-left lg:px-2"
                       >
                         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-pale text-brand dark:bg-brand/15">
                           <MapPin className="h-4 w-4" />
                         </span>
-                        <span className="min-w-0 flex-1 truncate text-sm text-gray-700 dark:text-gray-200">{place.address}</span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-sm font-medium text-gray-800 dark:text-gray-100">
+                            {trip.requestedAt
+                              ? new Date(trip.requestedAt).toLocaleDateString('es-HN', {
+                                  day: 'numeric',
+                                  month: 'short',
+                                  year: 'numeric',
+                                })
+                              : 'Viaje'}
+                          </span>
+                          <span className="block text-xs text-gray-400 dark:text-gray-500">Ver detalles</span>
+                        </span>
                       </button>
                       <button
                         type="button"
-                        onClick={() => dismissDestination(place.address)}
+                        onClick={() => dismissDestination(trip.id)}
                         aria-label="Quitar de la vista"
                         className="mr-1 shrink-0 rounded-md p-1.5 text-gray-300 hover:bg-gray-100 hover:text-red-500 dark:text-gray-600 dark:hover:bg-gray-800"
                       >
@@ -411,6 +510,14 @@ export function RequestTripPage() {
             onSave={handleSaveFavorite}
             onDismiss={() => setShowSaveFavoriteModal(false)}
           />
+        )}
+
+        {viewingRecentTrip && (
+          <RecentTripInfoModal trip={viewingRecentTrip} onClose={() => setViewingRecentTrip(null)} />
+        )}
+
+        {viewingFavorite && (
+          <FavoriteAddressInfoModal favorite={viewingFavorite} onClose={() => setViewingFavorite(null)} />
         )}
       </div>
     );
