@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Bell, Check } from 'lucide-react';
 import {
@@ -9,28 +8,16 @@ import {
   markNotificationRead,
 } from '../api/notifications';
 import { usePolling } from '../hooks/usePolling';
-import { useAuth } from '../hooks/useAuth';
 import { formatRelativeTime } from '../utils/relativeTime';
 import type { AppNotification } from '../types/notification';
-import type { UserRole } from '../types/auth';
 
 const UNREAD_POLL_INTERVAL_MS = 45000;
-
-const TRIP_NOTIFICATION_TYPES = new Set(['trip_accepted', 'trip_started', 'trip_completed', 'trip_cancelled']);
-
-function tripPathForRole(role: UserRole | undefined, tripId: string): string | null {
-  if (role === 'passenger') return `/passenger/trips/${tripId}`;
-  if (role === 'driver') return `/driver/trips/${tripId}`;
-  return null;
-}
 
 interface NotificationBellProps {
   align?: 'left' | 'right';
 }
 
 export function NotificationBell({ align = 'right' }: NotificationBellProps) {
-  const { user } = useAuth();
-  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifications, setNotifications] = useState<AppNotification[] | null>(null);
@@ -77,21 +64,12 @@ export function NotificationBell({ align = 'right' }: NotificationBellProps) {
   }
 
   function handleNotificationClick(notification: AppNotification) {
-    if (!notification.read) {
-      setNotifications(
-        (current) => current && current.map((item) => (item.id === notification.id ? { ...item, read: true } : item)),
-      );
-      setUnreadCount((count) => Math.max(0, count - 1));
-      markNotificationRead(notification.id).catch(() => {});
-    }
-
-    if (TRIP_NOTIFICATION_TYPES.has(notification.type) && notification.relatedTripId) {
-      const path = tripPathForRole(user?.role, notification.relatedTripId);
-      if (path) {
-        setIsOpen(false);
-        navigate(path);
-      }
-    }
+    if (notification.read) return;
+    setNotifications(
+      (current) => current && current.map((item) => (item.id === notification.id ? { ...item, read: true } : item)),
+    );
+    setUnreadCount((count) => Math.max(0, count - 1));
+    markNotificationRead(notification.id).catch(() => {});
   }
 
   return (

@@ -18,8 +18,8 @@ export function AdminLayout({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth();
 
   return (
-    <div className="flex min-h-screen bg-cream dark:bg-gray-950">
-      <aside className="flex w-64 shrink-0 flex-col border-r border-gray-100 bg-white dark:border-gray-800 dark:bg-gray-900">
+    <div className="flex min-h-dvh items-start bg-cream dark:bg-gray-950">
+      <aside className="sticky top-0 flex h-dvh w-64 shrink-0 flex-col overflow-y-auto border-r border-gray-100 bg-white dark:border-gray-800 dark:bg-gray-900">
         <div className="flex items-center justify-between px-5 py-5">
           <div className="flex items-center gap-2.5">
             <img src="/logo_without_text.png" alt="CatrachoGo" className="h-9 w-9" />

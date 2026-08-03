@@ -86,7 +86,7 @@ export function TripHistoryPage() {
                 >
                   <Link
                     to={`${tripDetailBasePath}/${trip.id}`}
-                    className="-mx-2 block min-w-0 rounded-lg px-2 py-1 transition hover:bg-cream/70 lg:flex lg:min-w-0 lg:flex-1 lg:items-center lg:gap-4 dark:hover:bg-gray-800"
+                    className="-mx-2 block min-w-0 rounded-lg px-2 py-1 transition hover:bg-cream/70 lg:flex lg:min-w-0 lg:flex-1 lg:items-center lg:justify-between lg:gap-4 dark:hover:bg-gray-800"
                   >
                     <div className="mb-1 flex items-center justify-between lg:mb-0 lg:w-44 lg:shrink-0 lg:gap-3">
                       <span
@@ -96,9 +96,6 @@ export function TripHistoryPage() {
                       </span>
                       <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">L. {trip.fare.toFixed(2)}</span>
                     </div>
-                    <p className="truncate text-sm text-gray-600 lg:min-w-0 lg:flex-1 dark:text-gray-300">
-                      {trip.destinationAddress}
-                    </p>
                     {trip.requestedAt && (
                       <p className="text-xs text-gray-400 lg:w-40 lg:shrink-0 lg:text-right dark:text-gray-500">
                         {new Date(trip.requestedAt).toLocaleString('es-HN')}

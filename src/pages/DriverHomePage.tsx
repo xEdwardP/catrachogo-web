@@ -314,15 +314,15 @@ export function DriverHomePage() {
                         <CarFront className="h-4 w-4" />
                       </span>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium text-gray-800 dark:text-gray-100">{trip.destinationAddress}</p>
-                        {trip.requestedAt && (
-                          <p className="text-xs text-gray-400 dark:text-gray-500">
-                            {new Date(trip.requestedAt).toLocaleDateString('es-HN', {
-                              day: 'numeric',
-                              month: 'short',
-                            })}
-                          </p>
-                        )}
+                        <p className="truncate text-sm font-medium text-gray-800 dark:text-gray-100">
+                          {trip.requestedAt
+                            ? new Date(trip.requestedAt).toLocaleDateString('es-HN', {
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric',
+                              })
+                            : 'Viaje'}
+                        </p>
                       </div>
                       <div className="ml-2 flex shrink-0 flex-col items-end gap-1">
                         <span
