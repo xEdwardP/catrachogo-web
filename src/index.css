@@ -8,3 +8,24 @@
   --color-success-dark: #0f6647;
   --color-cream: #f6f1ec;
 }
+
+@keyframes radar-pulse {
+  0% {
+    transform: scale(0.4);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(2.8);
+    opacity: 0;
+  }
+}
+
+.animate-radar-pulse {
+  animation: radar-pulse 2.4s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-radar-pulse {
+    animation: none;
+  }
+}

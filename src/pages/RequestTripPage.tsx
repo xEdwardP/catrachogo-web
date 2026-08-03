@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Map as GoogleMap, Marker, Polyline } from '@vis.gl/react-google-maps';
-import { ArrowLeft, Briefcase, Home, Loader2, MapPin, Navigation, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Briefcase, Home, Loader2, MapPin, Navigation, Plus, Search, Trash2, X } from 'lucide-react';
 import { PlacesAutocompleteInput } from '../components/PlacesAutocompleteInput';
 import type { PlaceSelection } from '../components/PlacesAutocompleteInput';
 import { HeaderActionsPill } from '../components/HeaderActionsPill';
@@ -14,6 +14,7 @@ import { createSavedAddress, deleteSavedAddress, getSavedAddresses } from '../ap
 import { getApiStatusCode } from '../api/client';
 import { translateCreateTripError, translateEstimateError } from '../api/tripErrorMessages';
 import { useAuth } from '../hooks/useAuth';
+import { useDismissedItems } from '../hooks/useDismissedItems';
 import { useDirectionsRoute } from '../hooks/useDirectionsRoute';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { useReverseGeocode } from '../hooks/useReverseGeocode';
@@ -21,6 +22,7 @@ import { LocateMeButton } from '../components/LocateMeButton';
 import { ROUTE_COLOR } from '../utils/mapColors';
 import { boundsWithPadding } from '../utils/geo';
 import { savedAddressDisplayLabel } from '../utils/savedAddressLabels';
+import { getGreeting } from '../utils/greeting';
 import type { FareEstimate } from '../types/trip';
 import type { CreateSavedAddressPayload, SavedAddress } from '../types/savedAddress';
 
@@ -99,6 +101,9 @@ export function RequestTripPage() {
   const [favorites, setFavorites] = useState<SavedAddress[]>([]);
   const [showSaveFavoriteModal, setShowSaveFavoriteModal] = useState(false);
   const [isSavingFavorite, setIsSavingFavorite] = useState(false);
+  const { dismissed: dismissedDestinations, dismiss: dismissDestination } = useDismissedItems(
+    'catrachogo_dismissed_recent_destinations',
+  );
 
   useEffect(() => {
     getSavedAddresses()
@@ -234,21 +239,40 @@ export function RequestTripPage() {
   );
 
   if (step === 'home') {
+    const dateLabel = new Date().toLocaleDateString('es-HN', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+    });
+
+    const visibleRecentDestinations = recentDestinations.filter(
+      (place) => !dismissedDestinations.has(place.address),
+    );
+
     return (
-      <div className="min-h-screen bg-cream p-4 lg:p-8">
-        <div className="mx-auto max-w-md lg:max-w-5xl">
-          <div className="mb-4 flex items-center justify-between lg:mb-6">
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-brand-pale text-sm font-bold text-brand shadow-sm">
+      <div className="relative min-h-screen overflow-hidden bg-cream p-4 lg:p-8 xl:p-10">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -left-32 -top-32 h-96 w-96 rounded-full bg-brand/10 blur-3xl"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -bottom-40 -right-32 h-[28rem] w-[28rem] rounded-full bg-success/10 blur-3xl"
+        />
+        <div className="relative mx-auto max-w-md lg:max-w-none">
+          <div className="mb-4 flex items-center justify-between gap-2 lg:mb-6">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-brand-pale text-sm font-bold text-brand shadow-sm ring-2 ring-white">
                 {user?.profilePhotoUrl ? (
                   <img src={user.profilePhotoUrl} alt={user.name} className="h-full w-full object-cover" />
                 ) : (
                   user?.name.charAt(0).toUpperCase()
                 )}
               </div>
-              <div>
-                <p className="text-xs text-gray-500">Hola,</p>
-                <p className="font-semibold text-gray-800">{firstName}</p>
+              <div className="min-w-0">
+                <p className="truncate text-xs font-semibold uppercase tracking-wide text-brand">{getGreeting()}</p>
+                <p className="truncate text-base font-bold leading-tight text-gray-800 lg:text-lg">{firstName}</p>
+                <p className="truncate text-xs capitalize text-gray-400">{dateLabel}</p>
               </div>
             </div>
             <HeaderActionsPill
@@ -258,8 +282,12 @@ export function RequestTripPage() {
             />
           </div>
 
-          <div className="lg:grid lg:grid-cols-3 lg:gap-6">
-            <div className="mb-4 rounded-2xl bg-white p-1 shadow-sm lg:col-span-3">
+          <div className="mb-4 flex items-center gap-2.5 rounded-xl bg-white py-1.5 pl-2 pr-3 shadow-sm lg:mb-6">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand-dark text-white shadow-sm">
+              <Search className="h-3.5 w-3.5" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">Destino</p>
               <PlacesAutocompleteInput
                 id="destination-search"
                 placeholder="¿A dónde vas?"
@@ -268,94 +296,110 @@ export function RequestTripPage() {
                 onPlaceSelected={selectDestination}
               />
             </div>
+          </div>
 
-            <div className="lg:col-span-2">
-              <div className="mb-4">
-                <div className="mb-2 flex items-center justify-between">
-                  <p className="text-sm font-semibold text-gray-700">Direcciones favoritas</p>
-                  <button
-                    type="button"
-                    onClick={() => setShowSaveFavoriteModal(true)}
-                    className="flex items-center gap-1 text-xs font-medium text-brand hover:text-brand-dark"
-                  >
-                    <Plus className="h-3.5 w-3.5" /> Agregar
-                  </button>
-                </div>
-                {favorites.length > 0 && (
-                  <div className="flex flex-col gap-2 lg:grid lg:grid-cols-2 lg:gap-2">
-                    {favorites.map((favorite) => {
-                      const Icon = SAVED_ADDRESS_ICONS[favorite.label];
-                      return (
-                        <div
-                          key={favorite.id}
-                          className="flex min-w-0 items-center gap-2 rounded-xl bg-white p-3 shadow-sm transition hover:bg-cream/70"
-                        >
-                          <button
-                            type="button"
-                            onClick={() => selectDestination({ address: favorite.address, lat: favorite.lat, lng: favorite.lng })}
-                            className="flex min-w-0 flex-1 items-center gap-2 text-left"
-                          >
-                            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-pale text-brand">
-                              <Icon className="h-4 w-4" />
-                            </span>
-                            <span className="min-w-0 flex-1">
-                              <span className="block text-sm font-medium text-gray-800">
-                                {savedAddressDisplayLabel(favorite)}
-                              </span>
-                              <span className="block truncate text-xs text-gray-500">{favorite.address}</span>
-                            </span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteFavorite(favorite.id)}
-                            aria-label="Eliminar dirección favorita"
-                            className="shrink-0 rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-red-500"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+          <div className="relative mb-4 h-72 overflow-hidden rounded-3xl shadow-md lg:mb-6 lg:h-96 xl:h-[28rem]">
+            <GoogleMap
+              defaultCenter={DEFAULT_CENTER}
+              defaultZoom={14}
+              disableDefaultUI
+              gestureHandling="greedy"
+              restriction={homeRestriction}
+              className="h-full w-full"
+            >
+              <MapAutoRecenter position={origin} zoom={LOCATE_ZOOM} focusKey={locateFocusKey} />
+              <MapResizeObserver />
+              {origin && <Marker position={origin} />}
+            </GoogleMap>
+
+            <LocateMeButton isLoading={isLocating} onClick={handleLocateMe} className="absolute bottom-4 right-4" />
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-2 lg:gap-6">
+            <div className="rounded-2xl bg-white p-4 shadow-sm lg:p-5">
+              <div className="mb-3 flex items-center justify-between">
+                <p className="text-sm font-semibold text-gray-700">Direcciones favoritas</p>
+                <button
+                  type="button"
+                  onClick={() => setShowSaveFavoriteModal(true)}
+                  className="flex items-center gap-1 text-xs font-medium text-brand hover:text-brand-dark"
+                >
+                  <Plus className="h-3.5 w-3.5" /> Agregar
+                </button>
               </div>
+              {favorites.length === 0 ? (
+                <p className="py-2 text-sm text-gray-400">Aún no tienes direcciones guardadas.</p>
+              ) : (
+                <ul className="flex flex-col gap-1">
+                  {favorites.map((favorite) => {
+                    const Icon = SAVED_ADDRESS_ICONS[favorite.label];
+                    return (
+                      <li key={favorite.id} className="flex min-w-0 items-center gap-3 rounded-xl px-1 py-2 transition hover:bg-cream/70 lg:px-2">
+                        <button
+                          type="button"
+                          onClick={() => selectDestination({ address: favorite.address, lat: favorite.lat, lng: favorite.lng })}
+                          className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                        >
+                          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-pale text-brand">
+                            <Icon className="h-4 w-4" />
+                          </span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block text-sm font-medium text-gray-800">
+                              {savedAddressDisplayLabel(favorite)}
+                            </span>
+                            <span className="block truncate text-xs text-gray-500">{favorite.address}</span>
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteFavorite(favorite.id)}
+                          aria-label="Eliminar dirección favorita"
+                          className="shrink-0 rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-red-500"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
 
-              {recentDestinations.length > 0 && (
-                <div className="mb-4 lg:mb-0">
-                  <p className="mb-2 text-sm font-semibold text-gray-700">Destinos recientes</p>
-                  <div className="flex flex-col gap-2 lg:grid lg:grid-cols-2 lg:gap-2">
-                    {recentDestinations.map((place) => (
+            <div className="rounded-2xl bg-white p-4 shadow-sm lg:p-5">
+              <p className="mb-3 text-sm font-semibold text-gray-700">Destinos recientes</p>
+              {recentDestinations.length === 0 ? (
+                <p className="py-2 text-sm text-gray-400">Tus viajes recientes aparecerán aquí.</p>
+              ) : visibleRecentDestinations.length === 0 ? (
+                <p className="py-2 text-sm text-gray-400">Ocultaste todos tus destinos recientes.</p>
+              ) : (
+                <ul className="flex flex-col gap-1">
+                  {visibleRecentDestinations.map((place) => (
+                    <li
+                      key={place.address}
+                      className="flex min-w-0 items-center rounded-xl transition hover:bg-cream/70"
+                    >
                       <button
-                        key={place.address}
                         type="button"
                         onClick={() => selectDestination(place)}
-                        className="flex min-w-0 items-center gap-2 rounded-xl bg-white p-3 text-left shadow-sm transition hover:bg-cream/70"
+                        className="flex min-w-0 flex-1 items-center gap-3 px-1 py-2 text-left lg:px-2"
                       >
-                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-pale text-brand">
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-pale text-brand">
                           <MapPin className="h-4 w-4" />
                         </span>
                         <span className="min-w-0 flex-1 truncate text-sm text-gray-700">{place.address}</span>
                       </button>
-                    ))}
-                  </div>
-                </div>
+                      <button
+                        type="button"
+                        onClick={() => dismissDestination(place.address)}
+                        aria-label="Quitar de la vista"
+                        className="mr-1 shrink-0 rounded-md p-1.5 text-gray-300 hover:bg-gray-100 hover:text-red-500"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
               )}
-            </div>
-
-            <div className="relative h-40 overflow-hidden rounded-2xl shadow-sm lg:col-span-1 lg:h-auto lg:min-h-[260px]">
-              <GoogleMap
-                defaultCenter={DEFAULT_CENTER}
-                defaultZoom={14}
-                disableDefaultUI
-                gestureHandling="greedy"
-                restriction={homeRestriction}
-                className="h-full w-full"
-              >
-                <MapAutoRecenter position={origin} zoom={LOCATE_ZOOM} focusKey={locateFocusKey} />
-                <MapResizeObserver />
-                {origin && <Marker position={origin} />}
-              </GoogleMap>
-              <LocateMeButton isLoading={isLocating} onClick={handleLocateMe} className="absolute bottom-2 right-2" />
             </div>
           </div>
         </div>
