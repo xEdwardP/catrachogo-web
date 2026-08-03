@@ -12,11 +12,11 @@ export function EmptyTableState({ icon: Icon, title, description, colSpan }: Emp
     <tr>
       <td colSpan={colSpan} className="px-5 py-10">
         <div className="flex flex-col items-center gap-2 text-center">
-          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-pale text-brand">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-pale text-brand dark:bg-brand/15">
             <Icon className="h-6 w-6" />
           </span>
-          <p className="text-sm font-medium text-gray-600">{title}</p>
-          {description && <p className="text-xs text-gray-400">{description}</p>}
+          <p className="text-sm font-medium text-gray-600 dark:text-gray-300">{title}</p>
+          {description && <p className="text-xs text-gray-400 dark:text-gray-500">{description}</p>}
         </div>
       </td>
     </tr>

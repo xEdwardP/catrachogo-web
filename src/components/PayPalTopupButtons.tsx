@@ -17,7 +17,7 @@ export function PayPalTopupButtons({ amount, onSuccess }: PayPalTopupButtonsProp
         type="button"
         disabled
         title="Falta configurar VITE_PAYPAL_CLIENT_ID"
-        className="w-full cursor-not-allowed rounded-lg border border-gray-300 bg-gray-50 py-2.5 text-sm text-gray-400"
+        className="w-full cursor-not-allowed rounded-lg border border-gray-300 bg-gray-50 py-2.5 text-sm text-gray-400 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-500"
       >
         Recargar con PayPal (no configurado)
       </button>

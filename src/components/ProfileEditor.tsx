@@ -99,7 +99,7 @@ export function ProfileEditor() {
     <>
       <div className="lg:grid lg:grid-cols-2 lg:items-start lg:gap-6">
         <div className="flex flex-col gap-4 lg:gap-6">
-          <div className="rounded-2xl bg-white p-4 shadow-sm">
+          <div className="rounded-2xl bg-white p-4 shadow-sm dark:bg-gray-900">
             <CloudinaryFileInput
               id="profile-photo"
               label="Foto de perfil"
@@ -108,8 +108,8 @@ export function ProfileEditor() {
             />
           </div>
 
-          <div className="hidden rounded-2xl bg-white p-4 shadow-sm lg:block">
-            <h2 className="mb-4 text-base font-semibold text-gray-800">Cambiar contraseña</h2>
+          <div className="hidden rounded-2xl bg-white p-4 shadow-sm lg:block dark:bg-gray-900">
+            <h2 className="mb-4 text-base font-semibold text-gray-800 dark:text-gray-100">Cambiar contraseña</h2>
             <PasswordChangeForm
               currentPassword={currentPassword}
               newPassword={newPassword}
@@ -123,10 +123,10 @@ export function ProfileEditor() {
           </div>
         </div>
 
-        <div className="mt-4 rounded-2xl bg-white p-4 shadow-sm lg:mt-0">
+        <div className="mt-4 rounded-2xl bg-white p-4 shadow-sm lg:mt-0 dark:bg-gray-900">
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
-              <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700">
+              <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
                 Correo
               </label>
               <input
@@ -134,12 +134,12 @@ export function ProfileEditor() {
                 type="email"
                 disabled
                 value={user.email}
-                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-500"
+                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
               />
             </div>
 
             <div>
-              <label htmlFor="name" className="mb-1 block text-sm font-medium text-gray-700">
+              <label htmlFor="name" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
                 Nombre
               </label>
               <input
@@ -148,12 +148,12 @@ export function ProfileEditor() {
                 required
                 value={name}
                 onChange={(event) => setName(event.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
               />
             </div>
 
             <div>
-              <label htmlFor="phone" className="mb-1 block text-sm font-medium text-gray-700">
+              <label htmlFor="phone" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
                 Teléfono
               </label>
               <input
@@ -163,7 +163,7 @@ export function ProfileEditor() {
                 autoComplete="tel"
                 value={phone}
                 onChange={(event) => setPhone(sanitizePhoneInput(event.target.value))}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
               />
             </div>
 
@@ -178,8 +178,8 @@ export function ProfileEditor() {
         </div>
       </div>
 
-      <div className="mt-4 rounded-2xl bg-white p-4 shadow-sm lg:hidden">
-        <h2 className="mb-4 text-base font-semibold text-gray-800">Cambiar contraseña</h2>
+      <div className="mt-4 rounded-2xl bg-white p-4 shadow-sm lg:hidden dark:bg-gray-900">
+        <h2 className="mb-4 text-base font-semibold text-gray-800 dark:text-gray-100">Cambiar contraseña</h2>
         <PasswordChangeForm
           currentPassword={currentPassword}
           newPassword={newPassword}

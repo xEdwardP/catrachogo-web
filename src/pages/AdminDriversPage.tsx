@@ -52,7 +52,7 @@ function SortableHeader({
       <button
         type="button"
         onClick={() => onSort(field)}
-        className={`flex items-center gap-1 transition ${isActive ? 'text-gray-700' : 'text-gray-400 hover:text-gray-600'}`}
+        className={`flex items-center gap-1 transition ${isActive ? 'text-gray-700 dark:text-gray-200' : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'}`}
       >
         {label}
         <Icon className="h-3 w-3" />
@@ -149,8 +149,8 @@ export function AdminDriversPage() {
 
   return (
     <AdminLayout>
-      <h1 className="mb-1 text-2xl font-bold text-gray-800">Conductores</h1>
-      <p className="mb-6 text-sm text-gray-500">
+      <h1 className="mb-1 text-2xl font-bold text-gray-800 dark:text-gray-100">Conductores</h1>
+      <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
         {isLoading
           ? 'Cargando...'
           : isSearching
@@ -166,7 +166,7 @@ export function AdminDriversPage() {
               type="button"
               onClick={() => handleStatusChange(tab.value)}
               className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-                status === tab.value ? 'bg-brand text-white' : 'bg-white text-gray-600 hover:bg-gray-100'
+                status === tab.value ? 'bg-brand text-white' : 'bg-white text-gray-600 hover:bg-gray-100 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800'
               }`}
             >
               {tab.label}
@@ -174,20 +174,20 @@ export function AdminDriversPage() {
           ))}
         </div>
         <div className="relative sm:w-64">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
           <input
             type="search"
             value={search}
             onChange={(event) => handleSearchChange(event.target.value)}
             placeholder="Buscar por nombre o placa"
-            className="w-full rounded-lg border border-gray-200 bg-white py-2 pl-9 pr-3 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            className="w-full rounded-lg border border-gray-200 bg-white py-2 pl-9 pr-3 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
           />
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
+      <div className="overflow-hidden rounded-2xl bg-white shadow-sm dark:bg-gray-900">
         <table className="w-full text-left text-sm">
-          <thead className="border-b border-gray-100 text-xs uppercase text-gray-400">
+          <thead className="border-b border-gray-100 text-xs uppercase text-gray-400 dark:border-gray-800 dark:text-gray-500">
             <tr>
               <SortableHeader
                 label="Conductor"
@@ -211,7 +211,7 @@ export function AdminDriversPage() {
           <tbody>
             {isLoading && (
               <tr>
-                <td colSpan={5} className="px-5 py-8 text-center text-gray-400">
+                <td colSpan={5} className="px-5 py-8 text-center text-gray-400 dark:text-gray-500">
                   <Loader2 className="mx-auto h-5 w-5 animate-spin" />
                 </td>
               </tr>
@@ -236,15 +236,15 @@ export function AdminDriversPage() {
               <tr
                 key={driver.id}
                 onClick={() => setSelectedDriver(driver)}
-                className="cursor-pointer border-b border-gray-50 transition last:border-0 hover:bg-cream/50"
+                className="cursor-pointer border-b border-gray-50 transition last:border-0 hover:bg-cream/50 dark:border-gray-800 dark:hover:bg-gray-800/50"
               >
-                <td className="px-5 py-3 font-medium text-gray-800">{driver.user.name}</td>
-                <td className="px-5 py-3 text-gray-600">
+                <td className="px-5 py-3 font-medium text-gray-800 dark:text-gray-100">{driver.user.name}</td>
+                <td className="px-5 py-3 text-gray-600 dark:text-gray-300">
                   {VEHICLE_TYPE_LABELS[driver.vehicleType]}
                   {driver.vehicles[0] && ` · ${driver.vehicles[0].brand} ${driver.vehicles[0].model}`}
                 </td>
-                <td className="px-5 py-3 text-gray-600">{driver.vehicles[0]?.plate ?? '—'}</td>
-                <td className="px-5 py-3 text-gray-600">
+                <td className="px-5 py-3 text-gray-600 dark:text-gray-300">{driver.vehicles[0]?.plate ?? '—'}</td>
+                <td className="px-5 py-3 text-gray-600 dark:text-gray-300">
                   {new Date(driver.user.createdAt).toLocaleDateString('es-HN')}
                 </td>
                 {status === 'pending' && (
@@ -254,7 +254,7 @@ export function AdminDriversPage() {
                         type="button"
                         onClick={() => handleResolve(driver.id, 'rejected')}
                         disabled={isResolving}
-                        className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 disabled:opacity-50"
+                        className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 disabled:opacity-50 dark:border-gray-600 dark:text-gray-200"
                       >
                         Rechazar
                       </button>
@@ -275,23 +275,23 @@ export function AdminDriversPage() {
         </table>
 
         {totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-gray-100 px-5 py-3 text-sm">
+          <div className="flex items-center justify-between border-t border-gray-100 px-5 py-3 text-sm dark:border-gray-800">
             <button
               type="button"
               onClick={() => goToPage(Math.max(1, page - 1))}
               disabled={page <= 1}
-              className="text-gray-600 disabled:opacity-40"
+              className="text-gray-600 disabled:opacity-40 dark:text-gray-300"
             >
               Anterior
             </button>
-            <span className="text-gray-400">
+            <span className="text-gray-400 dark:text-gray-500">
               Página {page} de {totalPages}
             </span>
             <button
               type="button"
               onClick={() => goToPage(Math.min(totalPages, page + 1))}
               disabled={page >= totalPages}
-              className="text-gray-600 disabled:opacity-40"
+              className="text-gray-600 disabled:opacity-40 dark:text-gray-300"
             >
               Siguiente
             </button>

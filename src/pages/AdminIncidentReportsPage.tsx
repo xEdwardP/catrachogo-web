@@ -67,8 +67,8 @@ export function AdminIncidentReportsPage() {
 
   return (
     <AdminLayout>
-      <h1 className="mb-1 text-2xl font-bold text-gray-800">Reportes de incidencias</h1>
-      <p className="mb-6 text-sm text-gray-500">Reportes enviados por pasajeros sobre un viaje o conductor.</p>
+      <h1 className="mb-1 text-2xl font-bold text-gray-800 dark:text-gray-100">Reportes de incidencias</h1>
+      <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">Reportes enviados por pasajeros sobre un viaje o conductor.</p>
 
       <div className="mb-4 flex flex-wrap gap-2">
         {STATUS_TABS.map((tab) => (
@@ -77,7 +77,7 @@ export function AdminIncidentReportsPage() {
             type="button"
             onClick={() => handleStatusChange(tab.value)}
             className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-              status === tab.value ? 'bg-brand text-white' : 'bg-white text-gray-600 hover:bg-gray-100'
+              status === tab.value ? 'bg-brand text-white' : 'bg-white text-gray-600 hover:bg-gray-100 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800'
             }`}
           >
             {tab.label}
@@ -85,9 +85,9 @@ export function AdminIncidentReportsPage() {
         ))}
       </div>
 
-      <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
+      <div className="overflow-hidden rounded-2xl bg-white shadow-sm dark:bg-gray-900">
         <table className="w-full text-left text-sm">
-          <thead className="border-b border-gray-100 text-xs uppercase text-gray-400">
+          <thead className="border-b border-gray-100 text-xs uppercase text-gray-400 dark:border-gray-800 dark:text-gray-500">
             <tr>
               <th className="px-5 py-3">Categoría</th>
               <th className="px-5 py-3">Descripción</th>
@@ -101,7 +101,7 @@ export function AdminIncidentReportsPage() {
           <tbody>
             {isLoading && (
               <tr>
-                <td colSpan={7} className="px-5 py-8 text-center text-gray-400">
+                <td colSpan={7} className="px-5 py-8 text-center text-gray-400 dark:text-gray-500">
                   <Loader2 className="mx-auto h-5 w-5 animate-spin" />
                 </td>
               </tr>
@@ -119,16 +119,16 @@ export function AdminIncidentReportsPage() {
                 <tr
                   key={report.id}
                   onClick={() => setSelectedReport(report)}
-                  className="cursor-pointer border-b border-gray-50 transition last:border-0 hover:bg-cream/50"
+                  className="cursor-pointer border-b border-gray-50 transition last:border-0 hover:bg-cream/50 dark:border-gray-800 dark:hover:bg-gray-800/50"
                 >
-                  <td className="px-5 py-3 text-gray-600">{INCIDENT_REPORT_CATEGORY_LABELS[report.category]}</td>
-                  <td className="max-w-[280px] truncate px-5 py-3 text-gray-600">{report.description}</td>
-                  <td className="max-w-[160px] truncate px-5 py-3 text-gray-600">
+                  <td className="px-5 py-3 text-gray-600 dark:text-gray-300">{INCIDENT_REPORT_CATEGORY_LABELS[report.category]}</td>
+                  <td className="max-w-[280px] truncate px-5 py-3 text-gray-600 dark:text-gray-300">{report.description}</td>
+                  <td className="max-w-[160px] truncate px-5 py-3 text-gray-600 dark:text-gray-300">
                     {report.trip?.destinationAddress ?? '—'}
                   </td>
-                  <td className="px-5 py-3 text-gray-600">{report.reporter.name}</td>
-                  <td className="px-5 py-3 text-gray-600">{report.reportedDriver?.name ?? '—'}</td>
-                  <td className="px-5 py-3 text-gray-600">
+                  <td className="px-5 py-3 text-gray-600 dark:text-gray-300">{report.reporter.name}</td>
+                  <td className="px-5 py-3 text-gray-600 dark:text-gray-300">{report.reportedDriver?.name ?? '—'}</td>
+                  <td className="px-5 py-3 text-gray-600 dark:text-gray-300">
                     {new Date(report.createdAt).toLocaleDateString('es-HN')}
                   </td>
                   {status === 'pending' && (
@@ -152,23 +152,23 @@ export function AdminIncidentReportsPage() {
         </table>
 
         {totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-gray-100 px-5 py-3 text-sm">
+          <div className="flex items-center justify-between border-t border-gray-100 px-5 py-3 text-sm dark:border-gray-800">
             <button
               type="button"
               onClick={() => goToPage(Math.max(1, page - 1))}
               disabled={page <= 1}
-              className="text-gray-600 disabled:opacity-40"
+              className="text-gray-600 disabled:opacity-40 dark:text-gray-300"
             >
               Anterior
             </button>
-            <span className="text-gray-400">
+            <span className="text-gray-400 dark:text-gray-500">
               Página {page} de {totalPages}
             </span>
             <button
               type="button"
               onClick={() => goToPage(Math.min(totalPages, page + 1))}
               disabled={page >= totalPages}
-              className="text-gray-600 disabled:opacity-40"
+              className="text-gray-600 disabled:opacity-40 dark:text-gray-300"
             >
               Siguiente
             </button>
