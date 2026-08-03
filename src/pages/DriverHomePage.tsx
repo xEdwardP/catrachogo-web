@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Map as GoogleMap, Marker } from '@vis.gl/react-google-maps';
-import { CarFront, ChevronRight, DollarSign, Star } from 'lucide-react';
+import { CarFront, ChevronRight, DollarSign, Star, X } from 'lucide-react';
 import { getDriverSummary, getPendingRequest, updateAvailability } from '../api/drivers';
 import { getTripHistory } from '../api/trips';
 import { HeaderActionsPill } from '../components/HeaderActionsPill';
@@ -13,10 +13,12 @@ import { sendDriverLocation } from '../api/tracking';
 import { getApiStatusCode } from '../api/client';
 import { translateAvailabilityError } from '../api/driverErrorMessages';
 import { usePolling } from '../hooks/usePolling';
+import { useDismissedItems } from '../hooks/useDismissedItems';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { useSmoothedPosition } from '../hooks/useSmoothedPosition';
 import { useAuth } from '../hooks/useAuth';
 import { TRIP_STATUS_COLORS, TRIP_STATUS_LABELS } from '../utils/tripStatusLabels';
+import { getGreeting } from '../utils/greeting';
 import type { DriverSummary } from '../types/driver';
 import type { Trip } from '../types/trip';
 
@@ -36,6 +38,7 @@ export function DriverHomePage() {
   const [isAvailable, setIsAvailable] = useState(false);
   const [isTogglingAvailability, setIsTogglingAvailability] = useState(false);
   const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
+  const { dismissed: dismissedTrips, dismiss: dismissTrip } = useDismissedItems('catrachogo_dismissed_recent_trips');
 
   const fetchSummary = useCallback(() => {
     getDriverSummary()
@@ -64,14 +67,33 @@ export function DriverHomePage() {
       .finally(() => setIsLoadingRecentTrips(false));
   }, []);
 
+  const hasWarnedLocationRef = useRef(false);
+
+  useEffect(() => {
+    if (isAvailable) {
+      hasWarnedLocationRef.current = false;
+    }
+  }, [isAvailable]);
+
   usePolling(
     () => {
       if (!navigator.geolocation) return;
-      navigator.geolocation.getCurrentPosition((pos) => {
-        const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        setPosition(coords);
-        sendDriverLocation(coords.lat, coords.lng).catch(() => {});
-      });
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          hasWarnedLocationRef.current = false;
+          const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          setPosition(coords);
+          sendDriverLocation(coords.lat, coords.lng).catch(() => {});
+        },
+        () => {
+          if (!hasWarnedLocationRef.current) {
+            hasWarnedLocationRef.current = true;
+            toast.error(
+              'No podemos obtener tu ubicación. Actívala en el navegador para que los pasajeros puedan encontrarte.',
+            );
+          }
+        },
+      );
     },
     5000,
     isAvailable,
@@ -119,21 +141,38 @@ export function DriverHomePage() {
     setLocateFocusKey((key) => key + 1);
   }
 
+  const dateLabel = new Date().toLocaleDateString('es-HN', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  });
+
+  const visibleRecentTrips = recentTrips.filter((trip) => !dismissedTrips.has(trip.id));
+
   return (
-    <div className="min-h-screen bg-cream p-4 lg:p-8">
-      <div className="mx-auto max-w-md lg:max-w-5xl">
-        <div className="mb-4 flex items-center justify-between lg:mb-6">
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-brand-pale text-sm font-bold text-brand shadow-sm">
+    <div className="relative min-h-screen overflow-hidden bg-cream p-4 lg:p-8 xl:p-10">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -left-32 -top-32 h-96 w-96 rounded-full bg-brand/10 blur-3xl"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-40 -right-32 h-[28rem] w-[28rem] rounded-full bg-success/10 blur-3xl"
+      />
+      <div className="relative mx-auto max-w-md lg:max-w-none">
+        <div className="mb-4 flex items-center justify-between gap-2 lg:mb-6">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-brand-pale text-sm font-bold text-brand shadow-sm ring-2 ring-white">
               {user?.profilePhotoUrl ? (
                 <img src={user.profilePhotoUrl} alt={user.name} className="h-full w-full object-cover" />
               ) : (
                 user?.name.charAt(0).toUpperCase()
               )}
             </div>
-            <div>
-              <p className="text-xs text-gray-500">Hola,</p>
-              <p className="font-semibold text-gray-800">{user?.name}</p>
+            <div className="min-w-0">
+              <p className="truncate text-xs font-semibold uppercase tracking-wide text-brand">{getGreeting()}</p>
+              <p className="truncate text-base font-bold leading-tight text-gray-800 lg:text-lg">{user?.name}</p>
+              <p className="truncate text-xs capitalize text-gray-400">{dateLabel}</p>
             </div>
           </div>
           <HeaderActionsPill
@@ -143,68 +182,108 @@ export function DriverHomePage() {
           />
         </div>
 
-        <div className="lg:grid lg:grid-cols-3 lg:gap-6">
-          <button
-            type="button"
-            onClick={handleToggleAvailability}
-            disabled={isTogglingAvailability}
-            className={`mb-4 flex w-full items-center justify-between rounded-2xl p-4 text-left shadow-sm transition lg:col-span-3 ${
-              isAvailable
-                ? 'bg-gradient-to-r from-success to-success-dark text-white shadow-success/20'
-                : 'bg-white text-gray-800'
-            } disabled:opacity-70`}
-          >
-            <div>
-              <p className="font-semibold">
-                {isAvailable ? 'Estás disponible' : 'No estás disponible'}
-              </p>
-              <p className={`text-xs ${isAvailable ? 'text-white/80' : 'text-gray-500'}`}>
-                {isAvailable ? 'Recibiendo solicitudes cercanas' : 'Actívate para recibir viajes'}
-              </p>
-            </div>
-            <span
-              className={`flex h-7 w-12 items-center rounded-full p-1 transition ${
-                isAvailable ? 'justify-end bg-white/30' : 'justify-start bg-gray-200'
+        <div className="lg:grid lg:grid-cols-3 lg:gap-6 xl:grid-cols-4">
+          <div className="relative mb-4 h-64 overflow-hidden rounded-3xl shadow-md lg:col-span-3 lg:mb-6 lg:h-96 xl:col-span-4 xl:h-[28rem]">
+            <GoogleMap
+              defaultCenter={DEFAULT_CENTER}
+              defaultZoom={14}
+              disableDefaultUI
+              gestureHandling="greedy"
+              className="h-full w-full"
+            >
+              <MapAutoRecenter position={smoothedPosition} zoom={LOCATE_ZOOM} focusKey={locateFocusKey} />
+              <MapResizeObserver />
+              {smoothedPosition && <Marker position={smoothedPosition} />}
+            </GoogleMap>
+
+            <button
+              type="button"
+              onClick={handleToggleAvailability}
+              disabled={isTogglingAvailability}
+              className={`absolute left-4 top-4 z-10 flex items-center gap-3 rounded-2xl bg-white/95 py-4 pl-5 pr-4 text-left shadow-lg backdrop-blur-sm transition disabled:opacity-70 ${
+                isAvailable ? 'ring-2 ring-success/40' : ''
               }`}
             >
-              <span className={`h-5 w-5 rounded-full ${isAvailable ? 'bg-white' : 'bg-white shadow'}`} />
-            </span>
-          </button>
+              <span className="relative flex h-3 w-3 shrink-0">
+                {isAvailable && (
+                  <>
+                    <span className="absolute inset-0 -m-3 rounded-full bg-success/25 animate-radar-pulse" />
+                    <span className="absolute inset-0 -m-3 rounded-full bg-success/25 animate-radar-pulse [animation-delay:0.9s]" />
+                  </>
+                )}
+                <span
+                  className={`relative inline-flex h-3 w-3 rounded-full ${isAvailable ? 'bg-success' : 'bg-gray-300'}`}
+                />
+              </span>
+              <span>
+                <span className="block text-base font-semibold text-gray-800">
+                  {isAvailable ? 'Estás disponible' : 'No disponible'}
+                </span>
+                <span className="block text-sm text-gray-500">
+                  {isAvailable ? 'Buscando viajes cercanos' : 'Actívate para recibir viajes'}
+                </span>
+              </span>
+              <span
+                className={`ml-1 flex h-6 w-10 shrink-0 items-center rounded-full p-1 transition ${
+                  isAvailable ? 'justify-end bg-success' : 'justify-start bg-gray-200'
+                }`}
+              >
+                <span className="h-4 w-4 rounded-full bg-white shadow" />
+              </span>
+            </button>
 
-          <div className="lg:col-span-3">
-            <p className="mb-2 text-sm font-semibold text-gray-700">Resumen de hoy</p>
-            <div className="mb-4 grid grid-cols-3 gap-2 lg:gap-4">
-              <div className="rounded-xl bg-white p-3 text-center shadow-sm lg:p-4">
-                <span className="mx-auto mb-1.5 flex h-8 w-8 items-center justify-center rounded-full bg-success/10 text-success">
-                  <DollarSign className="h-4 w-4" />
+            <LocateMeButton isLoading={isLocating} onClick={handleLocateMe} className="absolute bottom-4 right-4" />
+          </div>
+
+          <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm lg:col-span-1 lg:mb-0 lg:p-5">
+            <p className="mb-3 text-sm font-semibold text-gray-700">Resumen de hoy</p>
+            <div className="grid grid-cols-3 divide-x divide-gray-100 lg:grid-cols-1 lg:divide-x-0 lg:divide-y">
+              <div className="flex flex-col items-center gap-1.5 px-1 py-2 text-center lg:flex-row lg:items-center lg:justify-between lg:gap-3 lg:px-0 lg:py-3 lg:text-left">
+                <span className="flex items-center gap-3">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-success/10 text-success lg:h-10 lg:w-10">
+                    <DollarSign className="h-4 w-4" />
+                  </span>
+                  <span className="hidden text-sm font-medium text-gray-600 lg:inline">Ganancias</span>
                 </span>
-                <p className="text-lg font-bold text-success">
-                  {isLoadingSummary || !summary ? '...' : `L. ${summary.earningsToday.toFixed(0)}`}
-                </p>
-                <p className="text-xs text-gray-500">Ganancias</p>
+                <span>
+                  <span className="block text-lg font-bold tabular-nums text-success lg:text-xl">
+                    {isLoadingSummary || !summary ? '...' : `L. ${summary.earningsToday.toFixed(0)}`}
+                  </span>
+                  <span className="block text-xs text-gray-500 lg:hidden">Ganancias</span>
+                </span>
               </div>
-              <div className="rounded-xl bg-white p-3 text-center shadow-sm lg:p-4">
-                <span className="mx-auto mb-1.5 flex h-8 w-8 items-center justify-center rounded-full bg-brand-pale text-brand">
-                  <CarFront className="h-4 w-4" />
+              <div className="flex flex-col items-center gap-1.5 px-1 py-2 text-center lg:flex-row lg:items-center lg:justify-between lg:gap-3 lg:px-0 lg:py-3 lg:text-left">
+                <span className="flex items-center gap-3">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-pale text-brand lg:h-10 lg:w-10">
+                    <CarFront className="h-4 w-4" />
+                  </span>
+                  <span className="hidden text-sm font-medium text-gray-600 lg:inline">Viajes</span>
                 </span>
-                <p className="text-lg font-bold text-gray-800">
-                  {isLoadingSummary || !summary ? '...' : summary.tripsToday}
-                </p>
-                <p className="text-xs text-gray-500">Viajes</p>
+                <span>
+                  <span className="block text-lg font-bold tabular-nums text-gray-800 lg:text-xl">
+                    {isLoadingSummary || !summary ? '...' : summary.tripsToday}
+                  </span>
+                  <span className="block text-xs text-gray-500 lg:hidden">Viajes</span>
+                </span>
               </div>
-              <div className="rounded-xl bg-white p-3 text-center shadow-sm lg:p-4">
-                <span className="mx-auto mb-1.5 flex h-8 w-8 items-center justify-center rounded-full bg-yellow-100 text-yellow-500">
-                  <Star className="h-4 w-4 fill-current" />
+              <div className="flex flex-col items-center gap-1.5 px-1 py-2 text-center lg:flex-row lg:items-center lg:justify-between lg:gap-3 lg:px-0 lg:py-3 lg:text-left">
+                <span className="flex items-center gap-3">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-yellow-100 text-yellow-500 lg:h-10 lg:w-10">
+                    <Star className="h-4 w-4 fill-current" />
+                  </span>
+                  <span className="hidden text-sm font-medium text-gray-600 lg:inline">Calificación</span>
                 </span>
-                <p className="text-lg font-bold text-gray-800">
-                  {isLoadingSummary || !summary ? '...' : summary.averageRating.toFixed(1)}
-                </p>
-                <p className="text-xs text-gray-500">Calificación</p>
+                <span>
+                  <span className="block text-lg font-bold tabular-nums text-gray-800 lg:text-xl">
+                    {isLoadingSummary || !summary ? '...' : summary.averageRating.toFixed(1)}
+                  </span>
+                  <span className="block text-xs text-gray-500 lg:hidden">Calificación</span>
+                </span>
               </div>
             </div>
           </div>
 
-          <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm lg:col-span-2 lg:mb-0">
+          <div className="rounded-2xl bg-white p-4 shadow-sm lg:col-span-2 lg:p-5 xl:col-span-3">
             <div className="mb-3 flex items-center justify-between">
               <p className="text-sm font-semibold text-gray-700">Últimos viajes</p>
               <Link
@@ -219,16 +298,23 @@ export function DriverHomePage() {
               <p className="py-2 text-sm text-gray-400">Cargando...</p>
             ) : recentTrips.length === 0 ? (
               <p className="py-2 text-sm text-gray-400">Todavía no tienes viajes.</p>
+            ) : visibleRecentTrips.length === 0 ? (
+              <p className="py-2 text-sm text-gray-400">Ocultaste todos tus viajes recientes.</p>
             ) : (
-              <ul className="flex flex-col gap-2.5">
-                {recentTrips.map((trip) => (
-                  <li key={trip.id}>
+              <ul className="flex flex-col gap-1.5 lg:grid lg:grid-cols-2 lg:gap-2 xl:grid-cols-3">
+                {visibleRecentTrips.map((trip) => (
+                  <li key={trip.id} className="group flex items-center rounded-xl transition hover:bg-cream/70">
                     <Link
                       to={`/driver/trips/${trip.id}`}
-                      className="-mx-1 flex items-center justify-between rounded-lg px-1 py-1 transition hover:bg-cream/70"
+                      className="-mx-1 flex min-w-0 flex-1 items-center gap-3 px-1 py-2 lg:mx-0 lg:px-2"
                     >
+                      <span
+                        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${TRIP_STATUS_COLORS[trip.status]}`}
+                      >
+                        <CarFront className="h-4 w-4" />
+                      </span>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm text-gray-700">{trip.destinationAddress}</p>
+                        <p className="truncate text-sm font-medium text-gray-800">{trip.destinationAddress}</p>
                         {trip.requestedAt && (
                           <p className="text-xs text-gray-400">
                             {new Date(trip.requestedAt).toLocaleDateString('es-HN', {
@@ -238,7 +324,7 @@ export function DriverHomePage() {
                           </p>
                         )}
                       </div>
-                      <div className="ml-2 flex shrink-0 items-center gap-2">
+                      <div className="ml-2 flex shrink-0 flex-col items-end gap-1">
                         <span
                           className={`rounded-full px-2 py-0.5 text-xs font-medium ${TRIP_STATUS_COLORS[trip.status]}`}
                         >
@@ -247,33 +333,17 @@ export function DriverHomePage() {
                         <span className="text-sm font-semibold text-gray-800">L. {trip.fare.toFixed(0)}</span>
                       </div>
                     </Link>
+                    <button
+                      type="button"
+                      onClick={() => dismissTrip(trip.id)}
+                      aria-label="Quitar de la vista"
+                      className="mr-1 shrink-0 rounded-md p-1.5 text-gray-300 hover:bg-gray-100 hover:text-red-500"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
                   </li>
                 ))}
               </ul>
-            )}
-          </div>
-
-          <div className="relative h-52 overflow-hidden rounded-2xl shadow-sm lg:col-span-1 lg:h-auto lg:min-h-[260px]">
-            <GoogleMap
-              defaultCenter={DEFAULT_CENTER}
-              defaultZoom={14}
-              disableDefaultUI
-              gestureHandling="greedy"
-              className="h-full w-full"
-            >
-              <MapAutoRecenter position={smoothedPosition} zoom={LOCATE_ZOOM} focusKey={locateFocusKey} />
-              <MapResizeObserver />
-              {smoothedPosition && <Marker position={smoothedPosition} />}
-            </GoogleMap>
-            <LocateMeButton isLoading={isLocating} onClick={handleLocateMe} className="absolute bottom-3 right-3" />
-            {isAvailable && (
-              <div className="pointer-events-none absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-success shadow-sm">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-60" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
-                </span>
-                Buscando viajes cercanos
-              </div>
             )}
           </div>
         </div>
