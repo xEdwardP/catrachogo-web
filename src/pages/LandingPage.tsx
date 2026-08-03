@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { ThemeToggle } from '../components/ThemeToggle';
 import {
   ArrowRight,
   BadgeCheck,
@@ -135,31 +136,32 @@ const FAQS = [
 
 export function LandingPage() {
   return (
-    <div className="min-h-screen overflow-x-hidden bg-white">
-      <header className="sticky top-0 z-20 border-b border-gray-100 bg-white/80 backdrop-blur">
+    <div className="min-h-screen overflow-x-hidden bg-white dark:bg-gray-950">
+      <header className="sticky top-0 z-20 border-b border-gray-100 bg-white/80 backdrop-blur dark:border-gray-800 dark:bg-gray-950/80">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
           <div className="flex items-center gap-2">
             <img src="/logo_without_text.png" alt="CatrachoGo" className="h-9 w-9" />
-            <span className="text-lg font-bold text-gray-800">CatrachoGo</span>
+            <span className="text-lg font-bold text-gray-800 dark:text-gray-100">CatrachoGo</span>
           </div>
-          <nav className="hidden items-center gap-6 text-sm font-medium text-gray-600 md:flex">
-            <a href="#como-funciona" className="transition hover:text-gray-900">
+          <nav className="hidden items-center gap-6 text-sm font-medium text-gray-600 md:flex dark:text-gray-300">
+            <a href="#como-funciona" className="transition hover:text-gray-900 dark:hover:text-gray-100">
               Cómo funciona
             </a>
-            <a href="#conductores" className="transition hover:text-gray-900">
+            <a href="#conductores" className="transition hover:text-gray-900 dark:hover:text-gray-100">
               Conductores
             </a>
-            <a href="#app-movil" className="transition hover:text-gray-900">
+            <a href="#app-movil" className="transition hover:text-gray-900 dark:hover:text-gray-100">
               App móvil
             </a>
-            <a href="#preguntas" className="transition hover:text-gray-900">
+            <a href="#preguntas" className="transition hover:text-gray-900 dark:hover:text-gray-100">
               Preguntas
             </a>
           </nav>
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <Link
               to="/login"
-              className="hidden text-sm font-medium text-gray-600 hover:text-gray-900 sm:block"
+              className="hidden text-sm font-medium text-gray-600 hover:text-gray-900 sm:block dark:text-gray-300 dark:hover:text-gray-100"
             >
               Iniciar sesión
             </Link>
@@ -174,7 +176,7 @@ export function LandingPage() {
         </div>
       </header>
 
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#FFF3EC] to-cream">
+      <section className="relative overflow-hidden bg-gradient-to-b from-[#FFF3EC] to-cream dark:from-gray-900 dark:to-gray-950">
         <div
           aria-hidden
           className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-brand/15 blur-3xl"
@@ -186,13 +188,13 @@ export function LandingPage() {
 
         <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-2 lg:py-24">
           <div className="text-center lg:text-left">
-            <span className="mb-4 inline-block rounded-full bg-white px-4 py-1.5 text-xs font-semibold text-success shadow-sm">
+            <span className="mb-4 inline-block rounded-full bg-white px-4 py-1.5 text-xs font-semibold text-success shadow-sm dark:bg-gray-900">
               Ride-hailing hecho para Honduras
             </span>
-            <h1 className="mb-4 text-4xl font-bold leading-tight text-gray-800 sm:text-5xl">
+            <h1 className="mb-4 text-4xl font-bold leading-tight text-gray-800 sm:text-5xl dark:text-gray-100">
               Tu viaje, <span className="text-brand">a tu manera</span>
             </h1>
-            <p className="mb-8 text-lg text-gray-600">
+            <p className="mb-8 text-lg text-gray-600 dark:text-gray-300">
               Pide un viaje en minutos, sigue a tu conductor en tiempo real y paga desde tu
               wallet — todo desde tu navegador, sin descargar nada.
             </p>
@@ -207,7 +209,7 @@ export function LandingPage() {
               <Link
                 to="/register"
                 state={{ role: 'driver' }}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-gray-800 shadow-sm transition hover:-translate-y-0.5 hover:bg-gray-50 sm:w-auto"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-gray-800 shadow-sm transition hover:-translate-y-0.5 hover:bg-gray-50 sm:w-auto dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-800"
               >
                 <Car className="h-4 w-4" />
                 Conducir con CatrachoGo
@@ -216,9 +218,9 @@ export function LandingPage() {
           </div>
 
           <div aria-hidden className="relative mx-auto hidden w-full max-w-sm lg:block">
-            <div className="rotate-2 rounded-3xl bg-white p-5 shadow-2xl shadow-brand/10 ring-1 ring-black/5 transition duration-300 hover:rotate-0">
+            <div className="rotate-2 rounded-3xl bg-white p-5 shadow-2xl shadow-brand/10 ring-1 ring-black/5 transition duration-300 hover:rotate-0 dark:bg-gray-900 dark:ring-white/10">
               <div className="mb-4 flex items-center justify-between">
-                <span className="text-sm font-semibold text-gray-800">Tu viaje</span>
+                <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">Tu viaje</span>
                 <span className="flex items-center gap-1.5 rounded-full bg-success/10 px-2.5 py-1 text-xs font-semibold text-success">
                   <span className="relative flex h-2 w-2">
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-60" />
@@ -236,38 +238,38 @@ export function LandingPage() {
                 </div>
                 <div className="flex flex-1 flex-col justify-between gap-3">
                   <div>
-                    <p className="text-[10px] font-semibold uppercase text-gray-400">Origen</p>
-                    <p className="text-sm text-gray-800">Parque Central</p>
+                    <p className="text-[10px] font-semibold uppercase text-gray-400 dark:text-gray-500">Origen</p>
+                    <p className="text-sm text-gray-800 dark:text-gray-100">Parque Central</p>
                   </div>
                   <div>
-                    <p className="text-[10px] font-semibold uppercase text-gray-400">Destino</p>
-                    <p className="text-sm text-gray-800">Mall Multiplaza</p>
+                    <p className="text-[10px] font-semibold uppercase text-gray-400 dark:text-gray-500">Destino</p>
+                    <p className="text-sm text-gray-800 dark:text-gray-100">Mall Multiplaza</p>
                   </div>
                 </div>
               </div>
 
-              <div className="mb-4 flex items-center justify-between rounded-lg bg-brand-pale px-3 py-2">
-                <span className="text-sm text-gray-600">Tarifa estimada</span>
+              <div className="mb-4 flex items-center justify-between rounded-lg bg-brand-pale px-3 py-2 dark:bg-brand/15">
+                <span className="text-sm text-gray-600 dark:text-gray-300">Tarifa estimada</span>
                 <span className="text-sm font-bold text-success">L. 85.00 · 4.2 km</span>
               </div>
 
-              <div className="flex items-center gap-3 rounded-xl border border-gray-100 p-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-pale text-sm font-bold text-brand">
+              <div className="flex items-center gap-3 rounded-xl border border-gray-100 p-3 dark:border-gray-800">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-pale text-sm font-bold text-brand dark:bg-brand/15">
                   C
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-semibold text-gray-800">Carlos M.</p>
-                  <p className="text-xs text-gray-500">Toyota Corolla · ABC 1234</p>
+                  <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">Carlos M.</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Toyota Corolla · ABC 1234</p>
                 </div>
-                <span className="flex items-center gap-1 text-sm text-gray-600">
+                <span className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-300">
                   <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                   4.9
                 </span>
               </div>
             </div>
 
-            <div className="absolute -left-16 bottom-20 -rotate-3 rounded-xl bg-white px-3 py-2 shadow-lg ring-1 ring-black/5">
-              <p className="flex items-center gap-1.5 text-xs font-semibold text-gray-700">
+            <div className="absolute -left-16 bottom-20 -rotate-3 rounded-xl bg-white px-3 py-2 shadow-lg ring-1 ring-black/5 dark:bg-gray-900 dark:ring-white/10">
+              <p className="flex items-center gap-1.5 text-xs font-semibold text-gray-700 dark:text-gray-200">
                 <MapPin className="h-3.5 w-3.5 text-brand" />
                 Llega en 3 min
               </p>
@@ -276,10 +278,10 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section className="border-b border-gray-100 bg-white">
+      <section className="border-b border-gray-100 bg-white dark:border-gray-800 dark:bg-gray-950">
         <div className="mx-auto grid max-w-6xl grid-cols-1 gap-4 px-4 py-6 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
           {HIGHLIGHTS.map(({ icon: Icon, text }) => (
-            <div key={text} className="flex items-center justify-center gap-2 text-sm text-gray-600 lg:justify-start">
+            <div key={text} className="flex items-center justify-center gap-2 text-sm text-gray-600 lg:justify-start dark:text-gray-300">
               <Icon className="h-4 w-4 shrink-0 text-success" />
               {text}
             </div>
@@ -289,47 +291,47 @@ export function LandingPage() {
 
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
         <div className="mx-auto mb-10 max-w-xl text-center">
-          <h2 className="mb-2 text-2xl font-bold text-gray-800 sm:text-3xl">Por qué elegir CatrachoGo</h2>
-          <p className="text-gray-500">Diseñado para moverte por tu ciudad de forma simple y segura.</p>
+          <h2 className="mb-2 text-2xl font-bold text-gray-800 sm:text-3xl dark:text-gray-100">Por qué elegir CatrachoGo</h2>
+          <p className="text-gray-500 dark:text-gray-400">Diseñado para moverte por tu ciudad de forma simple y segura.</p>
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {FEATURES.map(({ icon: Icon, accent, title, description }) => (
             <div
               key={title}
-              className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+              className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md dark:border-gray-800 dark:bg-gray-900"
             >
               <div
                 className={`mb-3 flex h-11 w-11 items-center justify-center rounded-xl ${
-                  accent === 'brand' ? 'bg-brand-pale text-brand' : 'bg-success/10 text-success'
+                  accent === 'brand' ? 'bg-brand-pale text-brand dark:bg-brand/15' : 'bg-success/10 text-success'
                 }`}
               >
                 <Icon className="h-5 w-5" />
               </div>
-              <h3 className="mb-1 font-semibold text-gray-800">{title}</h3>
-              <p className="text-sm text-gray-500">{description}</p>
+              <h3 className="mb-1 font-semibold text-gray-800 dark:text-gray-100">{title}</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{description}</p>
             </div>
           ))}
         </div>
       </section>
 
-      <section id="como-funciona" className="scroll-mt-20 bg-gray-50 py-16">
+      <section id="como-funciona" className="scroll-mt-20 bg-gray-50 py-16 dark:bg-gray-900">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="mx-auto mb-12 max-w-xl text-center">
-            <h2 className="mb-2 text-2xl font-bold text-gray-800 sm:text-3xl">Cómo funciona</h2>
-            <p className="text-gray-500">De pedir tu viaje a llegar a tu destino, en 3 pasos.</p>
+            <h2 className="mb-2 text-2xl font-bold text-gray-800 sm:text-3xl dark:text-gray-100">Cómo funciona</h2>
+            <p className="text-gray-500 dark:text-gray-400">De pedir tu viaje a llegar a tu destino, en 3 pasos.</p>
           </div>
           <div className="relative grid grid-cols-1 gap-10 sm:grid-cols-3 sm:gap-6">
             <div
               aria-hidden
-              className="absolute left-[16.6%] right-[16.6%] top-6 hidden border-t-2 border-dashed border-gray-200 sm:block"
+              className="absolute left-[16.6%] right-[16.6%] top-6 hidden border-t-2 border-dashed border-gray-200 sm:block dark:border-gray-700"
             />
             {STEPS.map((step) => (
               <div key={step.number} className="relative text-center">
-                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand-dark text-lg font-bold text-white shadow-lg shadow-brand/25 ring-4 ring-gray-50">
+                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand-dark text-lg font-bold text-white shadow-lg shadow-brand/25 ring-4 ring-gray-50 dark:ring-gray-900">
                   {step.number}
                 </div>
-                <h3 className="mb-1 font-semibold text-gray-800">{step.title}</h3>
-                <p className="mx-auto max-w-xs text-sm text-gray-500">{step.description}</p>
+                <h3 className="mb-1 font-semibold text-gray-800 dark:text-gray-100">{step.title}</h3>
+                <p className="mx-auto max-w-xs text-sm text-gray-500 dark:text-gray-400">{step.description}</p>
               </div>
             ))}
           </div>
@@ -339,13 +341,13 @@ export function LandingPage() {
       <section id="conductores" className="scroll-mt-20 py-16">
         <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-2">
           <div>
-            <span className="mb-3 inline-block rounded-full bg-brand-pale px-4 py-1.5 text-xs font-semibold text-brand">
+            <span className="mb-3 inline-block rounded-full bg-brand-pale px-4 py-1.5 text-xs font-semibold text-brand dark:bg-brand/15">
               Para conductores
             </span>
-            <h2 className="mb-3 text-2xl font-bold text-gray-800 sm:text-3xl">
+            <h2 className="mb-3 text-2xl font-bold text-gray-800 sm:text-3xl dark:text-gray-100">
               ¿Tienes vehículo? Genera ingresos con él
             </h2>
-            <p className="mb-6 text-gray-500">
+            <p className="mb-6 text-gray-500 dark:text-gray-400">
               Regístrate, sube tus documentos y empieza a recibir viajes en cuanto te
               aprobemos. Solo necesitas tu licencia y un vehículo en buen estado.
             </p>
@@ -362,14 +364,14 @@ export function LandingPage() {
             {DRIVER_BENEFITS.map(({ icon: Icon, title, description }) => (
               <div
                 key={title}
-                className="flex items-start gap-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition hover:shadow-md"
+                className="flex items-start gap-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition hover:shadow-md dark:border-gray-800 dark:bg-gray-900"
               >
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-success/10 text-success">
                   <Icon className="h-5 w-5" />
                 </span>
                 <div>
-                  <h3 className="mb-0.5 font-semibold text-gray-800">{title}</h3>
-                  <p className="text-sm text-gray-500">{description}</p>
+                  <h3 className="mb-0.5 font-semibold text-gray-800 dark:text-gray-100">{title}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{description}</p>
                 </div>
               </div>
             ))}
@@ -383,10 +385,10 @@ export function LandingPage() {
             <span className="mb-3 inline-block rounded-full bg-success/10 px-4 py-1.5 text-xs font-semibold text-success">
               Próximamente
             </span>
-            <h2 className="mb-3 text-2xl font-bold text-gray-800 sm:text-3xl">
+            <h2 className="mb-3 text-2xl font-bold text-gray-800 sm:text-3xl dark:text-gray-100">
               La app móvil de CatrachoGo está en camino
             </h2>
-            <p className="mb-6 text-gray-500">
+            <p className="mb-6 text-gray-500 dark:text-gray-400">
               Estamos trabajando en la versión nativa para iOS y Android. La web ya funciona
               perfecto desde tu navegador, y la app llegará como un extra para quienes la
               prefieran instalada.
@@ -398,8 +400,8 @@ export function LandingPage() {
                     <Icon className="h-5 w-5" />
                   </span>
                   <div>
-                    <h3 className="mb-0.5 text-sm font-semibold text-gray-800">{title}</h3>
-                    <p className="text-sm text-gray-500">{description}</p>
+                    <h3 className="mb-0.5 text-sm font-semibold text-gray-800 dark:text-gray-100">{title}</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{description}</p>
                   </div>
                 </div>
               ))}
@@ -409,21 +411,21 @@ export function LandingPage() {
           <div aria-hidden className="order-1 flex justify-center lg:order-2">
             <div className="relative">
               <div className="w-56 rounded-[2.5rem] border-8 border-gray-800 bg-gray-800 p-1 shadow-2xl shadow-brand/10">
-                <div className="flex h-[26rem] flex-col items-center justify-center gap-4 rounded-[2rem] bg-gradient-to-b from-cream to-white px-6 text-center">
+                <div className="flex h-[26rem] flex-col items-center justify-center gap-4 rounded-[2rem] bg-gradient-to-b from-cream to-white px-6 text-center dark:from-gray-800 dark:to-gray-900">
                   <img src="/logo_without_text.png" alt="" className="h-14 w-14" />
-                  <span className="rounded-full bg-brand-pale px-3 py-1 text-[11px] font-semibold text-brand">
+                  <span className="rounded-full bg-brand-pale px-3 py-1 text-[11px] font-semibold text-brand dark:bg-brand/15">
                     Próximamente
                   </span>
-                  <p className="text-xs text-gray-400">iOS y Android</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500">iOS y Android</p>
                 </div>
               </div>
 
-              <div className="absolute -right-10 top-10 w-40 rotate-3 rounded-xl bg-white px-3 py-2 shadow-lg ring-1 ring-black/5">
+              <div className="absolute -right-10 top-10 w-40 rotate-3 rounded-xl bg-white px-3 py-2 shadow-lg ring-1 ring-black/5 dark:bg-gray-900 dark:ring-white/10">
                 <div className="flex items-center gap-2">
                   <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-success/10 text-success">
                     <Bell className="h-3 w-3" />
                   </span>
-                  <p className="text-[11px] font-medium text-gray-700">Tu conductor llegó</p>
+                  <p className="text-[11px] font-medium text-gray-700 dark:text-gray-200">Tu conductor llegó</p>
                 </div>
               </div>
             </div>
@@ -431,23 +433,23 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section id="preguntas" className="scroll-mt-20 bg-gray-50 py-16">
+      <section id="preguntas" className="scroll-mt-20 bg-gray-50 py-16 dark:bg-gray-900">
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
           <div className="mx-auto mb-10 max-w-xl text-center">
-            <h2 className="mb-2 text-2xl font-bold text-gray-800 sm:text-3xl">Preguntas frecuentes</h2>
-            <p className="text-gray-500">Lo que la gente suele preguntar antes de su primer viaje.</p>
+            <h2 className="mb-2 text-2xl font-bold text-gray-800 sm:text-3xl dark:text-gray-100">Preguntas frecuentes</h2>
+            <p className="text-gray-500 dark:text-gray-400">Lo que la gente suele preguntar antes de su primer viaje.</p>
           </div>
           <div className="flex flex-col gap-3">
             {FAQS.map(({ question, answer }) => (
               <details
                 key={question}
-                className="group rounded-2xl border border-gray-100 bg-white px-5 py-4 shadow-sm open:shadow-md"
+                className="group rounded-2xl border border-gray-100 bg-white px-5 py-4 shadow-sm open:shadow-md dark:border-gray-800 dark:bg-gray-950"
               >
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-medium text-gray-800 [&::-webkit-details-marker]:hidden">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-medium text-gray-800 [&::-webkit-details-marker]:hidden dark:text-gray-100">
                   {question}
-                  <ChevronDown className="h-4 w-4 shrink-0 text-gray-400 transition group-open:rotate-180" />
+                  <ChevronDown className="h-4 w-4 shrink-0 text-gray-400 transition group-open:rotate-180 dark:text-gray-500" />
                 </summary>
-                <p className="mt-3 text-sm leading-relaxed text-gray-500">{answer}</p>
+                <p className="mt-3 text-sm leading-relaxed text-gray-500 dark:text-gray-400">{answer}</p>
               </details>
             ))}
           </div>
@@ -490,91 +492,91 @@ export function LandingPage() {
         </div>
       </section>
 
-      <footer className="border-t border-gray-100 bg-white">
+      <footer className="border-t border-gray-100 bg-white dark:border-gray-800 dark:bg-gray-950">
         <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
           <div className="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
             <div className="max-w-xs">
               <div className="mb-2 flex items-center gap-2">
                 <img src="/logo_without_text.png" alt="CatrachoGo" className="h-8 w-8" />
-                <span className="font-bold text-gray-800">CatrachoGo</span>
+                <span className="font-bold text-gray-800 dark:text-gray-100">CatrachoGo</span>
               </div>
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-gray-400 dark:text-gray-500">
                 Ride-hailing hecho para Honduras: viajes seguros, tarifas claras y pagos sin
                 efectivo.
               </p>
             </div>
             <div className="flex gap-16">
               <div>
-                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
                   Producto
                 </p>
-                <ul className="flex flex-col gap-2 text-sm text-gray-500">
+                <ul className="flex flex-col gap-2 text-sm text-gray-500 dark:text-gray-400">
                   <li>
-                    <a href="#como-funciona" className="hover:text-gray-800">
+                    <a href="#como-funciona" className="hover:text-gray-800 dark:hover:text-gray-100">
                       Cómo funciona
                     </a>
                   </li>
                   <li>
-                    <a href="#conductores" className="hover:text-gray-800">
+                    <a href="#conductores" className="hover:text-gray-800 dark:hover:text-gray-100">
                       Conductores
                     </a>
                   </li>
                   <li>
-                    <a href="#app-movil" className="hover:text-gray-800">
+                    <a href="#app-movil" className="hover:text-gray-800 dark:hover:text-gray-100">
                       App móvil
                     </a>
                   </li>
                   <li>
-                    <a href="#preguntas" className="hover:text-gray-800">
+                    <a href="#preguntas" className="hover:text-gray-800 dark:hover:text-gray-100">
                       Preguntas frecuentes
                     </a>
                   </li>
                 </ul>
               </div>
               <div>
-                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
                   Cuenta
                 </p>
-                <ul className="flex flex-col gap-2 text-sm text-gray-500">
+                <ul className="flex flex-col gap-2 text-sm text-gray-500 dark:text-gray-400">
                   <li>
-                    <Link to="/login" className="hover:text-gray-800">
+                    <Link to="/login" className="hover:text-gray-800 dark:hover:text-gray-100">
                       Iniciar sesión
                     </Link>
                   </li>
                   <li>
-                    <Link to="/register" state={{ role: 'passenger' }} className="hover:text-gray-800">
+                    <Link to="/register" state={{ role: 'passenger' }} className="hover:text-gray-800 dark:hover:text-gray-100">
                       Crear cuenta
                     </Link>
                   </li>
                   <li>
-                    <Link to="/register" state={{ role: 'driver' }} className="hover:text-gray-800">
+                    <Link to="/register" state={{ role: 'driver' }} className="hover:text-gray-800 dark:hover:text-gray-100">
                       Conducir con CatrachoGo
                     </Link>
                   </li>
                 </ul>
               </div>
               <div>
-                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
                   Legal
                 </p>
-                <ul className="flex flex-col gap-2 text-sm text-gray-500">
+                <ul className="flex flex-col gap-2 text-sm text-gray-500 dark:text-gray-400">
                   <li>
-                    <Link to="/legal/terms" className="hover:text-gray-800">
+                    <Link to="/legal/terms" className="hover:text-gray-800 dark:hover:text-gray-100">
                       Términos de uso
                     </Link>
                   </li>
                   <li>
-                    <Link to="/legal/privacy" className="hover:text-gray-800">
+                    <Link to="/legal/privacy" className="hover:text-gray-800 dark:hover:text-gray-100">
                       Política de privacidad
                     </Link>
                   </li>
                   <li>
-                    <Link to="/legal/licenses" className="hover:text-gray-800">
+                    <Link to="/legal/licenses" className="hover:text-gray-800 dark:hover:text-gray-100">
                       Licencias
                     </Link>
                   </li>
                   <li>
-                    <Link to="/support" className="hover:text-gray-800">
+                    <Link to="/support" className="hover:text-gray-800 dark:hover:text-gray-100">
                       Soporte
                     </Link>
                   </li>
@@ -582,7 +584,7 @@ export function LandingPage() {
               </div>
             </div>
           </div>
-          <div className="mt-8 border-t border-gray-100 pt-6 text-center text-sm text-gray-400 sm:text-left">
+          <div className="mt-8 border-t border-gray-100 pt-6 text-center text-sm text-gray-400 sm:text-left dark:border-gray-800 dark:text-gray-500">
             © {new Date().getFullYear()} CatrachoGo. Hecho en Honduras.
           </div>
         </div>

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useMapsLibrary } from '@vis.gl/react-google-maps';
+import { useTheme } from '../hooks/useTheme';
 
 export interface PlaceSelection {
   address: string;
@@ -8,6 +9,24 @@ export interface PlaceSelection {
 }
 
 const LOCATION_BIAS_RADIUS_METERS = 50000;
+
+function applyElementTheme(element: google.maps.places.PlaceAutocompleteElement, theme: 'light' | 'dark') {
+  if (theme === 'dark') {
+    element.style.setProperty('color-scheme', 'dark');
+    element.style.setProperty('--gmp-mat-color-surface', '#111827');
+    element.style.setProperty('--gmp-mat-color-on-surface', '#f3f4f6');
+    element.style.setProperty('--gmp-mat-color-on-surface-variant', '#9ca3af');
+    element.style.setProperty('--gmp-mat-color-primary', '#e8532e');
+    element.style.setProperty('--gmp-mat-color-outline', '#374151');
+    return;
+  }
+  element.style.setProperty('color-scheme', 'light');
+  element.style.setProperty('--gmp-mat-color-surface', '#ffffff');
+  element.style.setProperty('--gmp-mat-color-on-surface', '#1f2937');
+  element.style.setProperty('--gmp-mat-color-on-surface-variant', '#6b7280');
+  element.style.setProperty('--gmp-mat-color-primary', '#e8532e');
+  element.style.setProperty('--gmp-mat-color-outline', '#e5e7eb');
+}
 
 interface PlacesAutocompleteInputProps {
   id: string;
@@ -25,6 +44,7 @@ export function PlacesAutocompleteInput({
   onPlaceSelected,
 }: PlacesAutocompleteInputProps) {
   const placesLibrary = useMapsLibrary('places');
+  const { theme } = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
   const elementRef = useRef<google.maps.places.PlaceAutocompleteElement | null>(null);
   const onPlaceSelectedRef = useRef(onPlaceSelected);
@@ -42,6 +62,11 @@ export function PlacesAutocompleteInput({
     locationBiasRef.current = locationBias;
   });
 
+  const themeRef = useRef(theme);
+  useEffect(() => {
+    themeRef.current = theme;
+  });
+
   useEffect(() => {
     if (!placesLibrary || !containerRef.current) return;
 
@@ -57,12 +82,7 @@ export function PlacesAutocompleteInput({
     element.id = id;
     if (placeholder) element.placeholder = placeholder;
     element.style.width = '100%';
-    element.style.setProperty('color-scheme', 'light');
-    element.style.setProperty('--gmp-mat-color-surface', '#ffffff');
-    element.style.setProperty('--gmp-mat-color-on-surface', '#1f2937');
-    element.style.setProperty('--gmp-mat-color-on-surface-variant', '#6b7280');
-    element.style.setProperty('--gmp-mat-color-primary', '#e8532e');
-    element.style.setProperty('--gmp-mat-color-outline', '#e5e7eb');
+    applyElementTheme(element, themeRef.current);
     if (displayValueRef.current !== undefined) {
       element.value = displayValueRef.current;
     }
@@ -107,6 +127,12 @@ export function PlacesAutocompleteInput({
       };
     }
   }, [locationBias]);
+
+  useEffect(() => {
+    if (elementRef.current) {
+      applyElementTheme(elementRef.current, theme);
+    }
+  }, [theme]);
 
   return <div ref={containerRef} className="w-full" />;
 }

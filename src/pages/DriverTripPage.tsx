@@ -326,7 +326,7 @@ export function DriverTripPage() {
       </div>
 
       <div className="absolute inset-x-0 bottom-0 flex justify-center p-0 sm:p-4 lg:static lg:w-[420px] lg:shrink-0 lg:p-0">
-        <div className="w-full rounded-t-2xl bg-white p-4 shadow-lg sm:max-w-md sm:rounded-2xl lg:h-full lg:max-w-none lg:overflow-y-auto lg:rounded-none lg:border-l lg:border-gray-100 lg:p-6 lg:shadow-none">
+        <div className="w-full rounded-t-2xl bg-white p-4 shadow-lg sm:max-w-md sm:rounded-2xl lg:h-full lg:max-w-none lg:overflow-y-auto lg:rounded-none lg:border-l lg:border-gray-100 lg:p-6 lg:shadow-none dark:bg-gray-900 dark:lg:border-gray-800">
           <div className="mb-4 hidden items-center gap-2 rounded-lg bg-success p-3 text-center text-sm font-semibold text-white lg:flex lg:justify-center">
             {BannerIcon && <BannerIcon className="h-4 w-4 shrink-0" />}
             {bannerText}
@@ -334,13 +334,13 @@ export function DriverTripPage() {
           </div>
 
           {(isPickupPhase || isTripPhase) && (
-            <div className="mb-3 flex items-center gap-3 border-b border-gray-100 pb-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-pale text-sm font-bold text-brand">
+            <div className="mb-3 flex items-center gap-3 border-b border-gray-100 pb-3 dark:border-gray-800">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-pale text-sm font-bold text-brand dark:bg-brand/15">
                 {passengerName?.charAt(0).toUpperCase() ?? '?'}
               </div>
               <div>
-                <p className="text-xs text-gray-400">Pasajero</p>
-                <p className="text-sm font-semibold text-gray-800">{passengerName ?? 'Pasajero'}</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500">Pasajero</p>
+                <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">{passengerName ?? 'Pasajero'}</p>
               </div>
             </div>
           )}
@@ -348,10 +348,10 @@ export function DriverTripPage() {
           <div className="mb-3 flex items-start gap-2">
             <Navigation className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
             <div>
-              <p className="text-xs font-semibold text-gray-500">
+              <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">
                 {trip?.status === 'in_progress' ? 'DESTINO' : 'ORIGEN'}
               </p>
-              <p className="text-sm text-gray-800">
+              <p className="text-sm text-gray-800 dark:text-gray-100">
                 {trip?.status === 'in_progress'
                   ? (trip?.destinationAddress ?? '—')
                   : (trip?.originAddress ?? '—')}
@@ -360,8 +360,8 @@ export function DriverTripPage() {
           </div>
 
           <div className="mb-4 flex items-center justify-between">
-            <span className="text-xs font-semibold text-gray-500">TARIFA</span>
-            <span className="text-sm font-bold text-gray-800">
+            <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">TARIFA</span>
+            <span className="text-sm font-bold text-gray-800 dark:text-gray-100">
               {trip ? `L. ${trip.fare.toFixed(2)} · ${trip.distanceKm.toFixed(1)} km` : '—'}
             </span>
           </div>
@@ -381,8 +381,8 @@ export function DriverTripPage() {
                 aria-disabled={!canCall}
                 className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold ${
                   canCall
-                    ? 'border border-gray-300 text-gray-700'
-                    : 'pointer-events-none border border-gray-200 text-gray-400'
+                    ? 'border border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-200'
+                    : 'pointer-events-none border border-gray-200 text-gray-400 dark:border-gray-700 dark:text-gray-600'
                 }`}
               >
                 <Phone className="h-4 w-4" /> Llamar
@@ -426,19 +426,19 @@ export function DriverTripPage() {
           )}
 
           {isPickupPhase && !trip?.arrivedAt && !isNearTarget && (
-            <p className="mt-2 text-center text-xs text-gray-400">
+            <p className="mt-2 text-center text-xs text-gray-400 dark:text-gray-500">
               Acércate al punto de recogida para poder marcar tu llegada.
             </p>
           )}
 
           {isTripPhase && !isNearTarget && (
-            <p className="mt-2 text-center text-xs text-gray-400">Acércate al destino para poder completar el viaje.</p>
+            <p className="mt-2 text-center text-xs text-gray-400 dark:text-gray-500">Acércate al destino para poder completar el viaje.</p>
           )}
 
           {isWaitingForPassenger && (
             <div className="mt-3 text-center">
               {!canReportNoShow ? (
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-gray-400 dark:text-gray-500">
                   Esperando al pasajero... podrás reportar que no llegó en {remainingLabel}.
                 </p>
               ) : (

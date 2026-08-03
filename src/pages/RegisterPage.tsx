@@ -57,13 +57,13 @@ export function RegisterPage() {
 
   return (
     <AuthLayout>
-      <h2 className="mb-4 text-center text-lg font-semibold text-gray-800">Crear cuenta</h2>
+      <h2 className="mb-4 text-center text-lg font-semibold text-gray-800 dark:text-gray-100">Crear cuenta</h2>
 
       <RoleToggle value={role} onChange={setRole} />
 
       <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
         <div>
-          <label htmlFor="name" className="mb-1 block text-sm font-medium text-gray-700">
+          <label htmlFor="name" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
             Nombre
           </label>
           <input
@@ -73,12 +73,12 @@ export function RegisterPage() {
             autoComplete="name"
             value={name}
             onChange={(event) => setName(event.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500"
           />
         </div>
 
         <div>
-          <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700">
+          <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
             Correo
           </label>
           <input
@@ -88,12 +88,12 @@ export function RegisterPage() {
             autoComplete="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500"
           />
         </div>
 
         <div>
-          <label htmlFor="phone" className="mb-1 block text-sm font-medium text-gray-700">
+          <label htmlFor="phone" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
             Teléfono
           </label>
           <input
@@ -105,12 +105,12 @@ export function RegisterPage() {
             placeholder="99998888"
             value={phone}
             onChange={(event) => setPhone(sanitizePhoneInput(event.target.value))}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500"
           />
         </div>
 
         <div>
-          <label htmlFor="password" className="mb-1 block text-sm font-medium text-gray-700">
+          <label htmlFor="password" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
             Contraseña
           </label>
           <input
@@ -121,7 +121,7 @@ export function RegisterPage() {
             autoComplete="new-password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500"
           />
         </div>
 
@@ -134,7 +134,7 @@ export function RegisterPage() {
         </button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-gray-500">
+      <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
         ¿Ya tienes cuenta?{' '}
         <Link to="/login" className="font-medium text-brand hover:underline">
           Iniciar sesión

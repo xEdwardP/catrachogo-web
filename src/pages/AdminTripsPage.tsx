@@ -17,11 +17,11 @@ const STATUS_LABELS: Record<TripStatus, string> = {
 };
 
 const STATUS_COLORS: Record<TripStatus, string> = {
-  pending: 'bg-yellow-100 text-yellow-700',
-  accepted: 'bg-blue-100 text-blue-700',
-  in_progress: 'bg-blue-100 text-blue-700',
-  completed: 'bg-success/10 text-success',
-  cancelled: 'bg-gray-100 text-gray-500',
+  pending: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300',
+  accepted: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+  in_progress: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+  completed: 'bg-success/10 text-success dark:bg-success/20',
+  cancelled: 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400',
 };
 
 const PAGE_SIZE = 10;
@@ -53,7 +53,7 @@ function SortableHeader({
       <button
         type="button"
         onClick={() => onSort(field)}
-        className={`flex items-center gap-1 transition ${isActive ? 'text-gray-700' : 'text-gray-400 hover:text-gray-600'}`}
+        className={`flex items-center gap-1 transition ${isActive ? 'text-gray-700 dark:text-gray-200' : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'}`}
       >
         {label}
         <Icon className="h-3 w-3" />
@@ -120,15 +120,15 @@ export function AdminTripsPage() {
 
   return (
     <AdminLayout>
-      <h1 className="mb-1 text-2xl font-bold text-gray-800">Viajes</h1>
-      <p className="mb-6 text-sm text-gray-500">{isLoading ? 'Cargando...' : `${total} viajes en total`}</p>
+      <h1 className="mb-1 text-2xl font-bold text-gray-800 dark:text-gray-100">Viajes</h1>
+      <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">{isLoading ? 'Cargando...' : `${total} viajes en total`}</p>
 
       <div className="mb-4 flex flex-wrap gap-2">
         <button
           type="button"
           onClick={() => handleStatusChange('')}
           className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-            status === '' ? 'bg-brand text-white' : 'bg-white text-gray-600 hover:bg-gray-100'
+            status === '' ? 'bg-brand text-white' : 'bg-white text-gray-600 hover:bg-gray-100 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800'
           }`}
         >
           Todos
@@ -139,7 +139,7 @@ export function AdminTripsPage() {
             type="button"
             onClick={() => handleStatusChange(value)}
             className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-              status === value ? 'bg-brand text-white' : 'bg-white text-gray-600 hover:bg-gray-100'
+              status === value ? 'bg-brand text-white' : 'bg-white text-gray-600 hover:bg-gray-100 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800'
             }`}
           >
             {STATUS_LABELS[value]}
@@ -147,9 +147,9 @@ export function AdminTripsPage() {
         ))}
       </div>
 
-      <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
+      <div className="overflow-hidden rounded-2xl bg-white shadow-sm dark:bg-gray-900">
         <table className="w-full text-left text-sm">
-          <thead className="border-b border-gray-100 text-xs uppercase text-gray-400">
+          <thead className="border-b border-gray-100 text-xs uppercase text-gray-400 dark:border-gray-800 dark:text-gray-500">
             <tr>
               <th className="px-5 py-3">Estado</th>
               <th className="px-5 py-3">Origen</th>
@@ -174,7 +174,7 @@ export function AdminTripsPage() {
           <tbody>
             {isLoading && (
               <tr>
-                <td colSpan={6} className="px-5 py-8 text-center text-gray-400">
+                <td colSpan={6} className="px-5 py-8 text-center text-gray-400 dark:text-gray-500">
                   <Loader2 className="mx-auto h-5 w-5 animate-spin" />
                 </td>
               </tr>
@@ -188,21 +188,21 @@ export function AdminTripsPage() {
               />
             )}
             {!isLoading && sortedTrips.map((trip) => (
-              <tr key={trip.id} className="border-b border-gray-50 transition last:border-0 hover:bg-cream/50">
+              <tr key={trip.id} className="border-b border-gray-50 transition last:border-0 hover:bg-cream/50 dark:border-gray-800 dark:hover:bg-gray-800/50">
                 <td className="px-5 py-3">
                   <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[trip.status]}`}>
                     {STATUS_LABELS[trip.status]}
                   </span>
                 </td>
-                <td className="max-w-[200px] truncate px-5 py-3 text-gray-600">{trip.originAddress}</td>
-                <td className="max-w-[200px] truncate px-5 py-3 text-gray-600">{trip.destinationAddress}</td>
-                <td className="px-5 py-3 text-gray-600">
+                <td className="max-w-[200px] truncate px-5 py-3 text-gray-600 dark:text-gray-300">{trip.originAddress}</td>
+                <td className="max-w-[200px] truncate px-5 py-3 text-gray-600 dark:text-gray-300">{trip.destinationAddress}</td>
+                <td className="px-5 py-3 text-gray-600 dark:text-gray-300">
                   {trip.status === 'cancelled' && trip.cancelReason
                     ? (CANCELLATION_REASON_LABELS[trip.cancelReason] ?? trip.cancelReason)
                     : '—'}
                 </td>
-                <td className="px-5 py-3 font-semibold text-gray-800">L. {trip.fare.toFixed(2)}</td>
-                <td className="px-5 py-3 text-gray-600">
+                <td className="px-5 py-3 font-semibold text-gray-800 dark:text-gray-100">L. {trip.fare.toFixed(2)}</td>
+                <td className="px-5 py-3 text-gray-600 dark:text-gray-300">
                   {trip.requestedAt ? new Date(trip.requestedAt).toLocaleString('es-HN') : '—'}
                 </td>
               </tr>
@@ -211,23 +211,23 @@ export function AdminTripsPage() {
         </table>
 
         {totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-gray-100 px-5 py-3 text-sm">
+          <div className="flex items-center justify-between border-t border-gray-100 px-5 py-3 text-sm dark:border-gray-800">
             <button
               type="button"
               onClick={() => goToPage(Math.max(1, page - 1))}
               disabled={page <= 1}
-              className="text-gray-600 disabled:opacity-40"
+              className="text-gray-600 disabled:opacity-40 dark:text-gray-300"
             >
               Anterior
             </button>
-            <span className="text-gray-400">
+            <span className="text-gray-400 dark:text-gray-500">
               Página {page} de {totalPages}
             </span>
             <button
               type="button"
               onClick={() => goToPage(Math.min(totalPages, page + 1))}
               disabled={page >= totalPages}
-              className="text-gray-600 disabled:opacity-40"
+              className="text-gray-600 disabled:opacity-40 dark:text-gray-300"
             >
               Siguiente
             </button>

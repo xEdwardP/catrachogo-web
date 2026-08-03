@@ -101,20 +101,20 @@ export function AdminFareZonesPage() {
     <AdminLayout>
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="mb-1 text-2xl font-bold text-gray-800">Zonas y tarifas</h1>
-          <p className="text-sm text-gray-500">
+          <h1 className="mb-1 text-2xl font-bold text-gray-800 dark:text-gray-100">Zonas y tarifas</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             {isLoading ? 'Cargando...' : `${visibleZones.length} zonas configuradas`}
           </p>
         </div>
         <div className="flex items-center gap-3">
           <div className="relative sm:w-56">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
             <input
               type="search"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder="Buscar zona"
-              className="w-full rounded-lg border border-gray-200 bg-white py-2 pl-9 pr-3 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+              className="w-full rounded-lg border border-gray-200 bg-white py-2 pl-9 pr-3 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
             />
           </div>
           <button
@@ -131,19 +131,19 @@ export function AdminFareZonesPage() {
       {editingZoneId && (
         <form
           onSubmit={handleSubmit}
-          className="mb-6 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm"
+          className="mb-6 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900"
         >
           <div className="mb-4 flex items-center justify-between">
-            <p className="font-semibold text-gray-700">
+            <p className="font-semibold text-gray-700 dark:text-gray-200">
               {editingZoneId === 'new' ? 'Nueva zona' : 'Editar zona'}
             </p>
-            <button type="button" onClick={closeForm} aria-label="Cerrar" className="text-gray-400 hover:text-gray-600">
+            <button type="button" onClick={closeForm} aria-label="Cerrar" className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300">
               <X className="h-4 w-4" />
             </button>
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
             <div className="lg:col-span-2">
-              <label htmlFor="zoneName" className="mb-1 block text-xs font-medium text-gray-600">
+              <label htmlFor="zoneName" className="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-300">
                 Nombre
               </label>
               <input
@@ -152,11 +152,11 @@ export function AdminFareZonesPage() {
                 required
                 value={form.zoneName}
                 onChange={(event) => setForm({ ...form, zoneName: event.target.value })}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
               />
             </div>
             <div>
-              <label htmlFor="baseFare" className="mb-1 block text-xs font-medium text-gray-600">
+              <label htmlFor="baseFare" className="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-300">
                 Tarifa base (L.)
               </label>
               <input
@@ -166,11 +166,11 @@ export function AdminFareZonesPage() {
                 required
                 value={form.baseFare}
                 onChange={(event) => setForm({ ...form, baseFare: event.target.value })}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
               />
             </div>
             <div>
-              <label htmlFor="farePerKm" className="mb-1 block text-xs font-medium text-gray-600">
+              <label htmlFor="farePerKm" className="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-300">
                 Tarifa por km (L.)
               </label>
               <input
@@ -180,11 +180,11 @@ export function AdminFareZonesPage() {
                 required
                 value={form.farePerKm}
                 onChange={(event) => setForm({ ...form, farePerKm: event.target.value })}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
               />
             </div>
             <div>
-              <label htmlFor="centerLat" className="mb-1 block text-xs font-medium text-gray-600">
+              <label htmlFor="centerLat" className="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-300">
                 Centro (lat)
               </label>
               <input
@@ -194,13 +194,13 @@ export function AdminFareZonesPage() {
                 required
                 value={form.centerLat}
                 onChange={(event) => setForm({ ...form, centerLat: event.target.value })}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
               />
             </div>
           </div>
           <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
             <div>
-              <label htmlFor="centerLng" className="mb-1 block text-xs font-medium text-gray-600">
+              <label htmlFor="centerLng" className="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-300">
                 Centro (lng)
               </label>
               <input
@@ -210,7 +210,7 @@ export function AdminFareZonesPage() {
                 required
                 value={form.centerLng}
                 onChange={(event) => setForm({ ...form, centerLng: event.target.value })}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
               />
             </div>
           </div>
@@ -218,7 +218,7 @@ export function AdminFareZonesPage() {
             <button
               type="button"
               onClick={closeForm}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600"
+              className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 dark:border-gray-600 dark:text-gray-300"
             >
               Cancelar
             </button>
@@ -233,9 +233,9 @@ export function AdminFareZonesPage() {
         </form>
       )}
 
-      <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
+      <div className="overflow-hidden rounded-2xl bg-white shadow-sm dark:bg-gray-900">
         <table className="w-full text-left text-sm">
-          <thead className="border-b border-gray-100 text-xs uppercase text-gray-400">
+          <thead className="border-b border-gray-100 text-xs uppercase text-gray-400 dark:border-gray-800 dark:text-gray-500">
             <tr>
               <th className="px-5 py-3">Nombre</th>
               <th className="px-5 py-3">Tarifa base</th>
@@ -246,7 +246,7 @@ export function AdminFareZonesPage() {
           <tbody>
             {isLoading && (
               <tr>
-                <td colSpan={4} className="px-5 py-8 text-center text-gray-400">
+                <td colSpan={4} className="px-5 py-8 text-center text-gray-400 dark:text-gray-500">
                   <Loader2 className="mx-auto h-5 w-5 animate-spin" />
                 </td>
               </tr>
@@ -271,12 +271,12 @@ export function AdminFareZonesPage() {
               <tr
                 key={zone.id}
                 onClick={() => openEditForm(zone)}
-                className="cursor-pointer border-b border-gray-50 last:border-0 hover:bg-gray-50"
+                className="cursor-pointer border-b border-gray-50 last:border-0 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/50"
               >
-                <td className="px-5 py-3 font-medium text-gray-800">{zone.zoneName}</td>
-                <td className="px-5 py-3 text-gray-600">L. {zone.baseFare.toFixed(2)}</td>
-                <td className="px-5 py-3 text-gray-600">L. {zone.farePerKm.toFixed(2)}</td>
-                <td className="px-5 py-3 text-gray-600">
+                <td className="px-5 py-3 font-medium text-gray-800 dark:text-gray-100">{zone.zoneName}</td>
+                <td className="px-5 py-3 text-gray-600 dark:text-gray-300">L. {zone.baseFare.toFixed(2)}</td>
+                <td className="px-5 py-3 text-gray-600 dark:text-gray-300">L. {zone.farePerKm.toFixed(2)}</td>
+                <td className="px-5 py-3 text-gray-600 dark:text-gray-300">
                   {zone.centerLat.toFixed(4)}, {zone.centerLng.toFixed(4)}
                 </td>
               </tr>

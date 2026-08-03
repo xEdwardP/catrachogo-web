@@ -100,7 +100,7 @@ function CompletedTripsChart({ stats }: { stats: AdminStats }) {
   return (
     <div>
       {!hasData && (
-        <p className="mb-2 text-sm text-gray-400">
+        <p className="mb-2 text-sm text-gray-400 dark:text-gray-500">
           Aún no hay viajes completados en los últimos 14 días.
         </p>
       )}
@@ -122,10 +122,10 @@ function CompletedTripsChart({ stats }: { stats: AdminStats }) {
               className="absolute inset-x-0 flex items-center gap-2"
               style={{ bottom: `${step * 100}%` }}
             >
-              <span className="w-6 text-right text-[10px] leading-none text-gray-300">
+              <span className="w-6 text-right text-[10px] leading-none text-gray-300 dark:text-gray-600">
                 {Math.round(scaleMax * step)}
               </span>
-              <div className="h-px flex-1 bg-gray-100" />
+              <div className="h-px flex-1 bg-gray-100 dark:bg-gray-800" />
             </div>
           ))}
           <div className="absolute inset-y-0 left-8 right-0 flex items-end gap-[3%]">
@@ -149,7 +149,7 @@ function CompletedTripsChart({ stats }: { stats: AdminStats }) {
             ))}
           </div>
         </div>
-        <div className="ml-8 mt-2 flex justify-between text-[10px] text-gray-400">
+        <div className="ml-8 mt-2 flex justify-between text-[10px] text-gray-400 dark:text-gray-500">
           <span>{points[0]?.label}</span>
           <span>{points[Math.floor(points.length / 2)]?.label}</span>
           <span>{points[points.length - 1]?.label}</span>
@@ -210,8 +210,8 @@ export function AdminDashboardPage() {
     <AdminLayout>
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>
-          <h1 className="mb-1 text-2xl font-bold text-gray-800">Dashboard</h1>
-          <p className="text-sm text-gray-500">
+          <h1 className="mb-1 text-2xl font-bold text-gray-800 dark:text-gray-100">Dashboard</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Resumen general de la plataforma —{' '}
             {new Date().toLocaleDateString('es-HN', {
               weekday: 'long',
@@ -224,7 +224,7 @@ export function AdminDashboardPage() {
           type="button"
           onClick={handleRefresh}
           disabled={isLoading}
-          className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-50 disabled:opacity-50"
+          className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800"
         >
           <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
           Actualizar
@@ -239,7 +239,7 @@ export function AdminDashboardPage() {
             <Link
               key={card.key}
               to={card.to}
-              className="group relative rounded-2xl bg-white p-4 shadow-sm ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:shadow-md"
+              className="group relative rounded-2xl bg-white p-4 shadow-sm ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:shadow-md dark:bg-gray-900 dark:ring-white/10"
             >
               {badge > 0 && (
                 <span className="absolute right-3 top-3 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand px-1.5 text-[11px] font-bold text-white">
@@ -250,51 +250,51 @@ export function AdminDashboardPage() {
                 className={`mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl ${
                   card.accent === 'success'
                     ? 'bg-success/10 text-success'
-                    : 'bg-brand-pale text-brand'
+                    : 'bg-brand-pale text-brand dark:bg-brand/15'
                 }`}
               >
                 <Icon className="h-5 w-5" />
               </span>
-              <p className="text-2xl font-bold text-gray-800">
+              <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">
                 {isLoading || !stats ? (
-                  <Loader2 className="h-6 w-6 animate-spin text-gray-300" />
+                  <Loader2 className="h-6 w-6 animate-spin text-gray-300 dark:text-gray-600" />
                 ) : (
                   card.getValue(stats)
                 )}
               </p>
-              <p className="mt-0.5 text-sm font-medium text-gray-600">{card.label}</p>
-              <p className="text-xs text-gray-400">{card.hint}</p>
+              <p className="mt-0.5 text-sm font-medium text-gray-600 dark:text-gray-300">{card.label}</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500">{card.hint}</p>
             </Link>
           );
         })}
       </div>
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-        <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-black/5 xl:col-span-2">
+        <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-black/5 xl:col-span-2 dark:bg-gray-900 dark:ring-white/10">
           <div className="mb-4 flex items-baseline justify-between">
-            <h2 className="text-sm font-semibold text-gray-700">
+            <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
               Viajes completados — últimos 14 días
             </h2>
             {stats && (
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-gray-400 dark:text-gray-500">
                 {stats.tripsCompletedToday} hoy
               </span>
             )}
           </div>
           {isLoading || !stats ? (
             <div className="flex items-center justify-center" style={{ height: CHART_HEIGHT }}>
-              <Loader2 className="h-6 w-6 animate-spin text-gray-300" />
+              <Loader2 className="h-6 w-6 animate-spin text-gray-300 dark:text-gray-600" />
             </div>
           ) : (
             <CompletedTripsChart stats={stats} />
           )}
         </div>
 
-        <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-black/5">
-          <h2 className="mb-4 text-sm font-semibold text-gray-700">Viajes por estado</h2>
+        <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-black/5 dark:bg-gray-900 dark:ring-white/10">
+          <h2 className="mb-4 text-sm font-semibold text-gray-700 dark:text-gray-200">Viajes por estado</h2>
           {isLoading || !stats ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-6 w-6 animate-spin text-gray-300" />
+              <Loader2 className="h-6 w-6 animate-spin text-gray-300 dark:text-gray-600" />
             </div>
           ) : (
             <ul className="flex flex-col gap-3">
@@ -304,13 +304,13 @@ export function AdminDashboardPage() {
                   <li key={row.status}>
                     <Link
                       to={`/admin/trips?status=${row.status}`}
-                      className="group block rounded-lg p-1 transition hover:bg-gray-50"
+                      className="group block rounded-lg p-1 transition hover:bg-gray-50 dark:hover:bg-gray-800"
                     >
                       <div className="mb-1 flex items-center justify-between text-sm">
-                        <span className="text-gray-600 group-hover:text-gray-800">{row.label}</span>
-                        <span className="font-semibold text-gray-800">{count}</span>
+                        <span className="text-gray-600 group-hover:text-gray-800 dark:text-gray-300 dark:group-hover:text-gray-100">{row.label}</span>
+                        <span className="font-semibold text-gray-800 dark:text-gray-100">{count}</span>
                       </div>
-                      <div className="h-2 overflow-hidden rounded-full bg-gray-100">
+                      <div className="h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
                         <div
                           className="h-full rounded-full bg-brand transition-all"
                           style={{ width: `${(count / maxStatusCount) * 100}%` }}
@@ -320,7 +320,7 @@ export function AdminDashboardPage() {
                   </li>
                 );
               })}
-              <li className="mt-1 border-t border-gray-100 pt-3 text-right text-xs text-gray-400">
+              <li className="mt-1 border-t border-gray-100 pt-3 text-right text-xs text-gray-400 dark:border-gray-800 dark:text-gray-500">
                 {stats.totalTrips} viajes en total
               </li>
             </ul>

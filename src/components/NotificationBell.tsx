@@ -100,7 +100,7 @@ export function NotificationBell({ align = 'right' }: NotificationBellProps) {
         type="button"
         onClick={() => setIsOpen((open) => !open)}
         aria-label="Notificaciones"
-        className="relative rounded-md p-1.5 text-gray-600 hover:bg-gray-100"
+        className="relative rounded-md p-1.5 text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
       >
         <Bell className="h-5 w-5" />
         {unreadCount > 0 && (
@@ -112,12 +112,12 @@ export function NotificationBell({ align = 'right' }: NotificationBellProps) {
 
       {isOpen && (
         <div
-          className={`absolute top-full z-30 mt-2 w-80 max-w-[90vw] rounded-2xl bg-white p-3 shadow-lg ${
+          className={`absolute top-full z-30 mt-2 w-80 max-w-[90vw] rounded-2xl bg-white p-3 shadow-lg dark:bg-gray-900 ${
             align === 'left' ? 'left-0' : 'right-0'
           }`}
         >
           <div className="mb-2 flex items-center justify-between px-1">
-            <p className="text-sm font-semibold text-gray-800">Notificaciones</p>
+            <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">Notificaciones</p>
             {unreadCount > 0 && (
               <button
                 type="button"
@@ -131,9 +131,9 @@ export function NotificationBell({ align = 'right' }: NotificationBellProps) {
 
           <div className="max-h-80 overflow-y-auto">
             {notifications === null ? (
-              <p className="py-6 text-center text-sm text-gray-400">Cargando...</p>
+              <p className="py-6 text-center text-sm text-gray-400 dark:text-gray-500">Cargando...</p>
             ) : notifications.length === 0 ? (
-              <p className="py-6 text-center text-sm text-gray-400">No tienes notificaciones.</p>
+              <p className="py-6 text-center text-sm text-gray-400 dark:text-gray-500">No tienes notificaciones.</p>
             ) : (
               <ul className="flex flex-col gap-1">
                 {notifications.map((notification) => (
@@ -141,8 +141,8 @@ export function NotificationBell({ align = 'right' }: NotificationBellProps) {
                     <button
                       type="button"
                       onClick={() => handleNotificationClick(notification)}
-                      className={`flex w-full items-start gap-2 rounded-lg px-2 py-2 text-left transition hover:bg-cream/70 ${
-                        notification.read ? '' : 'bg-brand-pale/40'
+                      className={`flex w-full items-start gap-2 rounded-lg px-2 py-2 text-left transition hover:bg-cream/70 dark:hover:bg-gray-800 ${
+                        notification.read ? '' : 'bg-brand-pale/40 dark:bg-brand/15'
                       }`}
                     >
                       <span
@@ -151,13 +151,13 @@ export function NotificationBell({ align = 'right' }: NotificationBellProps) {
                         }`}
                       />
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-medium text-gray-800">
+                        <span className="block truncate text-sm font-medium text-gray-800 dark:text-gray-100">
                           {notification.title}
                         </span>
-                        <span className="block whitespace-normal break-words text-xs text-gray-500">
+                        <span className="block whitespace-normal break-words text-xs text-gray-500 dark:text-gray-400">
                           {notification.body}
                         </span>
-                        <span className="block text-[11px] text-gray-400">
+                        <span className="block text-[11px] text-gray-400 dark:text-gray-500">
                           {formatRelativeTime(notification.createdAt)}
                         </span>
                       </span>

@@ -1,5 +1,6 @@
 import { GoogleLogin } from '@react-oauth/google';
 import { toast } from 'sonner';
+import { useTheme } from '../hooks/useTheme';
 
 interface GoogleSignInButtonProps {
   onCredential: (idToken: string) => void;
@@ -7,6 +8,7 @@ interface GoogleSignInButtonProps {
 
 export function GoogleSignInButton({ onCredential }: GoogleSignInButtonProps) {
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+  const { theme } = useTheme();
 
   if (!clientId) {
     return (
@@ -14,7 +16,7 @@ export function GoogleSignInButton({ onCredential }: GoogleSignInButtonProps) {
         type="button"
         disabled
         title="Falta configurar VITE_GOOGLE_CLIENT_ID"
-        className="w-full cursor-not-allowed rounded-lg border border-gray-300 bg-gray-50 py-2.5 text-sm text-gray-400"
+        className="w-full cursor-not-allowed rounded-lg border border-gray-300 bg-gray-50 py-2.5 text-sm text-gray-400 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-500"
       >
         Continuar con Google
       </button>
@@ -33,6 +35,7 @@ export function GoogleSignInButton({ onCredential }: GoogleSignInButtonProps) {
       }}
       width="336"
       text="continue_with"
+      theme={theme === 'dark' ? 'filled_black' : 'outline'}
     />
   );
 }

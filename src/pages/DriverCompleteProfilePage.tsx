@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { AccountSwitchHeader } from '../components/AccountSwitchHeader';
 import { CloudinaryFileInput } from '../components/CloudinaryFileInput';
+import { ThemeToggle } from '../components/ThemeToggle';
 import { completeDriverProfile } from '../api/drivers';
 import { isCloudinaryConfigured } from '../api/cloudinary';
 import { translateCompleteDriverProfileError } from '../api/driverErrorMessages';
@@ -60,31 +61,36 @@ export function DriverCompleteProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-cream p-4">
+    <div className="min-h-screen bg-cream p-4 dark:bg-gray-950">
       <div className="mx-auto max-w-md">
-        <AccountSwitchHeader />
-        <h1 className="mb-1 text-xl font-bold text-gray-800">Completa tu perfil de conductor</h1>
-        <p className="mb-4 text-sm text-gray-600">
+        <div className="mb-4 flex items-center gap-3">
+          <div className="flex-1">
+            <AccountSwitchHeader />
+          </div>
+          <ThemeToggle />
+        </div>
+        <h1 className="mb-1 text-xl font-bold text-gray-800 dark:text-gray-100">Completa tu perfil de conductor</h1>
+        <p className="mb-4 text-sm text-gray-600 dark:text-gray-300">
           Necesitamos estos datos y documentos para verificar tu cuenta antes de que puedas
           recibir viajes.
         </p>
 
         {!isCloudinaryConfigured() && (
-          <div className="mb-4 rounded-lg bg-yellow-100 p-3 text-sm text-yellow-800">
+          <div className="mb-4 rounded-lg bg-yellow-100 p-3 text-sm text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
             Falta configurar Cloudinary (VITE_CLOUDINARY_CLOUD_NAME / VITE_CLOUDINARY_UPLOAD_PRESET).
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="rounded-2xl bg-white p-4 shadow-sm">
-            <p className="mb-3 text-sm font-semibold text-gray-700">Datos del vehículo</p>
+          <div className="rounded-2xl bg-white p-4 shadow-sm dark:bg-gray-900">
+            <p className="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-200">Datos del vehículo</p>
 
-            <div className="mb-3 grid grid-cols-2 gap-2 rounded-xl bg-gray-100 p-1">
+            <div className="mb-3 grid grid-cols-2 gap-2 rounded-xl bg-gray-100 p-1 dark:bg-gray-800">
               <button
                 type="button"
                 onClick={() => setVehicleType('car')}
                 className={`rounded-lg py-2 text-sm font-medium transition ${
-                  vehicleType === 'car' ? 'bg-brand text-white shadow' : 'text-gray-600'
+                  vehicleType === 'car' ? 'bg-brand text-white shadow' : 'text-gray-600 dark:text-gray-300'
                 }`}
               >
                 Carro
@@ -93,7 +99,7 @@ export function DriverCompleteProfilePage() {
                 type="button"
                 onClick={() => setVehicleType('motorcycle')}
                 className={`rounded-lg py-2 text-sm font-medium transition ${
-                  vehicleType === 'motorcycle' ? 'bg-brand text-white shadow' : 'text-gray-600'
+                  vehicleType === 'motorcycle' ? 'bg-brand text-white shadow' : 'text-gray-600 dark:text-gray-300'
                 }`}
               >
                 Motocicleta
@@ -102,7 +108,7 @@ export function DriverCompleteProfilePage() {
 
             <div className="flex flex-col gap-3">
               <div>
-                <label htmlFor="licenseNumber" className="mb-1 block text-sm font-medium text-gray-700">
+                <label htmlFor="licenseNumber" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
                   Número de licencia
                 </label>
                 <input
@@ -111,13 +117,13 @@ export function DriverCompleteProfilePage() {
                   required
                   value={licenseNumber}
                   onChange={(event) => setLicenseNumber(event.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label htmlFor="brand" className="mb-1 block text-sm font-medium text-gray-700">
+                  <label htmlFor="brand" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
                     Marca
                   </label>
                   <input
@@ -126,11 +132,11 @@ export function DriverCompleteProfilePage() {
                     required
                     value={brand}
                     onChange={(event) => setBrand(event.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500"
                   />
                 </div>
                 <div>
-                  <label htmlFor="model" className="mb-1 block text-sm font-medium text-gray-700">
+                  <label htmlFor="model" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
                     Modelo
                   </label>
                   <input
@@ -139,14 +145,14 @@ export function DriverCompleteProfilePage() {
                     required
                     value={model}
                     onChange={(event) => setModel(event.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label htmlFor="year" className="mb-1 block text-sm font-medium text-gray-700">
+                  <label htmlFor="year" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
                     Año
                   </label>
                   <input
@@ -155,11 +161,11 @@ export function DriverCompleteProfilePage() {
                     required
                     value={year}
                     onChange={(event) => setYear(event.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500"
                   />
                 </div>
                 <div>
-                  <label htmlFor="color" className="mb-1 block text-sm font-medium text-gray-700">
+                  <label htmlFor="color" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
                     Color
                   </label>
                   <input
@@ -168,11 +174,11 @@ export function DriverCompleteProfilePage() {
                     required
                     value={color}
                     onChange={(event) => setColor(event.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500"
                   />
                 </div>
                 <div>
-                  <label htmlFor="plate" className="mb-1 block text-sm font-medium text-gray-700">
+                  <label htmlFor="plate" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
                     Placa
                   </label>
                   <input
@@ -181,15 +187,15 @@ export function DriverCompleteProfilePage() {
                     required
                     value={plate}
                     onChange={(event) => setPlate(event.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500"
                   />
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="rounded-2xl bg-white p-4 shadow-sm">
-            <p className="mb-3 text-sm font-semibold text-gray-700">Documentos y foto</p>
+          <div className="rounded-2xl bg-white p-4 shadow-sm dark:bg-gray-900">
+            <p className="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-200">Documentos y foto</p>
             <div className="flex flex-col gap-3">
               <CloudinaryFileInput
                 id="idFrontUrl"

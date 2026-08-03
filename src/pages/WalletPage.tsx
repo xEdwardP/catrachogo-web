@@ -84,15 +84,15 @@ export function WalletPage() {
   const parsedTopupAmount = Number(topupAmount);
 
   return (
-    <div className="min-h-screen bg-cream p-4 lg:p-8">
+    <div className="min-h-screen bg-cream p-4 lg:p-8 dark:bg-gray-950">
       <div className="mx-auto max-w-md lg:max-w-4xl">
         <Link
           to={user ? homePathForRole(user.role) : '/'}
-          className="mb-4 inline-flex items-center gap-1 text-sm text-gray-600 hover:text-gray-800"
+          className="mb-4 inline-flex items-center gap-1 text-sm text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100"
         >
           <ArrowLeft className="h-4 w-4" /> Volver
         </Link>
-        <h1 className="mb-4 text-xl font-bold text-gray-800 lg:mb-6">Mi Wallet</h1>
+        <h1 className="mb-4 text-xl font-bold text-gray-800 lg:mb-6 dark:text-gray-100">Mi Wallet</h1>
 
         <div className="lg:grid lg:grid-cols-3 lg:gap-6">
           <div className="relative mb-4 overflow-hidden rounded-2xl bg-gradient-to-br from-success to-success-dark p-6 text-white shadow-lg shadow-success/20 lg:col-span-3">
@@ -111,8 +111,8 @@ export function WalletPage() {
           </div>
 
           {user?.role === 'passenger' && (
-            <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm lg:col-span-1 lg:mb-0 lg:self-start">
-            <label htmlFor="topup-amount" className="mb-2 block text-sm font-medium text-gray-700">
+            <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm lg:col-span-1 lg:mb-0 lg:self-start dark:bg-gray-900">
+            <label htmlFor="topup-amount" className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-200">
               Recargar con PayPal
             </label>
             <input
@@ -122,7 +122,7 @@ export function WalletPage() {
               step="0.01"
               value={topupAmount}
               onChange={(event) => setTopupAmount(event.target.value)}
-              className="mb-3 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+              className="mb-3 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
             />
             <PayPalTopupButtons
               amount={parsedTopupAmount}
@@ -135,19 +135,19 @@ export function WalletPage() {
         )}
 
           {user?.role === 'driver' && (
-          <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm lg:col-span-1 lg:mb-0 lg:self-start">
+          <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm lg:col-span-1 lg:mb-0 lg:self-start dark:bg-gray-900">
             {!showWithdrawalForm ? (
               <button
                 type="button"
                 onClick={() => setShowWithdrawalForm(true)}
-                className="w-full rounded-lg border border-gray-300 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                className="w-full rounded-lg border border-gray-300 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800"
               >
                 Solicitar retiro
               </button>
             ) : (
               <form onSubmit={handleWithdrawalSubmit} className="flex flex-col gap-3">
                 <div>
-                  <label htmlFor="withdrawal-email" className="mb-1 block text-xs font-medium text-gray-600">
+                  <label htmlFor="withdrawal-email" className="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-300">
                     Correo de PayPal
                   </label>
                   <input
@@ -156,11 +156,11 @@ export function WalletPage() {
                     required
                     value={withdrawalEmail}
                     onChange={(event) => setWithdrawalEmail(event.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
                   />
                 </div>
                 <div>
-                  <label htmlFor="withdrawal-amount" className="mb-1 block text-xs font-medium text-gray-600">
+                  <label htmlFor="withdrawal-amount" className="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-300">
                     Monto (L.)
                   </label>
                   <input
@@ -171,14 +171,14 @@ export function WalletPage() {
                     required
                     value={withdrawalAmount}
                     onChange={(event) => setWithdrawalAmount(event.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
                   />
                 </div>
                 <div className="flex gap-2">
                   <button
                     type="button"
                     onClick={() => setShowWithdrawalForm(false)}
-                    className="flex-1 rounded-lg border border-gray-300 py-2 text-sm text-gray-600"
+                    className="flex-1 rounded-lg border border-gray-300 py-2 text-sm text-gray-600 dark:border-gray-600 dark:text-gray-300"
                   >
                     Cancelar
                   </button>
@@ -195,17 +195,17 @@ export function WalletPage() {
           </div>
           )}
 
-          <div className="rounded-2xl bg-white p-4 shadow-sm lg:col-span-2">
-            <p className="mb-3 text-sm font-semibold text-gray-700">Historial de movimientos</p>
+          <div className="rounded-2xl bg-white p-4 shadow-sm lg:col-span-2 dark:bg-gray-900">
+            <p className="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-200">Historial de movimientos</p>
           {isLoadingTransactions ? (
-            <p className="text-sm text-gray-400">Cargando...</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500">Cargando...</p>
           ) : transactions.length === 0 ? (
             <div className="flex flex-col items-center gap-2 py-8 text-center">
               <span className="flex h-12 w-12 items-center justify-center rounded-full bg-success/10 text-success">
                 <ArrowDownCircle className="h-6 w-6" />
               </span>
-              <p className="text-sm font-medium text-gray-600">Todavía no tienes movimientos</p>
-              <p className="text-xs text-gray-400">
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Todavía no tienes movimientos</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500">
                 {user?.role === 'passenger'
                   ? 'Recarga tu wallet para empezar a usar CatrachoGo.'
                   : 'Aquí verás tus ganancias y retiros.'}
@@ -216,7 +216,7 @@ export function WalletPage() {
               {transactions.map((tx) => (
                 <li
                   key={tx.id}
-                  className="flex items-center justify-between border-b border-gray-100 pb-2 last:border-0"
+                  className="flex items-center justify-between border-b border-gray-100 pb-2 last:border-0 dark:border-gray-800"
                 >
                   <div className="flex items-center gap-2">
                     {tx.amount >= 0 ? (
@@ -225,8 +225,8 @@ export function WalletPage() {
                       <ArrowUpCircle className="h-5 w-5 text-red-500" />
                     )}
                     <div>
-                      <p className="text-sm text-gray-800">{WALLET_TRANSACTION_LABELS[tx.type] ?? tx.type}</p>
-                      <p className="text-xs text-gray-400">
+                      <p className="text-sm text-gray-800 dark:text-gray-100">{WALLET_TRANSACTION_LABELS[tx.type] ?? tx.type}</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500">
                         {new Date(tx.createdAt).toLocaleDateString('es-HN')}
                       </p>
                     </div>
@@ -246,18 +246,18 @@ export function WalletPage() {
                 type="button"
                 onClick={() => goToPage(Math.max(1, page - 1))}
                 disabled={page <= 1}
-                className="text-gray-600 disabled:opacity-40"
+                className="text-gray-600 disabled:opacity-40 dark:text-gray-300"
               >
                 Anterior
               </button>
-              <span className="text-gray-400">
+              <span className="text-gray-400 dark:text-gray-500">
                 Página {page} de {totalPages}
               </span>
               <button
                 type="button"
                 onClick={() => goToPage(Math.min(totalPages, page + 1))}
                 disabled={page >= totalPages}
-                className="text-gray-600 disabled:opacity-40"
+                className="text-gray-600 disabled:opacity-40 dark:text-gray-300"
               >
                 Siguiente
               </button>

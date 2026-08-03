@@ -73,8 +73,8 @@ function FareEstimatePanel({ origin, destination, durationText, onResult }: Fare
   if (status === 'error') return null;
 
   return (
-    <div className="mb-4 flex items-center justify-between rounded-lg bg-brand-pale px-3 py-2">
-      <span className="text-sm text-gray-600">Tarifa estimada</span>
+    <div className="mb-4 flex items-center justify-between rounded-lg bg-brand-pale px-3 py-2 dark:bg-brand/15">
+      <span className="text-sm text-gray-600 dark:text-gray-300">Tarifa estimada</span>
       {status === 'loading' ? (
         <Loader2 className="h-4 w-4 animate-spin text-success" />
       ) : (
@@ -250,7 +250,7 @@ export function RequestTripPage() {
     );
 
     return (
-      <div className="relative min-h-screen overflow-hidden bg-cream p-4 lg:p-8 xl:p-10">
+      <div className="relative min-h-screen overflow-hidden bg-cream p-4 lg:p-8 xl:p-10 dark:bg-gray-950">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute -left-32 -top-32 h-96 w-96 rounded-full bg-brand/10 blur-3xl"
@@ -262,7 +262,7 @@ export function RequestTripPage() {
         <div className="relative mx-auto max-w-md lg:max-w-none">
           <div className="mb-4 flex items-center justify-between gap-2 lg:mb-6">
             <div className="flex min-w-0 items-center gap-3">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-brand-pale text-sm font-bold text-brand shadow-sm ring-2 ring-white">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-brand-pale text-sm font-bold text-brand shadow-sm ring-2 ring-white dark:bg-brand/15 dark:ring-gray-900">
                 {user?.profilePhotoUrl ? (
                   <img src={user.profilePhotoUrl} alt={user.name} className="h-full w-full object-cover" />
                 ) : (
@@ -271,8 +271,8 @@ export function RequestTripPage() {
               </div>
               <div className="min-w-0">
                 <p className="truncate text-xs font-semibold uppercase tracking-wide text-brand">{getGreeting()}</p>
-                <p className="truncate text-base font-bold leading-tight text-gray-800 lg:text-lg">{firstName}</p>
-                <p className="truncate text-xs capitalize text-gray-400">{dateLabel}</p>
+                <p className="truncate text-base font-bold leading-tight text-gray-800 lg:text-lg dark:text-gray-100">{firstName}</p>
+                <p className="truncate text-xs capitalize text-gray-400 dark:text-gray-500">{dateLabel}</p>
               </div>
             </div>
             <HeaderActionsPill
@@ -282,12 +282,12 @@ export function RequestTripPage() {
             />
           </div>
 
-          <div className="mb-4 flex items-center gap-2.5 rounded-xl bg-white py-1.5 pl-2 pr-3 shadow-sm lg:mb-6">
+          <div className="mb-4 flex items-center gap-2.5 rounded-xl bg-white py-1.5 pl-2 pr-3 shadow-sm lg:mb-6 dark:bg-gray-900">
             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand-dark text-white shadow-sm">
               <Search className="h-3.5 w-3.5" />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">Destino</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">Destino</p>
               <PlacesAutocompleteInput
                 id="destination-search"
                 placeholder="¿A dónde vas?"
@@ -316,9 +316,9 @@ export function RequestTripPage() {
           </div>
 
           <div className="grid gap-4 lg:grid-cols-2 lg:gap-6">
-            <div className="rounded-2xl bg-white p-4 shadow-sm lg:p-5">
+            <div className="rounded-2xl bg-white p-4 shadow-sm lg:p-5 dark:bg-gray-900">
               <div className="mb-3 flex items-center justify-between">
-                <p className="text-sm font-semibold text-gray-700">Direcciones favoritas</p>
+                <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">Direcciones favoritas</p>
                 <button
                   type="button"
                   onClick={() => setShowSaveFavoriteModal(true)}
@@ -328,33 +328,33 @@ export function RequestTripPage() {
                 </button>
               </div>
               {favorites.length === 0 ? (
-                <p className="py-2 text-sm text-gray-400">Aún no tienes direcciones guardadas.</p>
+                <p className="py-2 text-sm text-gray-400 dark:text-gray-500">Aún no tienes direcciones guardadas.</p>
               ) : (
                 <ul className="flex flex-col gap-1">
                   {favorites.map((favorite) => {
                     const Icon = SAVED_ADDRESS_ICONS[favorite.label];
                     return (
-                      <li key={favorite.id} className="flex min-w-0 items-center gap-3 rounded-xl px-1 py-2 transition hover:bg-cream/70 lg:px-2">
+                      <li key={favorite.id} className="flex min-w-0 items-center gap-3 rounded-xl px-1 py-2 transition hover:bg-cream/70 lg:px-2 dark:hover:bg-gray-800">
                         <button
                           type="button"
                           onClick={() => selectDestination({ address: favorite.address, lat: favorite.lat, lng: favorite.lng })}
                           className="flex min-w-0 flex-1 items-center gap-3 text-left"
                         >
-                          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-pale text-brand">
+                          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-pale text-brand dark:bg-brand/15">
                             <Icon className="h-4 w-4" />
                           </span>
                           <span className="min-w-0 flex-1">
-                            <span className="block text-sm font-medium text-gray-800">
+                            <span className="block text-sm font-medium text-gray-800 dark:text-gray-100">
                               {savedAddressDisplayLabel(favorite)}
                             </span>
-                            <span className="block truncate text-xs text-gray-500">{favorite.address}</span>
+                            <span className="block truncate text-xs text-gray-500 dark:text-gray-400">{favorite.address}</span>
                           </span>
                         </button>
                         <button
                           type="button"
                           onClick={() => handleDeleteFavorite(favorite.id)}
                           aria-label="Eliminar dirección favorita"
-                          className="shrink-0 rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-red-500"
+                          className="shrink-0 rounded-md p-1.5 text-gray-400 hover:bg-gray-100 hover:text-red-500 dark:text-gray-500 dark:hover:bg-gray-800"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -365,34 +365,34 @@ export function RequestTripPage() {
               )}
             </div>
 
-            <div className="rounded-2xl bg-white p-4 shadow-sm lg:p-5">
-              <p className="mb-3 text-sm font-semibold text-gray-700">Destinos recientes</p>
+            <div className="rounded-2xl bg-white p-4 shadow-sm lg:p-5 dark:bg-gray-900">
+              <p className="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-200">Destinos recientes</p>
               {recentDestinations.length === 0 ? (
-                <p className="py-2 text-sm text-gray-400">Tus viajes recientes aparecerán aquí.</p>
+                <p className="py-2 text-sm text-gray-400 dark:text-gray-500">Tus viajes recientes aparecerán aquí.</p>
               ) : visibleRecentDestinations.length === 0 ? (
-                <p className="py-2 text-sm text-gray-400">Ocultaste todos tus destinos recientes.</p>
+                <p className="py-2 text-sm text-gray-400 dark:text-gray-500">Ocultaste todos tus destinos recientes.</p>
               ) : (
                 <ul className="flex flex-col gap-1">
                   {visibleRecentDestinations.map((place) => (
                     <li
                       key={place.address}
-                      className="flex min-w-0 items-center rounded-xl transition hover:bg-cream/70"
+                      className="flex min-w-0 items-center rounded-xl transition hover:bg-cream/70 dark:hover:bg-gray-800"
                     >
                       <button
                         type="button"
                         onClick={() => selectDestination(place)}
                         className="flex min-w-0 flex-1 items-center gap-3 px-1 py-2 text-left lg:px-2"
                       >
-                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-pale text-brand">
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-pale text-brand dark:bg-brand/15">
                           <MapPin className="h-4 w-4" />
                         </span>
-                        <span className="min-w-0 flex-1 truncate text-sm text-gray-700">{place.address}</span>
+                        <span className="min-w-0 flex-1 truncate text-sm text-gray-700 dark:text-gray-200">{place.address}</span>
                       </button>
                       <button
                         type="button"
                         onClick={() => dismissDestination(place.address)}
                         aria-label="Quitar de la vista"
-                        className="mr-1 shrink-0 rounded-md p-1.5 text-gray-300 hover:bg-gray-100 hover:text-red-500"
+                        className="mr-1 shrink-0 rounded-md p-1.5 text-gray-300 hover:bg-gray-100 hover:text-red-500 dark:text-gray-600 dark:hover:bg-gray-800"
                       >
                         <X className="h-4 w-4" />
                       </button>
@@ -442,7 +442,7 @@ export function RequestTripPage() {
             type="button"
             onClick={() => setStep('home')}
             aria-label="Volver al inicio"
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-white text-gray-600 shadow-md hover:bg-gray-100"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-white text-gray-600 shadow-md hover:bg-gray-100 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800"
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
@@ -469,9 +469,9 @@ export function RequestTripPage() {
       </div>
 
       <div className="absolute inset-x-0 bottom-0 flex justify-center p-0 sm:p-4 lg:static lg:w-[420px] lg:shrink-0 lg:p-0">
-        <div className="w-full rounded-t-2xl bg-white p-4 shadow-lg sm:max-w-md sm:rounded-2xl lg:h-full lg:max-w-none lg:overflow-y-auto lg:rounded-none lg:border-l lg:border-gray-100 lg:p-6 lg:shadow-none">
+        <div className="w-full rounded-t-2xl bg-white p-4 shadow-lg sm:max-w-md sm:rounded-2xl lg:h-full lg:max-w-none lg:overflow-y-auto lg:rounded-none lg:border-l lg:border-gray-100 lg:p-6 lg:shadow-none dark:bg-gray-900 dark:lg:border-gray-800">
           <div className="mb-3">
-            <label htmlFor="origin-input" className="mb-1 flex items-center gap-1 text-xs font-semibold text-gray-500">
+            <label htmlFor="origin-input" className="mb-1 flex items-center gap-1 text-xs font-semibold text-gray-500 dark:text-gray-400">
               <Navigation className="h-3 w-3" /> ORIGEN
             </label>
             <PlacesAutocompleteInput
@@ -488,8 +488,8 @@ export function RequestTripPage() {
           </div>
 
           <div className="mb-3">
-            <p className="mb-1 text-xs font-semibold text-gray-500">DESTINO</p>
-            <p className="text-sm text-gray-800">{destinationInputValue || 'Selecciona un destino'}</p>
+            <p className="mb-1 text-xs font-semibold text-gray-500 dark:text-gray-400">DESTINO</p>
+            <p className="text-sm text-gray-800 dark:text-gray-100">{destinationInputValue || 'Selecciona un destino'}</p>
           </div>
 
           {origin && destination && (

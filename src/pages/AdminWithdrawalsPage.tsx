@@ -40,7 +40,7 @@ function SortableHeader({
       <button
         type="button"
         onClick={() => onSort(field)}
-        className={`flex items-center gap-1 transition ${isActive ? 'text-gray-700' : 'text-gray-400 hover:text-gray-600'}`}
+        className={`flex items-center gap-1 transition ${isActive ? 'text-gray-700 dark:text-gray-200' : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'}`}
       >
         {label}
         <Icon className="h-3 w-3" />
@@ -136,8 +136,8 @@ export function AdminWithdrawalsPage() {
 
   return (
     <AdminLayout>
-      <h1 className="mb-1 text-2xl font-bold text-gray-800">Solicitudes de retiro</h1>
-      <p className="mb-6 text-sm text-gray-500">
+      <h1 className="mb-1 text-2xl font-bold text-gray-800 dark:text-gray-100">Solicitudes de retiro</h1>
+      <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
         Envíos manuales vía PayPal — marca como completado después de transferir directamente.
       </p>
 
@@ -149,7 +149,7 @@ export function AdminWithdrawalsPage() {
               type="button"
               onClick={() => handleStatusChange(tab.value)}
               className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-                status === tab.value ? 'bg-brand text-white' : 'bg-white text-gray-600 hover:bg-gray-100'
+                status === tab.value ? 'bg-brand text-white' : 'bg-white text-gray-600 hover:bg-gray-100 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800'
               }`}
             >
               {tab.label}
@@ -157,20 +157,20 @@ export function AdminWithdrawalsPage() {
           ))}
         </div>
         <div className="relative sm:w-64">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
           <input
             type="search"
             value={search}
             onChange={(event) => handleSearchChange(event.target.value)}
             placeholder="Buscar por conductor o correo"
-            className="w-full rounded-lg border border-gray-200 bg-white py-2 pl-9 pr-3 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            className="w-full rounded-lg border border-gray-200 bg-white py-2 pl-9 pr-3 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
           />
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-2xl bg-white shadow-sm">
+      <div className="overflow-hidden rounded-2xl bg-white shadow-sm dark:bg-gray-900">
         <table className="w-full text-left text-sm">
-          <thead className="border-b border-gray-100 text-xs uppercase text-gray-400">
+          <thead className="border-b border-gray-100 text-xs uppercase text-gray-400 dark:border-gray-800 dark:text-gray-500">
             <tr>
               <th className="px-5 py-3">Conductor</th>
               <th className="px-5 py-3">Correo PayPal</th>
@@ -194,7 +194,7 @@ export function AdminWithdrawalsPage() {
           <tbody>
             {isLoading && (
               <tr>
-                <td colSpan={5} className="px-5 py-8 text-center text-gray-400">
+                <td colSpan={5} className="px-5 py-8 text-center text-gray-400 dark:text-gray-500">
                   <Loader2 className="mx-auto h-5 w-5 animate-spin" />
                 </td>
               </tr>
@@ -219,14 +219,14 @@ export function AdminWithdrawalsPage() {
               <tr
                 key={withdrawal.id}
                 onClick={() => setSelectedWithdrawal(withdrawal)}
-                className="cursor-pointer border-b border-gray-50 transition last:border-0 hover:bg-cream/50"
+                className="cursor-pointer border-b border-gray-50 transition last:border-0 hover:bg-cream/50 dark:border-gray-800 dark:hover:bg-gray-800/50"
               >
-                <td className="px-5 py-3 font-medium text-gray-800">{withdrawal.driver.user.name}</td>
-                <td className="px-5 py-3 text-gray-600">{withdrawal.paypalEmail}</td>
-                <td className="px-5 py-3 font-semibold text-gray-800">
+                <td className="px-5 py-3 font-medium text-gray-800 dark:text-gray-100">{withdrawal.driver.user.name}</td>
+                <td className="px-5 py-3 text-gray-600 dark:text-gray-300">{withdrawal.paypalEmail}</td>
+                <td className="px-5 py-3 font-semibold text-gray-800 dark:text-gray-100">
                   L. {Number(withdrawal.amount).toFixed(2)}
                 </td>
-                <td className="px-5 py-3 text-gray-600">
+                <td className="px-5 py-3 text-gray-600 dark:text-gray-300">
                   {new Date(withdrawal.requestedAt).toLocaleDateString('es-HN')}
                 </td>
                 {status === 'pending' && (
@@ -239,7 +239,7 @@ export function AdminWithdrawalsPage() {
                           handleResolve(withdrawal.id, 'rejected');
                         }}
                         disabled={resolvingId === withdrawal.id}
-                        className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 disabled:opacity-50"
+                        className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 disabled:opacity-50 dark:border-gray-600 dark:text-gray-200"
                       >
                         Rechazar
                       </button>
@@ -263,23 +263,23 @@ export function AdminWithdrawalsPage() {
         </table>
 
         {totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-gray-100 px-5 py-3 text-sm">
+          <div className="flex items-center justify-between border-t border-gray-100 px-5 py-3 text-sm dark:border-gray-800">
             <button
               type="button"
               onClick={() => goToPage(Math.max(1, page - 1))}
               disabled={page <= 1}
-              className="text-gray-600 disabled:opacity-40"
+              className="text-gray-600 disabled:opacity-40 dark:text-gray-300"
             >
               Anterior
             </button>
-            <span className="text-gray-400">
+            <span className="text-gray-400 dark:text-gray-500">
               Página {page} de {totalPages}
             </span>
             <button
               type="button"
               onClick={() => goToPage(Math.min(totalPages, page + 1))}
               disabled={page >= totalPages}
-              className="text-gray-600 disabled:opacity-40"
+              className="text-gray-600 disabled:opacity-40 dark:text-gray-300"
             >
               Siguiente
             </button>

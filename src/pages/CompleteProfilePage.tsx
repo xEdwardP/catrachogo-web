@@ -38,15 +38,15 @@ export function CompleteProfilePage() {
   return (
     <AuthLayout>
       <AccountSwitchHeader />
-      <h2 className="mb-2 text-center text-lg font-semibold text-gray-800">Completa tu perfil</h2>
-      <p className="mb-6 text-center text-sm text-gray-500">
+      <h2 className="mb-2 text-center text-lg font-semibold text-gray-800 dark:text-gray-100">Completa tu perfil</h2>
+      <p className="mb-6 text-center text-sm text-gray-500 dark:text-gray-400">
         Hola{user?.name ? `, ${user.name}` : ''}. Necesitamos tu número de teléfono para poder
         conectarte con {user?.role === 'driver' ? 'pasajeros' : 'un conductor'}.
       </p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div>
-          <label htmlFor="phone" className="mb-1 block text-sm font-medium text-gray-700">
+          <label htmlFor="phone" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
             Teléfono
           </label>
           <input
@@ -58,7 +58,7 @@ export function CompleteProfilePage() {
             placeholder="99998888"
             value={phone}
             onChange={(event) => setPhone(sanitizePhoneInput(event.target.value))}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500"
           />
         </div>
 

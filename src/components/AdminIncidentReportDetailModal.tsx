@@ -17,38 +17,38 @@ export function AdminIncidentReportDetailModal({
 }: AdminIncidentReportDetailModalProps) {
   return (
     <div className="fixed inset-0 z-30 flex items-center justify-center bg-black/40 p-4">
-      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
+      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-xl dark:bg-gray-900">
         <div className="mb-4 flex items-start justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-gray-800">
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
               {INCIDENT_REPORT_CATEGORY_LABELS[report.category]}
             </h2>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               {new Date(report.createdAt).toLocaleString('es-HN')}
             </p>
           </div>
-          <button type="button" onClick={onClose} aria-label="Cerrar" className="text-gray-400 hover:text-gray-600">
+          <button type="button" onClick={onClose} aria-label="Cerrar" className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300">
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        <div className="mb-5 rounded-xl bg-cream p-4">
-          <p className="mb-1 text-xs font-semibold text-gray-500">DESCRIPCIÓN</p>
-          <p className="whitespace-pre-wrap text-sm text-gray-800">{report.description}</p>
+        <div className="mb-5 rounded-xl bg-cream p-4 dark:bg-gray-800">
+          <p className="mb-1 text-xs font-semibold text-gray-500 dark:text-gray-400">DESCRIPCIÓN</p>
+          <p className="whitespace-pre-wrap text-sm text-gray-800 dark:text-gray-100">{report.description}</p>
         </div>
 
         <div className="mb-6 grid grid-cols-2 gap-3 text-sm sm:grid-cols-3">
           <div>
-            <p className="text-xs text-gray-500">Reportado por</p>
-            <p className="font-medium text-gray-800">{report.reporter.name}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Reportado por</p>
+            <p className="font-medium text-gray-800 dark:text-gray-100">{report.reporter.name}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Conductor reportado</p>
-            <p className="font-medium text-gray-800">{report.reportedDriver?.name ?? '—'}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Conductor reportado</p>
+            <p className="font-medium text-gray-800 dark:text-gray-100">{report.reportedDriver?.name ?? '—'}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Viaje</p>
-            <p className="font-medium text-gray-800">{report.trip?.destinationAddress ?? '—'}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Viaje</p>
+            <p className="font-medium text-gray-800 dark:text-gray-100">{report.trip?.destinationAddress ?? '—'}</p>
           </div>
         </div>
 
@@ -62,7 +62,7 @@ export function AdminIncidentReportDetailModal({
             Marcar revisado
           </button>
         ) : (
-          <p className="text-center text-sm text-gray-500">Este reporte ya fue revisado.</p>
+          <p className="text-center text-sm text-gray-500 dark:text-gray-400">Este reporte ya fue revisado.</p>
         )}
       </div>
     </div>

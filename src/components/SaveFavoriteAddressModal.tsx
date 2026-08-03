@@ -56,23 +56,23 @@ export function SaveFavoriteAddressModal({
 
   return (
     <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-lg">
+      <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-lg dark:bg-gray-900">
         <button
           type="button"
           onClick={onDismiss}
           aria-label="Cerrar"
-          className="float-right text-gray-400 hover:text-gray-600"
+          className="float-right text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
         >
           <X className="h-5 w-5" />
         </button>
 
-        <h2 className="mb-4 text-lg font-semibold text-gray-800">Guardar dirección favorita</h2>
+        <h2 className="mb-4 text-lg font-semibold text-gray-800 dark:text-gray-100">Guardar dirección favorita</h2>
 
         <div className="mb-4">
-          <label htmlFor="favorite-address" className="mb-1 block text-xs font-semibold text-gray-500">
+          <label htmlFor="favorite-address" className="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400">
             DIRECCIÓN
           </label>
-          <div className="rounded-lg border border-gray-300 p-1">
+          <div className="rounded-lg border border-gray-300 p-1 dark:border-gray-600">
             <PlacesAutocompleteInput
               id="favorite-address"
               placeholder="Busca una dirección"
@@ -92,12 +92,12 @@ export function SaveFavoriteAddressModal({
           </button>
         </div>
 
-        <p className="mb-2 text-xs font-semibold text-gray-500">ETIQUETA</p>
+        <p className="mb-2 text-xs font-semibold text-gray-500 dark:text-gray-400">ETIQUETA</p>
         <div className="mb-4 flex flex-col gap-2">
           {LABEL_OPTIONS.map((value) => (
             <label
               key={value}
-              className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700 has-[:checked]:border-brand has-[:checked]:bg-brand-pale"
+              className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700 has-[:checked]:border-brand has-[:checked]:bg-brand-pale dark:border-gray-700 dark:text-gray-200 dark:has-[:checked]:bg-brand/15"
             >
               <input
                 type="radio"
@@ -114,7 +114,7 @@ export function SaveFavoriteAddressModal({
 
         {label === 'other' && (
           <div className="mb-5">
-            <label htmlFor="favorite-custom-label" className="mb-1 block text-xs font-semibold text-gray-500">
+            <label htmlFor="favorite-custom-label" className="mb-1 block text-xs font-semibold text-gray-500 dark:text-gray-400">
               NOMBRE
             </label>
             <input
@@ -123,7 +123,7 @@ export function SaveFavoriteAddressModal({
               value={customLabel}
               onChange={(event) => setCustomLabel(event.target.value)}
               placeholder="Ej. Gimnasio"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500"
             />
           </div>
         )}
@@ -133,7 +133,7 @@ export function SaveFavoriteAddressModal({
             type="button"
             onClick={onDismiss}
             disabled={isSubmitting}
-            className="flex-1 rounded-lg border border-gray-300 py-2.5 text-sm font-medium text-gray-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex-1 rounded-lg border border-gray-300 py-2.5 text-sm font-medium text-gray-700 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-600 dark:text-gray-200"
           >
             Cancelar
           </button>

@@ -60,7 +60,7 @@ export function LoginPage() {
     <AuthLayout>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div>
-          <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700">
+          <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
             Correo
           </label>
           <input
@@ -70,7 +70,7 @@ export function LoginPage() {
             autoComplete="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500"
           />
         </div>
 
@@ -92,15 +92,15 @@ export function LoginPage() {
         </button>
       </form>
 
-      <div className="my-5 flex items-center gap-3 text-xs text-gray-400">
-        <div className="h-px flex-1 bg-gray-200" />
+      <div className="my-5 flex items-center gap-3 text-xs text-gray-400 dark:text-gray-500">
+        <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
         o
-        <div className="h-px flex-1 bg-gray-200" />
+        <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
       </div>
 
       <GoogleSignInButton onCredential={handleGoogleCredential} />
 
-      <p className="mt-6 text-center text-sm text-gray-500">
+      <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
         ¿No tienes cuenta?{' '}
         <Link to="/register" className="font-medium text-brand hover:underline">
           Crear cuenta

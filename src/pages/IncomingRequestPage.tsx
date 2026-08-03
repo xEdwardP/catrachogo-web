@@ -63,7 +63,7 @@ export function IncomingRequestPage() {
   const isUrgent = secondsLeft <= URGENT_THRESHOLD_SECONDS;
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-cream p-4 lg:p-8">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-cream p-4 lg:p-8 dark:bg-gray-950">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -left-24 -top-24 h-80 w-80 rounded-full bg-brand/10 blur-3xl"
@@ -74,7 +74,7 @@ export function IncomingRequestPage() {
       />
 
       <div className="relative mx-auto w-full max-w-md lg:max-w-lg">
-        <div className="overflow-hidden rounded-3xl bg-white shadow-2xl shadow-black/10 ring-1 ring-black/5">
+        <div className="overflow-hidden rounded-3xl bg-white shadow-2xl shadow-black/10 ring-1 ring-black/5 dark:bg-gray-900 dark:ring-white/10">
           <div
             className={`relative px-5 py-4 text-white transition-colors duration-500 lg:px-7 ${
               isUrgent ? 'bg-gradient-to-r from-red-500 to-red-600' : 'bg-gradient-to-r from-brand to-brand-dark'
@@ -111,41 +111,41 @@ export function IncomingRequestPage() {
 
           <div className="p-5 lg:p-7">
             <div className="mb-5 flex items-center gap-3">
-              <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-brand-pale text-base font-bold text-brand ring-4 ring-brand-pale/60">
+              <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-brand-pale text-base font-bold text-brand ring-4 ring-brand-pale/60 dark:bg-brand/15 dark:ring-brand/15">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand/20" />
                 <span className="relative">{request?.passengerName?.charAt(0).toUpperCase() ?? '?'}</span>
               </div>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-base font-semibold text-gray-800">
+                <p className="truncate text-base font-semibold text-gray-800 dark:text-gray-100">
                   {request?.passengerName ?? 'Pasajero'}
                 </p>
-                <div className="mt-0.5 flex items-center gap-1 text-xs text-gray-500">
-                  <Navigation className="h-3 w-3 text-gray-400" />
+                <div className="mt-0.5 flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                  <Navigation className="h-3 w-3 text-gray-400 dark:text-gray-500" />
                   {request ? `${request.distanceKm.toFixed(1)} km de distancia` : ''}
                 </div>
               </div>
             </div>
 
             <div className="mb-5 flex flex-col gap-3 lg:grid lg:grid-cols-2">
-              <div className="flex items-start gap-2.5 rounded-xl bg-brand-pale px-3.5 py-3">
-                <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/70 text-brand">
+              <div className="flex items-start gap-2.5 rounded-xl bg-brand-pale px-3.5 py-3 dark:bg-brand/15">
+                <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/70 text-brand dark:bg-gray-900/50">
                   <MapPin className="h-3.5 w-3.5" />
                 </span>
                 <div className="min-w-0">
-                  <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">Recoger en</p>
-                  <p className="truncate text-sm text-gray-800">{request?.originAddress ?? '—'}</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Recoger en</p>
+                  <p className="truncate text-sm text-gray-800 dark:text-gray-100">{request?.originAddress ?? '—'}</p>
                 </div>
               </div>
 
               <div className="flex items-center gap-2.5 rounded-xl bg-success/10 px-3.5 py-3">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/70 text-success">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/70 text-success dark:bg-gray-900/50">
                   <DollarSign className="h-3.5 w-3.5" />
                 </span>
                 <div className="min-w-0">
-                  <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">Tarifa</p>
-                  <p className="text-base font-bold text-gray-800">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Tarifa</p>
+                  <p className="text-base font-bold text-gray-800 dark:text-gray-100">
                     {request ? `L. ${request.fare.toFixed(2)}` : '—'}
-                    {request && <span className="ml-1 text-xs font-medium text-gray-500">· {request.distanceKm.toFixed(1)} km</span>}
+                    {request && <span className="ml-1 text-xs font-medium text-gray-500 dark:text-gray-400">· {request.distanceKm.toFixed(1)} km</span>}
                   </p>
                 </div>
               </div>
@@ -156,7 +156,7 @@ export function IncomingRequestPage() {
                 type="button"
                 onClick={handleReject}
                 disabled={isResponding}
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-gray-300 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-gray-300 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800"
               >
                 <X className="h-4 w-4" /> Rechazar
               </button>

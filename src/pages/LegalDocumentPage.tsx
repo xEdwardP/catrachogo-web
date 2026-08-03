@@ -21,10 +21,10 @@ export function LegalDocumentPage() {
       <div className="flex flex-col gap-5">
         {document.sections.map((section) => (
           <div key={section.heading}>
-            <h2 className="mb-1.5 text-sm font-semibold text-gray-800">{section.heading}</h2>
+            <h2 className="mb-1.5 text-sm font-semibold text-gray-800 dark:text-gray-100">{section.heading}</h2>
             <div className="flex flex-col gap-1.5">
               {section.body.map((paragraph, index) => (
-                <p key={index} className="text-sm leading-relaxed text-gray-500">
+                <p key={index} className="text-sm leading-relaxed text-gray-500 dark:text-gray-400">
                   {paragraph}
                 </p>
               ))}
