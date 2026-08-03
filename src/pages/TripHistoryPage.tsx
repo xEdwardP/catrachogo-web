@@ -16,7 +16,6 @@ const PAGE_SIZE = 10;
 
 export function TripHistoryPage() {
   const { user } = useAuth();
-  const tripDetailBasePath = user?.role === 'driver' ? '/driver/trips' : '/passenger/trips';
   const [trips, setTrips] = useState<Trip[]>([]);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
@@ -84,10 +83,7 @@ export function TripHistoryPage() {
                   key={trip.id}
                   className="border-b border-gray-100 pb-3 last:border-0 lg:flex lg:items-center lg:gap-4 lg:pb-2.5 dark:border-gray-800"
                 >
-                  <Link
-                    to={`${tripDetailBasePath}/${trip.id}`}
-                    className="-mx-2 block min-w-0 rounded-lg px-2 py-1 transition hover:bg-cream/70 lg:flex lg:min-w-0 lg:flex-1 lg:items-center lg:justify-between lg:gap-4 dark:hover:bg-gray-800"
-                  >
+                  <div className="min-w-0 lg:flex lg:min-w-0 lg:flex-1 lg:items-center lg:justify-between lg:gap-4">
                     <div className="mb-1 flex items-center justify-between lg:mb-0 lg:w-44 lg:shrink-0 lg:gap-3">
                       <span
                         className={`rounded-full px-2 py-0.5 text-xs font-medium ${TRIP_STATUS_COLORS[trip.status]}`}
@@ -101,7 +97,7 @@ export function TripHistoryPage() {
                         {new Date(trip.requestedAt).toLocaleString('es-HN')}
                       </p>
                     )}
-                  </Link>
+                  </div>
                   {user?.role === 'passenger' && trip.driverId && (
                     <button
                       type="button"

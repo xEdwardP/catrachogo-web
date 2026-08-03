@@ -303,11 +303,8 @@ export function DriverHomePage() {
             ) : (
               <ul className="flex flex-col gap-1.5 lg:grid lg:grid-cols-2 lg:gap-2 xl:grid-cols-3">
                 {visibleRecentTrips.map((trip) => (
-                  <li key={trip.id} className="group flex items-center rounded-xl transition hover:bg-cream/70 dark:hover:bg-gray-800">
-                    <Link
-                      to={`/driver/trips/${trip.id}`}
-                      className="-mx-1 flex min-w-0 flex-1 items-center gap-3 px-1 py-2 lg:mx-0 lg:px-2"
-                    >
+                  <li key={trip.id} className="group flex items-center rounded-xl">
+                    <div className="-mx-1 flex min-w-0 flex-1 items-center gap-3 px-1 py-2 lg:mx-0 lg:px-2">
                       <span
                         className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${TRIP_STATUS_COLORS[trip.status]}`}
                       >
@@ -332,7 +329,7 @@ export function DriverHomePage() {
                         </span>
                         <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">L. {trip.fare.toFixed(0)}</span>
                       </div>
-                    </Link>
+                    </div>
                     <button
                       type="button"
                       onClick={() => dismissTrip(trip.id)}
