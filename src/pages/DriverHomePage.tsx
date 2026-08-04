@@ -9,6 +9,7 @@ import { HeaderActionsPill } from '../components/HeaderActionsPill';
 import { LocateMeButton } from '../components/LocateMeButton';
 import { MapAutoRecenter } from '../components/MapAutoRecenter';
 import { MapResizeObserver } from '../components/MapResizeObserver';
+import { TripDetailModal } from '../components/TripDetailModal';
 import { sendDriverLocation } from '../api/tracking';
 import { getApiStatusCode } from '../api/client';
 import { translateAvailabilityError } from '../api/driverErrorMessages';
@@ -18,6 +19,7 @@ import { useGeolocation } from '../hooks/useGeolocation';
 import { useSmoothedPosition } from '../hooks/useSmoothedPosition';
 import { useAuth } from '../hooks/useAuth';
 import { TRIP_STATUS_COLORS, TRIP_STATUS_LABELS } from '../utils/tripStatusLabels';
+import { driverPulseMarkerIcon } from '../utils/mapColors';
 import { getGreeting } from '../utils/greeting';
 import type { DriverSummary } from '../types/driver';
 import type { Trip } from '../types/trip';
@@ -35,6 +37,7 @@ export function DriverHomePage() {
   const [isLoadingSummary, setIsLoadingSummary] = useState(true);
   const [recentTrips, setRecentTrips] = useState<Trip[]>([]);
   const [isLoadingRecentTrips, setIsLoadingRecentTrips] = useState(true);
+  const [viewingTrip, setViewingTrip] = useState<Trip | null>(null);
   const [isAvailable, setIsAvailable] = useState(false);
   const [isTogglingAvailability, setIsTogglingAvailability] = useState(false);
   const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
@@ -193,26 +196,33 @@ export function DriverHomePage() {
             >
               <MapAutoRecenter position={smoothedPosition} zoom={LOCATE_ZOOM} focusKey={locateFocusKey} />
               <MapResizeObserver />
-              {smoothedPosition && <Marker position={smoothedPosition} />}
+              {smoothedPosition && <Marker position={smoothedPosition} icon={driverPulseMarkerIcon()} />}
             </GoogleMap>
+
+            {smoothedPosition && (
+              <span className="absolute bottom-4 left-4 flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-xs font-medium text-gray-700 shadow-md backdrop-blur-sm dark:bg-gray-900/95 dark:text-gray-200">
+                <span className="h-2 w-2 shrink-0 rounded-full bg-blue-600" />
+                Ubicación actual
+              </span>
+            )}
 
             <button
               type="button"
               onClick={handleToggleAvailability}
               disabled={isTogglingAvailability}
               className={`absolute left-4 top-4 z-10 flex items-center gap-3 rounded-2xl bg-white/95 py-4 pl-5 pr-4 text-left shadow-lg backdrop-blur-sm transition disabled:opacity-70 dark:bg-gray-900/95 ${
-                isAvailable ? 'ring-2 ring-success/40' : ''
+                isAvailable ? 'ring-2 ring-blue-600/40' : ''
               }`}
             >
               <span className="relative flex h-3 w-3 shrink-0">
                 {isAvailable && (
                   <>
-                    <span className="absolute inset-0 -m-3 rounded-full bg-success/25 animate-radar-pulse" />
-                    <span className="absolute inset-0 -m-3 rounded-full bg-success/25 animate-radar-pulse [animation-delay:0.9s]" />
+                    <span className="absolute inset-0 -m-3 rounded-full bg-blue-600/25 animate-radar-pulse" />
+                    <span className="absolute inset-0 -m-3 rounded-full bg-blue-600/25 animate-radar-pulse [animation-delay:0.9s]" />
                   </>
                 )}
                 <span
-                  className={`relative inline-flex h-3 w-3 rounded-full ${isAvailable ? 'bg-success' : 'bg-gray-300 dark:bg-gray-600'}`}
+                  className={`relative inline-flex h-3 w-3 rounded-full ${isAvailable ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'}`}
                 />
               </span>
               <span>
@@ -225,7 +235,7 @@ export function DriverHomePage() {
               </span>
               <span
                 className={`ml-1 flex h-6 w-10 shrink-0 items-center rounded-full p-1 transition ${
-                  isAvailable ? 'justify-end bg-success' : 'justify-start bg-gray-200 dark:bg-gray-700'
+                  isAvailable ? 'justify-end bg-blue-600' : 'justify-start bg-gray-200 dark:bg-gray-700'
                 }`}
               >
                 <span className="h-4 w-4 rounded-full bg-white shadow" />
@@ -303,8 +313,12 @@ export function DriverHomePage() {
             ) : (
               <ul className="flex flex-col gap-1.5 lg:grid lg:grid-cols-2 lg:gap-2 xl:grid-cols-3">
                 {visibleRecentTrips.map((trip) => (
-                  <li key={trip.id} className="group flex items-center rounded-xl">
-                    <div className="-mx-1 flex min-w-0 flex-1 items-center gap-3 px-1 py-2 lg:mx-0 lg:px-2">
+                  <li key={trip.id} className="group flex items-center rounded-xl transition hover:bg-cream/70 dark:hover:bg-gray-800">
+                    <button
+                      type="button"
+                      onClick={() => setViewingTrip(trip)}
+                      className="-mx-1 flex min-w-0 flex-1 items-center gap-3 px-1 py-2 text-left lg:mx-0 lg:px-2"
+                    >
                       <span
                         className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${TRIP_STATUS_COLORS[trip.status]}`}
                       >
@@ -329,7 +343,7 @@ export function DriverHomePage() {
                         </span>
                         <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">L. {trip.fare.toFixed(0)}</span>
                       </div>
-                    </div>
+                    </button>
                     <button
                       type="button"
                       onClick={() => dismissTrip(trip.id)}
@@ -345,6 +359,8 @@ export function DriverHomePage() {
           </div>
         </div>
       </div>
+
+      {viewingTrip && <TripDetailModal trip={viewingTrip} onClose={() => setViewingTrip(null)} />}
     </div>
   );
 }

@@ -15,7 +15,8 @@ import { usePolling } from '../hooks/usePolling';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { useSmoothedPosition } from '../hooks/useSmoothedPosition';
 import { useDirectionsRoute } from '../hooks/useDirectionsRoute';
-import { ROUTE_COLOR } from '../utils/mapColors';
+import { ROUTE_COLOR, driverPulseMarkerIcon } from '../utils/mapColors';
+import { SIMULATION_STEP_MS } from '../utils/demoSimulation';
 import { boundsWithPadding, distanceMeters, isPlausibleMovement } from '../utils/geo';
 import { NO_SHOW_GRACE_PERIOD_MS } from '../utils/noShowGracePeriod';
 import { LocateMeButton } from '../components/LocateMeButton';
@@ -27,7 +28,6 @@ import type { TripDetail, TripStatus } from '../types/trip';
 const ARRIVAL_RADIUS_METERS = 150;
 const DEMO_MODE_ENABLED = import.meta.env.VITE_ENABLE_DEMO_MODE === 'true';
 const LOCATE_ZOOM = 16;
-const SIMULATION_STEP_MS = 350;
 const SIMULATION_MAX_STEPS = 24;
 
 function resamplePath(path: { lat: number; lng: number }[], maxPoints: number): { lat: number; lng: number }[] {
@@ -308,8 +308,15 @@ export function DriverTripPage() {
           {route.path && (
             <Polyline path={route.path} strokeColor={ROUTE_COLOR} strokeOpacity={0.9} strokeWeight={4} />
           )}
-          {smoothedPosition && <Marker position={smoothedPosition} />}
+          {smoothedPosition && <Marker position={smoothedPosition} icon={driverPulseMarkerIcon()} />}
         </GoogleMap>
+
+        {smoothedPosition && (
+          <span className="absolute bottom-24 left-4 flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-xs font-medium text-gray-700 shadow-md backdrop-blur-sm sm:bottom-4 dark:bg-gray-900/95 dark:text-gray-200">
+            <span className="h-2 w-2 shrink-0 rounded-full bg-blue-600" />
+            Ubicación actual
+          </span>
+        )}
 
         <LocateMeButton isLoading={isLocating} onClick={handleLocateMe} className="absolute bottom-24 right-4 sm:bottom-4" />
 

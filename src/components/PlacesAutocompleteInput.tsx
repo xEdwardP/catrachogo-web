@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useMapsLibrary } from '@vis.gl/react-google-maps';
 import { useTheme } from '../hooks/useTheme';
+import { boundsWithPadding } from '../utils/geo';
 
 export interface PlaceSelection {
   address: string;
@@ -8,7 +9,7 @@ export interface PlaceSelection {
   lng: number;
 }
 
-const LOCATION_BIAS_RADIUS_METERS = 50000;
+const LOCATION_RESTRICTION_RADIUS_KM = 50;
 
 function applyElementTheme(element: google.maps.places.PlaceAutocompleteElement, theme: 'light' | 'dark') {
   if (theme === 'dark') {
@@ -73,10 +74,7 @@ export function PlacesAutocompleteInput({
     const element = new placesLibrary.PlaceAutocompleteElement({
       includedRegionCodes: ['hn'],
       ...(locationBiasRef.current && {
-        locationBias: {
-          center: locationBiasRef.current,
-          radius: LOCATION_BIAS_RADIUS_METERS,
-        },
+        locationRestriction: boundsWithPadding([locationBiasRef.current], LOCATION_RESTRICTION_RADIUS_KM),
       }),
     });
     element.id = id;
@@ -121,10 +119,7 @@ export function PlacesAutocompleteInput({
 
   useEffect(() => {
     if (elementRef.current && locationBias) {
-      elementRef.current.locationBias = {
-        center: locationBias,
-        radius: LOCATION_BIAS_RADIUS_METERS,
-      };
+      elementRef.current.locationRestriction = boundsWithPadding([locationBias], LOCATION_RESTRICTION_RADIUS_KM);
     }
   }, [locationBias]);
 
