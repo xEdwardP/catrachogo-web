@@ -11,7 +11,8 @@ import { translateCancelTripError, translateEndTripEarlyError } from '../api/tri
 import { usePolling } from '../hooks/usePolling';
 import { useSmoothedPosition } from '../hooks/useSmoothedPosition';
 import { useDirectionsRoute } from '../hooks/useDirectionsRoute';
-import { ROUTE_COLOR } from '../utils/mapColors';
+import { ROUTE_COLOR, originPulseMarkerIcon } from '../utils/mapColors';
+import { SIMULATION_STEP_MS } from '../utils/demoSimulation';
 import { boundsWithPadding, isPlausibleMovement } from '../utils/geo';
 import { RatingModal } from '../components/RatingModal';
 import { CancelTripConfirmModal } from '../components/CancelTripConfirmModal';
@@ -30,6 +31,7 @@ interface TripInProgressLocationState {
 }
 
 const DEFAULT_CENTER = { lat: 15.5, lng: -88.03 };
+const DEMO_MODE_ENABLED = import.meta.env.VITE_ENABLE_DEMO_MODE === 'true';
 
 const STATUS_BANNER: Record<TripStatus, string> = {
   pending: 'Buscando un conductor cercano...',
@@ -88,13 +90,13 @@ export function TripInProgressPage() {
           if (!loc) return;
           const next = { lat: loc.lat, lng: loc.lng, timestampMs: Date.now() };
           const last = lastDriverPositionRef.current;
-          if (last && !isPlausibleMovement(last, next)) return;
+          if (last && !DEMO_MODE_ENABLED && !isPlausibleMovement(last, next)) return;
           lastDriverPositionRef.current = next;
           setDriverPosition({ lat: loc.lat, lng: loc.lng });
         })
         .catch(() => {});
     },
-    4000,
+    DEMO_MODE_ENABLED ? SIMULATION_STEP_MS : 4000,
     Boolean(tripId) && isTrackable,
   );
 
@@ -150,7 +152,7 @@ export function TripInProgressPage() {
     }
   }
 
-  const smoothedDriverPosition = useSmoothedPosition(driverPosition, 3500);
+  const smoothedDriverPosition = useSmoothedPosition(driverPosition, DEMO_MODE_ENABLED ? SIMULATION_STEP_MS : 3000);
 
   const isHeadingToPickup = trip?.status === 'accepted';
   const routeDestinationLat = isHeadingToPickup ? trip?.originLat : trip?.destinationLat;
@@ -219,7 +221,7 @@ export function TripInProgressPage() {
           {route.path && (
             <Polyline path={route.path} strokeColor={ROUTE_COLOR} strokeOpacity={0.9} strokeWeight={4} />
           )}
-          {smoothedDriverPosition && <Marker position={smoothedDriverPosition} />}
+          {smoothedDriverPosition && <Marker position={smoothedDriverPosition} icon={originPulseMarkerIcon()} />}
         </GoogleMap>
       </div>
 

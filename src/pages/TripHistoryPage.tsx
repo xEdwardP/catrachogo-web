@@ -6,6 +6,7 @@ import { getTripHistory } from '../api/trips';
 import { createIncidentReport } from '../api/incidentReports';
 import { translateCreateIncidentReportError } from '../api/incidentReportErrorMessages';
 import { ReportIncidentModal } from '../components/ReportIncidentModal';
+import { TripDetailModal } from '../components/TripDetailModal';
 import { useAuth } from '../hooks/useAuth';
 import { homePathForRole } from '../utils/roleRoutes';
 import { TRIP_STATUS_COLORS, TRIP_STATUS_LABELS } from '../utils/tripStatusLabels';
@@ -22,6 +23,7 @@ export function TripHistoryPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [reportingTripId, setReportingTripId] = useState<string | null>(null);
   const [isSubmittingReport, setIsSubmittingReport] = useState(false);
+  const [viewingTrip, setViewingTrip] = useState<Trip | null>(null);
 
   useEffect(() => {
     getTripHistory(page, PAGE_SIZE)
@@ -83,7 +85,11 @@ export function TripHistoryPage() {
                   key={trip.id}
                   className="border-b border-gray-100 pb-3 last:border-0 lg:flex lg:items-center lg:gap-4 lg:pb-2.5 dark:border-gray-800"
                 >
-                  <div className="min-w-0 lg:flex lg:min-w-0 lg:flex-1 lg:items-center lg:justify-between lg:gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setViewingTrip(trip)}
+                    className="min-w-0 rounded-lg text-left transition hover:bg-cream/70 lg:flex lg:min-w-0 lg:flex-1 lg:items-center lg:justify-between lg:gap-4 dark:hover:bg-gray-800"
+                  >
                     <div className="mb-1 flex items-center justify-between lg:mb-0 lg:w-44 lg:shrink-0 lg:gap-3">
                       <span
                         className={`rounded-full px-2 py-0.5 text-xs font-medium ${TRIP_STATUS_COLORS[trip.status]}`}
@@ -97,7 +103,7 @@ export function TripHistoryPage() {
                         {new Date(trip.requestedAt).toLocaleString('es-HN')}
                       </p>
                     )}
-                  </div>
+                  </button>
                   {user?.role === 'passenger' && trip.driverId && (
                     <button
                       type="button"
@@ -145,6 +151,8 @@ export function TripHistoryPage() {
           onDismiss={() => setReportingTripId(null)}
         />
       )}
+
+      {viewingTrip && <TripDetailModal trip={viewingTrip} onClose={() => setViewingTrip(null)} />}
     </div>
   );
 }
