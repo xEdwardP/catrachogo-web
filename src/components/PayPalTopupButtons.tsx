@@ -25,26 +25,31 @@ export function PayPalTopupButtons({ amount, onSuccess }: PayPalTopupButtonsProp
   }
 
   return (
-    <PayPalButtons
-      style={{ layout: 'horizontal', color: 'blue', label: 'pay' }}
-      forceReRender={[amount]}
-      disabled={!amount || amount <= 0}
-      createOrder={async () => {
-        const { orderId } = await createTopupOrder(amount);
-        return orderId;
-      }}
-      onApprove={async (data) => {
-        try {
-          const result = await confirmTopup(data.orderID);
-          onSuccess(result.balance);
-          toast.success('¡Recarga exitosa!');
-        } catch {
-          toast.error(translateTopupConfirmError());
-        }
-      }}
-      onError={() => {
-        toast.error('Ocurrió un error con PayPal. Intenta de nuevo.');
-      }}
-    />
+    <>
+      <PayPalButtons
+        style={{ layout: 'horizontal', color: 'blue', label: 'pay', tagline: false }}
+        forceReRender={[amount]}
+        disabled={!amount || amount <= 0}
+        createOrder={async () => {
+          const { orderId } = await createTopupOrder(amount);
+          return orderId;
+        }}
+        onApprove={async (data) => {
+          try {
+            const result = await confirmTopup(data.orderID);
+            onSuccess(result.balance);
+            toast.success('¡Recarga exitosa!');
+          } catch {
+            toast.error(translateTopupConfirmError());
+          }
+        }}
+        onError={() => {
+          toast.error('Ocurrió un error con PayPal. Intenta de nuevo.');
+        }}
+      />
+      <p className="mt-1 text-center text-xs text-gray-500 dark:text-gray-400">
+        La forma rápida y segura de pagar.
+      </p>
+    </>
   );
 }

@@ -21,6 +21,7 @@ export function WalletPage() {
   const [isLoadingTransactions, setIsLoadingTransactions] = useState(true);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
+  const [transactionsRefreshKey, setTransactionsRefreshKey] = useState(0);
   const [topupAmount, setTopupAmount] = useState('200');
   const [showWithdrawalForm, setShowWithdrawalForm] = useState(false);
   const [withdrawalEmail, setWithdrawalEmail] = useState('');
@@ -51,7 +52,13 @@ export function WalletPage() {
       })
       .catch(() => toast.error('No se pudo cargar el historial.'))
       .finally(() => setIsLoadingTransactions(false));
-  }, [page]);
+  }, [page, transactionsRefreshKey]);
+
+  const refreshTransactions = useCallback(() => {
+    setIsLoadingTransactions(true);
+    setPage(1);
+    setTransactionsRefreshKey((current) => current + 1);
+  }, []);
 
   function goToPage(newPage: number) {
     setIsLoadingTransactions(true);
@@ -73,6 +80,7 @@ export function WalletPage() {
       setWithdrawalEmail('');
       setWithdrawalAmount('');
       refreshBalance();
+      refreshTransactions();
     } catch (error) {
       toast.error(translateWithdrawalError(error));
     } finally {
@@ -128,7 +136,7 @@ export function WalletPage() {
               amount={parsedTopupAmount}
               onSuccess={(newBalance) => {
                 setBalance(newBalance);
-                setPage(1);
+                refreshTransactions();
               }}
             />
           </div>
